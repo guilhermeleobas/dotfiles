@@ -1,0 +1,13 @@
+{
+	"color_scheme": "Packages/Color Scheme - Default/Monokai.tmTheme",
+	"font_size": 8,
+	"ignored_packages":
+	[
+		"Vintage"
+	],
+	"theme": "Soda Dark 3.sublime-theme",
+	"translate_tabs_to_spaces": true,
+	"tab_size": 2,
+  "keys": ["ctrl+tab"], "command": "next_view",
+  "keys": ["ctrl+shift+tab"], "command": "prev_view"
+}
