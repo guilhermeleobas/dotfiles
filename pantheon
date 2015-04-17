@@ -29,6 +29,11 @@ palette = "#404040:#d75f5f:#87af5f:#d7af87:#8787af:#bd53a5:#5fafaf:#e6e1dc:#6f6f
 # palette = "BLACK:#da4938:#509e50:#cc7733:#6d9cbd:MAGENTA:CYAN:WHITE:BRIGHTBLACK:BRIGHTRED:#a5c160:#ffc66d:#cfcfff:BRIGHTMAGENTA:BRIGHTCYAN:BRIGHTWHITE"
 source = "http://railscasts.com/about"
 
-
+[default2]
+background = "#2b2b2b"
+foreground = "#E6E1DC"
+cursor-color = "#f8f8f2"
+palette = "#404040:#d75f5f:#2b2b2b:#d7af87:#8787af:#bd53a5:#5fafaf:#e6e1dc:#6f6f6f:#e33636:#98e34d:#ffd75f:#7373c9:#d633b2:#44C9C9:#ffffff"
+opacity = "100"
 
 source: https://github.com/Kerrick/dotfiles/blob/master/.pantheon-terminal-colors.toml
