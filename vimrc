@@ -2,11 +2,19 @@ execute pathogen#infect()
 
 set number
 syntax on
-set tabstop=2 shiftwidth=2 expandtab
+set tabstop=2 shiftwidth=2 softtabstop=2 expandtab smarttab ai si wrap
 set autoindent
+"set smartindent
 set clipboard=unnamed
 set mouse=a
-colorscheme af
+set ruler
+"colorscheme af
+:colorscheme bensday
+
+" stops vim from removing the identation level on blank lines!!!!!
+inoremap <CR> <CR>x<BS>
+nnoremap o ox<BS>
+nnoremap O Ox<BS>
 
 
 " CTRL-Tab is next tab
