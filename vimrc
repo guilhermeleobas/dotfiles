@@ -2,8 +2,8 @@ execute pathogen#infect()
 
 set number
 syntax on
-set tabstop=2 shiftwidth=2 softtabstop=2 expandtab smarttab ai si wrap
-set autoindent
+set tabstop=2 shiftwidth=2 softtabstop=2 expandtab smarttab 
+set autoindent cindent
 "set smartindent
 set clipboard=unnamed
 set mouse=a
@@ -11,11 +11,19 @@ set ruler
 "colorscheme af
 :colorscheme bensday
 
-" stops vim from removing the identation level on blank lines!!!!!
 inoremap <CR> <CR>x<BS>
 nnoremap o ox<BS>
 nnoremap O Ox<BS>
 
+" quick reload .vimrc file
+nmap <silent> <leader>ev :e $MYVIMRC<CR>
+nmap <silent> <leader>sv :so $MYVIMRC<CR>
+
+" no more arrow keys
+map <up> <nop>
+map <down> <nop>
+map <left> <nop>
+map <right> <nop>
 
 " CTRL-Tab is next tab
 noremap <C-Tab> :<C-U>tabnext<CR>
