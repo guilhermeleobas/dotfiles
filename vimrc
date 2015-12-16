@@ -1,7 +1,10 @@
 execut pathogen#infect()
   
 set number
+filetype plugin on  
 syntax on
+syntax enable
+set nobackup
 set tabstop=2 shiftwidth=2 softtabstop=2 expandtab smarttab 
 "set autoindent cindent
 set smartindent
@@ -25,10 +28,12 @@ let g:ycm_autoclose_preview_window_after_completion=1
 " highlight while searching for a pattern
 set hlsearch
 
-set cursorline
-
 "colorscheme desert
 colorscheme molokai
 "colorscheme material
+
 set cursorline
 hi CursorLine term=bold cterm=bold guibg=Grey40
+
+" disable .swp. file creation
+set noswapfile
