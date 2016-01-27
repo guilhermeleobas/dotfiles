@@ -2,6 +2,7 @@
 brew install neovim
 brew install tmux
 brew install zsh
+brew install git
 
 brew install node
 brew install nmp
