@@ -5,8 +5,8 @@ export ZSH=/Users/guilhermeleobas/.oh-my-zsh
 # Look in ~/.oh-my-zsh/themes/
 # Optionally, if you set this to "random", it'll load a random theme each
 # time that oh-my-zsh is loaded.
-# ZSH_THEME="junkfood"
-ZSH_THEME="gnzh"
+# ZSH_THEME="gnzh"
+ZSH_THEME="mh"
 
 # Make sure tmux uses all colors
 #alias tmux="TERM=screen-256color tmux -2"

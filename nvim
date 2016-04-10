@@ -9,9 +9,20 @@ Plug 'Yggdroot/indentLine'
 Plug 'vim-airline/vim-airline'
 Plug 'rust-lang/rust.vim'
 Plug 'Shutnik/jshint2.vim'
-
+Plug 'ctrlpvim/ctrlp.vim'
+Plug 'alfredodeza/pytest.vim'
+Plug 'marcopaganini/termschool-vim-theme'
 
 call plug#end()
+
+let g:ycm_global_ycm_extra_conf = '~/.config/nvim/ycm_extra_conf.py'
+
+" remap vim navigation keys one key to right
+noremap j <Left>
+noremap k <Down>
+noremap l <Up>
+noremap ; <Right>
+noremap h <NOP>
 
 set number
 filetype plugin on  
@@ -30,8 +41,7 @@ nnoremap o ox<BS>
 nnoremap O Ox<BS>
 
 " quick reload .vimrc file
-nmap <silent> <leader>ev :e $MYVIMRC<CR>
-nmap <silent> <leader>sv :so $MYVIMRC<CR>
+autocmd! bufwritepost ~/.config/nvim/init.vim source ~/.config/nvim/init.vim
 
 set backspace=indent,eol,start
 
@@ -41,8 +51,16 @@ let g:ycm_autoclose_preview_window_after_completion=1
 set hlsearch
 
 "colorscheme desert
-colorscheme molokai
+"colorscheme molokai
 "colorscheme material
+"colorscheme solarized
+"colorscheme dracula
+"set background=dark
+"colorscheme sierra
+"colorscheme tayra
+colorscheme termschool
+"colorscheme onedark
+"colorscheme material-theme
 
 set cursorline
 hi CursorLine term=bold cterm=bold guibg=Grey40
@@ -50,3 +68,29 @@ hi CursorLine term=bold cterm=bold guibg=Grey40
 " disable .swp. file creation
 set noswapfile
 
+
+" move a hole block of code
+" better identation
+vnoremap > >gv 
+vnoremap < <gv
+
+
+" tab navigation
+map <Leader>n <esc>:tabprevious<CR>
+map <C-n> <esc>:tabprevious<CR>
+map <Leader>m <esc>:tabnext<CR>
+map <C-m> <esc>:tabnext<CR>
+
+" ctrlP
+let g:ctrlp_prompt_mappings = {
+    \ 'AcceptSelection("e")': ['<c-t>'],
+    \ 'AcceptSelection("t")': ['<cr>', '<2-LeftMouse>'],
+    \ }
+
+
+" alternative command to <ESC>
+inoremap jj <ESC>
+cnoremap jj <ESC>
+
+" prevent cursor to return a char when pressing ESC
+" inoremap <silent> <Esc> <C-O>:stopinsert<CR>
