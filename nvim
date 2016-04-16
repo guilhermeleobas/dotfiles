@@ -12,6 +12,8 @@ Plug 'Shutnik/jshint2.vim'
 Plug 'ctrlpvim/ctrlp.vim'
 Plug 'alfredodeza/pytest.vim'
 Plug 'marcopaganini/termschool-vim-theme'
+Plug 'thinca/vim-quickrun'
+Plug 'dhruvasagar/vim-table-mode'
 
 call plug#end()
 
@@ -74,6 +76,8 @@ set noswapfile
 vnoremap > >gv 
 vnoremap < <gv
 
+" remap 0 to ^
+noremap 0 ^
 
 " tab navigation
 map <Leader>n <esc>:tabprevious<CR>
@@ -94,3 +98,7 @@ cnoremap jj <ESC>
 
 " prevent cursor to return a char when pressing ESC
 " inoremap <silent> <Esc> <C-O>:stopinsert<CR>
+ 
+" Remap TableModeToggle
+map ,tm :TableModeToggle<CR>i
+
