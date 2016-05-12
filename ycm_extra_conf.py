@@ -31,18 +31,20 @@
 import os
 import ycm_core
 
+# Disable most of the flags used by default to compile.
+
 # These are the compilation flags that will be used in case there's no
 # compilation database set (by default, one is not set).
 # CHANGE THIS LIST OF FLAGS. YES, THIS IS THE DROID YOU HAVE BEEN LOOKING FOR.
 flags = [
-'-Wall',
-'-Wextra',
-'-Werror',
-'-Wc++98-compat',
-'-Wno-long-long',
-'-Wno-variadic-macros',
-'-fexceptions',
-'-DNDEBUG',
+#'-Wall',
+#'-Wextra',
+#'-Werror',
+#'-Wc++98-compat',
+#'-Wno-long-long',
+#'-Wno-variadic-macros',
+#'-fexceptions',
+#'-DNDEBUG',
 # You 100% do NOT need -DUSE_CLANG_COMPLETER in your flags; only the YCM
 # source code needs it.
 '-DUSE_CLANG_COMPLETER',
