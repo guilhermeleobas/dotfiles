@@ -1,4 +1,7 @@
-let g:python_host_prog = '/usr/local/bin/python' 
+" remember to install vim-python for that
+let g:python_host_prog = '/usr/local/bin/python'
+
+" ================ Plug commands ==============
 
 call plug#begin('~/.config/nvim/plugged')
 
@@ -12,12 +15,51 @@ Plug 'Shutnik/jshint2.vim'
 Plug 'ctrlpvim/ctrlp.vim'
 Plug 'alfredodeza/pytest.vim'
 Plug 'marcopaganini/termschool-vim-theme'
-Plug 'thinca/vim-quickrun'
 Plug 'dhruvasagar/vim-table-mode'
+Plug 'Chiel92/vim-autoformat'
+Plug 'tomtom/tcomment_vim'
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-repeat'
+Plug 'terryma/vim-multiple-cursors'
 
 call plug#end()
 
+" ================ Plugins ==============
+
 let g:ycm_global_ycm_extra_conf = '~/.config/nvim/ycm_extra_conf.py'
+
+" ctrlP
+let g:ctrlp_prompt_mappings = {
+      \ 'AcceptSelection("e")': ['<c-t>'],
+      \ 'AcceptSelection("t")': ['<cr>', '<2-LeftMouse>'],
+      \ }
+
+" Autoformat
+let g:formatdef_custom_pep8 = "'autopep8 - --range '.a:firstline.' '.a:lastline.' --aggressive --aggressive'" 
+let g:formatters_python = ['custom_pep8']
+map ff <ESC>:Autoformat<CR>
+
+" Remap TableModeToggle
+map ,tm :TableModeToggle<CR>i
+
+" vim repeat
+silent! call repeat#set("\<Plug>MyWonderfulMap", v:count)
+
+" vim-multiple-cursors (like ST)
+let g:multi_cursor_use_default_mapping=0
+let g:multi_cursor_next_key='<S-n>'
+let g:multi_cursor_prev_key='<S-p>' 
+let g:multi_cursor_skip_key='<S-x>'
+let g:multi_cursor_quit_key='<Esc>'
+
+
+" ================ Remap keys ==============
+let mapleader = "\<Space>"
+
+" saving and quiting
+map <leader>ww :w<CR>
+map <leader>wq :wq<CR>
+map <leader>qq :q!<CR>
 
 " remap vim navigation keys one key to right
 noremap j <Left>
@@ -26,79 +68,90 @@ noremap l <Up>
 noremap ; <Right>
 noremap h <NOP>
 
-set number
-filetype plugin on  
-syntax on
-syntax enable
-set nobackup
-set tabstop=2 shiftwidth=2 softtabstop=2 expandtab smarttab 
-"set autoindent cindent
-set smartindent
-set clipboard=unnamed
-set mouse=a
-set ruler
-
-inoremap <CR> <CR>x<BS>
-nnoremap o ox<BS>
-nnoremap O Ox<BS>
-
-" quick reload .vimrc file
-autocmd! bufwritepost ~/.config/nvim/init.vim source ~/.config/nvim/init.vim
-
-set backspace=indent,eol,start
-
-let g:ycm_autoclose_preview_window_after_completion=1
-
-" highlight while searching for a pattern
-set hlsearch
-
-"colorscheme desert
-"colorscheme molokai
-"colorscheme material
-"colorscheme solarized
-"colorscheme dracula
-"set background=dark
-"colorscheme sierra
-"colorscheme tayra
-colorscheme termschool
-"colorscheme onedark
-"colorscheme material-theme
-
-set cursorline
-hi CursorLine term=bold cterm=bold guibg=Grey40
-
-" disable .swp. file creation
-set noswapfile
-
-
-" move a hole block of code
-" better identation
-vnoremap > >gv 
-vnoremap < <gv
-
-" remap 0 to ^
-noremap 0 ^
-
-" tab navigation
-map <Leader>n <esc>:tabprevious<CR>
-map <C-n> <esc>:tabprevious<CR>
-map <Leader>m <esc>:tabnext<CR>
-map <C-m> <esc>:tabnext<CR>
-
-" ctrlP
-let g:ctrlp_prompt_mappings = {
-    \ 'AcceptSelection("e")': ['<c-t>'],
-    \ 'AcceptSelection("t")': ['<cr>', '<2-LeftMouse>'],
-    \ }
-
-
 " alternative command to <ESC>
 inoremap jj <ESC>
 cnoremap jj <ESC>
 
 " prevent cursor to return a char when pressing ESC
 " inoremap <silent> <Esc> <C-O>:stopinsert<CR>
- 
-" Remap TableModeToggle
-map ,tm :TableModeToggle<CR>i
+
+" remap 0 to ^
+noremap 0 ^
+" remap - to $
+noremap - $
+
+" Remap o and O to insert a line below and above.
+inoremap <CR> <CR>x<BS>
+nnoremap o ox<BS>
+nnoremap O Ox<BS>
+
+" move a hole block of code
+" better identation
+vnoremap > >gv
+vnoremap < <gv
+
+" ================ Indentation ======================
+
+set number
+filetype plugin on
+syntax on
+syntax enable
+set nobackup
+set tabstop=2 shiftwidth=2 softtabstop=2 expandtab smarttab
+"set autoindent cindent
+set smartindent
+set clipboard=unnamed
+set mouse=a
+set ruler
+set backspace=indent,eol,start
+
+" ================ Misc ==============
+
+" quick reload .vimrc file
+autocmd! bufwritepost ~/.config/nvim/init.vim source ~/.config/nvim/init.vim
+
+" auto reload a file
+set autoread
+
+" ================ Turn Off Swap Files ==============
+
+set noswapfile
+set nobackup
+set nowb
+
+" ================ Visual ==============
+
+" theme
+colorscheme wombat256mod
+
+" close window after YCM suggest completion
+let g:ycm_autoclose_preview_window_after_completion=1
+
+" highlight while searching for a pattern
+set hlsearch
+map <Leader>h :set hls!<CR>
+
+set scrolloff=10        " 10 lines above/below cursor when scrolling
+set title               " show filename in status bar
+set cursorline          " highlights the current line
+
+" highlight current line
+hi CursorLine term=bold cterm=bold guibg=Grey40
+
+
+" ================ Move between tabs ==============
+
+" if inside VimR - remap C-tab and C-S-tab to navigate between tabs
+if has ("gui_vimr")
+  " remap ctrl + tab and ctrl + shift + tab to move between tabs
+  noremap <C-Tab> :tabnext<CR>
+  noremap <C-S-Tab> :tabprevious<CR>
+endif
+
+" tab navigation - vim on terminal
+map <Leader>n <esc>:tabprevious<CR>
+map <C-n> <esc>:tabprevious<CR>
+map <Leader>m <esc>:tabnext<CR>
+map <C-m> <esc>:tabnext<CR>
+map <C-t> <esc>:tabnew<CR>
 
