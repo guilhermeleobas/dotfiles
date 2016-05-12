@@ -56,7 +56,7 @@ let g:multi_cursor_quit_key='<Esc>'
 " ================ Remap keys ==============
 let mapleader = "\<Space>"
 
-" saving and quiting
+" saving and quitting
 map <leader>ww :w<CR>
 map <leader>wq :wq<CR>
 map <leader>qq :q!<CR>
