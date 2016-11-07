@@ -1,15 +1,64 @@
 # install softwares
-brew install neovim
-brew install tmux
-brew install zsh
+
+# brew cask
+brew tap caskroom/cask
+
+# dev tools
 brew install git
+brew install neovim/neovim/neovim
 
+# terminal
+brew install zsh
+brew install antigen
+# set zsh the default shell
+# chsh -s $(which zsh)
+
+# languages
 brew install node
-brew install nmp
-
 brew install python3
+brew install sqlite
+
+# pip
+pip3 install jupyter
+pip3 install beautifulsoup4
+pip3 install aiohttp
+pip3 install numpy
+pip3 install pandas
+pip3 install neovim
+pip3 install matplotlib
+pip3 install numpy
+
+# cli tools
+brew install ack
+brew install wget
+
+# brew cask
+brew cask install firefox
+brew cask install spectacle
+brew cask install sublime-text
+brew cask install franz
+brew cask install iterm2
+brew cask install google-chrome
+brew cask install google-drive
+brew cask install spotify
+brew cask install skype
+brew cask install lastpass
+brew cask install the-unarchiver
+brew cask install vyprvpn
+brew cask install vlc
+brew cask install shady
+brew cask install dropbox
+brew cask install transmission
+brew cask install flux
 
 # create symbolic links
-ln -s nvim ~/.config/nvim/init.vim
-ln -s tmux.conf ~/.tmux.conf
-ln -s zshrc ~/.zshrc
+# ln -s ~/Dropbox/dotfiles/nvim ~/.config/nvim/init.vim
+# ln -s ~/Dropbox/dotfiles/ycm_extra_conf.py ~/.config/nvim/ycm_extra_conf.py
+# ln -s ~/Dropbox/dotfiles/zshrc ~/.zshrc
+# ln -s ~/Dropbox/dotfiles/tmux.conf ~/.tmux.conf
+ln -s ~/Dropbox/code ~/code
+ln -s ~/Dropbox/code/maratona ~/code/maratona
+
+# install vim plugins
+curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs \
+    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim

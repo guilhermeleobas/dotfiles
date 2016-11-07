@@ -6,7 +6,6 @@ let g:python_host_prog = '/usr/local/bin/python'
 call plug#begin('~/.config/nvim/plugged')
 
 Plug 'Valloric/YouCompleteMe', { 'do': './install.py' }
-Plug 'pangloss/vim-javascript'
 Plug 'jiangmiao/auto-pairs'
 Plug 'Yggdroot/indentLine'
 Plug 'vim-airline/vim-airline'
@@ -21,12 +20,23 @@ Plug 'tomtom/tcomment_vim'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-repeat'
 Plug 'terryma/vim-multiple-cursors'
+Plug 'michalbachowski/vim-wombat256mod'
+Plug 'ntpeters/vim-better-whitespace'
+Plug 'matze/vim-move'
+Plug 'NLKNguyen/papercolor-theme'
+
 
 call plug#end()
 
+let mapleader = ","
 " ================ Plugins ==============
 
+" YouCompleteMe flags
+let g:ycm_show_diagnostics_ui = 0
 let g:ycm_global_ycm_extra_conf = '~/.config/nvim/ycm_extra_conf.py'
+let g:ycm_python_binary_path = '/usr/local/bin/python3'
+" Goto definition with <leader>gt
+map <leader>gt :YcmCompleter GoTo<CR>
 
 " ctrlP
 let g:ctrlp_prompt_mappings = {
@@ -35,7 +45,7 @@ let g:ctrlp_prompt_mappings = {
       \ }
 
 " Autoformat
-let g:formatdef_custom_pep8 = "'autopep8 - --range '.a:firstline.' '.a:lastline.' --aggressive --aggressive'" 
+let g:formatdef_custom_pep8 = "'autopep8 - --range '.a:firstline.' '.a:lastline.' --aggressive --aggressive --ignore E302'" 
 let g:formatters_python = ['custom_pep8']
 map ff <ESC>:Autoformat<CR>
 
@@ -48,16 +58,22 @@ silent! call repeat#set("\<Plug>MyWonderfulMap", v:count)
 " vim-multiple-cursors (like ST)
 let g:multi_cursor_use_default_mapping=0
 let g:multi_cursor_next_key='<S-n>'
-let g:multi_cursor_prev_key='<S-p>' 
+let g:multi_cursor_prev_key='<S-p>'
 let g:multi_cursor_skip_key='<S-x>'
 let g:multi_cursor_quit_key='<Esc>'
 
+" toggle vim-better-whitespaces on/off
+map <leader>o :ToggleWhitespace<CR>
+
+" Move visual block
+vnoremap K :m '>+1<CR>gv=gv
+vnoremap L :m '<-2<CR>gv=gv
 
 " ================ Remap keys ==============
-let mapleader = "\<Space>"
 
 " saving and quitting
 map <leader>ww :w<CR>
+map <C-s> :w<CR>
 map <leader>wq :wq<CR>
 map <leader>qq :q!<CR>
 
@@ -69,11 +85,11 @@ noremap ; <Right>
 noremap h <NOP>
 
 " alternative command to <ESC>
-inoremap jj <ESC>
-cnoremap jj <ESC>
+" inoremap jj <ESC>
+" cnoremap jj <ESC>
 
 " prevent cursor to return a char when pressing ESC
-" inoremap <silent> <Esc> <C-O>:stopinsert<CR>
+inoremap <silent> <Esc> <C-O>:stopinsert<CR>
 
 " remap 0 to ^
 noremap 0 ^
@@ -89,6 +105,7 @@ nnoremap O Ox<BS>
 " better identation
 vnoremap > >gv
 vnoremap < <gv
+
 
 " ================ Indentation ======================
 
@@ -121,8 +138,13 @@ set nowb
 
 " ================ Visual ==============
 
+" vim true colors
+"let $NVIM_TUI_ENABLE_TRUE_COLOR=1
+
 " theme
 colorscheme wombat256mod
+" set background=light
+" colorscheme PaperColor
 
 " close window after YCM suggest completion
 let g:ycm_autoclose_preview_window_after_completion=1
