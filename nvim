@@ -6,25 +6,21 @@ let g:python_host_prog = '/usr/local/bin/python'
 call plug#begin('~/.config/nvim/plugged')
 
 Plug 'Valloric/YouCompleteMe', { 'do': './install.py' }
+Plug 'tpope/vim-dispatch'
 Plug 'jiangmiao/auto-pairs'
+Plug 'critiqjo/lldb.nvim'
 Plug 'Yggdroot/indentLine'
 Plug 'vim-airline/vim-airline'
-Plug 'rust-lang/rust.vim'
-Plug 'Shutnik/jshint2.vim'
 Plug 'ctrlpvim/ctrlp.vim'
-Plug 'alfredodeza/pytest.vim'
 Plug 'marcopaganini/termschool-vim-theme'
-Plug 'dhruvasagar/vim-table-mode'
 Plug 'Chiel92/vim-autoformat'
 Plug 'tomtom/tcomment_vim'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-repeat'
-Plug 'terryma/vim-multiple-cursors'
 Plug 'michalbachowski/vim-wombat256mod'
-Plug 'ntpeters/vim-better-whitespace'
 Plug 'matze/vim-move'
 Plug 'NLKNguyen/papercolor-theme'
-
+Plug 'junegunn/vim-easy-align'
 
 call plug#end()
 
@@ -177,3 +173,18 @@ map <Leader>m <esc>:tabnext<CR>
 map <C-m> <esc>:tabnext<CR>
 map <C-t> <esc>:tabnew<CR>
 
+if has('nvim')
+  " Hack to get C-h working in NeoVim
+  nmap <BS> <C-W>h
+endif
+
+" move between splits
+nnoremap <C-J> <C-W><C-J>
+nnoremap <C-K> <C-W><C-K>
+nnoremap <C-L> <C-W><C-L>
+nnoremap <C-H> <C-W><C-H>
+
+nnoremap <S-J> <C-W><C-J>
+nnoremap <S-K> <C-W><C-K>
+nnoremap <S-L> <C-W><C-L>
+nnoremap <S-H> <C-W><C-H>

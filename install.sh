@@ -11,12 +11,13 @@ brew install neovim/neovim/neovim
 brew install zsh
 brew install antigen
 # set zsh the default shell
-# chsh -s $(which zsh)
+chsh -s /bin/zsh
 
 # languages
 brew install node
 brew install python3
 brew install sqlite
+brew install ghci
 
 # pip
 pip3 install jupyter
@@ -44,18 +45,19 @@ brew cask install spotify
 brew cask install skype
 brew cask install lastpass
 brew cask install the-unarchiver
-brew cask install vyprvpn
+brew cask install sublime
 brew cask install vlc
 brew cask install shady
 brew cask install dropbox
 brew cask install transmission
 brew cask install flux
+brew cask install opera
 
 # create symbolic links
-# ln -s ~/Dropbox/dotfiles/nvim ~/.config/nvim/init.vim
-# ln -s ~/Dropbox/dotfiles/ycm_extra_conf.py ~/.config/nvim/ycm_extra_conf.py
-# ln -s ~/Dropbox/dotfiles/zshrc ~/.zshrc
-# ln -s ~/Dropbox/dotfiles/tmux.conf ~/.tmux.conf
+ln -s ~/Dropbox/dotfiles/nvim ~/.config/nvim/init.vim
+ln -s ~/Dropbox/dotfiles/ycm_extra_conf.py ~/.config/nvim/ycm_extra_conf.py
+ln -s ~/Dropbox/dotfiles/zshrc ~/.zshrc
+ln -s ~/Dropbox/dotfiles/tmux.conf ~/.tmux.conf
 ln -s ~/Dropbox/code ~/code
 ln -s ~/Dropbox/code/maratona ~/code/maratona
 
