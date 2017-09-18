@@ -1,26 +1,37 @@
-" remember to install vim-python for that
+  " remember to install vim-python for that
 let g:python_host_prog = '/usr/local/bin/python'
 
 " ================ Plug commands ==============
 
 call plug#begin('~/.config/nvim/plugged')
 
-Plug 'Valloric/YouCompleteMe', { 'do': './install.py' }
-Plug 'tpope/vim-dispatch'
+Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-complete' }
+Plug 'editorconfig/editorconfig-vim'
 Plug 'jiangmiao/auto-pairs'
-Plug 'critiqjo/lldb.nvim'
 Plug 'Yggdroot/indentLine'
 Plug 'vim-airline/vim-airline'
 Plug 'ctrlpvim/ctrlp.vim'
-Plug 'marcopaganini/termschool-vim-theme'
-Plug 'Chiel92/vim-autoformat'
 Plug 'tomtom/tcomment_vim'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-repeat'
-Plug 'michalbachowski/vim-wombat256mod'
 Plug 'matze/vim-move'
-Plug 'NLKNguyen/papercolor-theme'
 Plug 'junegunn/vim-easy-align'
+Plug 'rhysd/accelerated-jk'
+
+Plug 'google/yapf', { 'rtp': 'plugins/vim', 'for': 'python' }
+Plug 'rhysd/vim-clang-format'
+
+Plug 'octol/vim-cpp-enhanced-highlight'
+
+Plug 'NLKNguyen/papercolor-theme'
+Plug 'marcopaganini/termschool-vim-theme'
+Plug 'michalbachowski/vim-wombat256mod'
+Plug 'dracula/vim'
+Plug 'jnurmine/Zenburn'
+Plug 'morhetz/gruvbox'
+
+Plug 'elixir-lang/vim-elixir'
+Plug 'slashmili/alchemist.vim'
 
 call plug#end()
 
@@ -28,11 +39,13 @@ let mapleader = ","
 " ================ Plugins ==============
 
 " YouCompleteMe flags
-let g:ycm_show_diagnostics_ui = 0
+let g:ycm_show_diagnostics_ui = 1
+let g:ycm_enable_diagnostic_highlighting = 0
 let g:ycm_global_ycm_extra_conf = '~/.config/nvim/ycm_extra_conf.py'
 let g:ycm_python_binary_path = '/usr/local/bin/python3'
 " Goto definition with <leader>gt
 map <leader>gt :YcmCompleter GoTo<CR>
+nnoremap <leader>r :YcmForceCompileAndDiagnostics<CR>
 
 " ctrlP
 let g:ctrlp_prompt_mappings = {
@@ -40,13 +53,26 @@ let g:ctrlp_prompt_mappings = {
       \ 'AcceptSelection("t")': ['<cr>', '<2-LeftMouse>'],
       \ }
 
-" Autoformat
-let g:formatdef_custom_pep8 = "'autopep8 - --range '.a:firstline.' '.a:lastline.' --aggressive --aggressive --ignore E302'" 
-let g:formatters_python = ['custom_pep8']
-map ff <ESC>:Autoformat<CR>
+if executable('ag')
+  let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
+endif
+
+" " Autoformat
+" let g:formatdef_custom_pep8 = "'autopep8 - --range '.a:firstline.' '.a:lastline.' --aggressive --aggressive --ignore E302'" 
+" let g:formatters_python = ['custom_pep8']
+" map ff <ESC>:Autoformat<CR>
+
+" yapf format
+map <C-Y> :call yapf#YAPF()<cr>
+imap <C-Y> <c-o>:call yapf#YAPF()<cr>
 
 " Remap TableModeToggle
 map ,tm :TableModeToggle<CR>i
+
+" accelerated-jk Plugin
+nmap j <Plug>(accelerated_jk_gj)
+nmap k <Plug>(accelerated_jk_gk)
+let g:accelerated_jk_acceleration_limit=100
 
 " vim repeat
 silent! call repeat#set("\<Plug>MyWonderfulMap", v:count)
@@ -62,8 +88,11 @@ let g:multi_cursor_quit_key='<Esc>'
 map <leader>o :ToggleWhitespace<CR>
 
 " Move visual block
-vnoremap K :m '>+1<CR>gv=gv
-vnoremap L :m '<-2<CR>gv=gv
+vnoremap J :m '>+1<CR>gv=gv
+vnoremap K :m '<-2<CR>gv=gv
+
+" ClangFormat
+map <leader>c :ClangFormat<CR>
 
 " ================ Remap keys ==============
 
@@ -72,13 +101,14 @@ map <leader>ww :w<CR>
 map <C-s> :w<CR>
 map <leader>wq :wq<CR>
 map <leader>qq :q!<CR>
+imap <leader>j <ESC>
 
 " remap vim navigation keys one key to right
-noremap j <Left>
-noremap k <Down>
-noremap l <Up>
-noremap ; <Right>
-noremap h <NOP>
+" noremap j <Left>
+" noremap k <Down>
+" noremap l <Up>
+" noremap ; <Right>
+" noremap h <NOP>
 
 " alternative command to <ESC>
 " inoremap jj <ESC>
@@ -111,6 +141,7 @@ syntax on
 syntax enable
 set nobackup
 set tabstop=2 shiftwidth=2 softtabstop=2 expandtab smarttab
+set showmatch
 "set autoindent cindent
 set smartindent
 set clipboard=unnamed
@@ -139,8 +170,11 @@ set nowb
 
 " theme
 colorscheme wombat256mod
-" set background=light
+" colorscheme dracula
 " colorscheme PaperColor
+" colorscheme zenburn
+" colorscheme gruvbox
+" set background=dark
 
 " close window after YCM suggest completion
 let g:ycm_autoclose_preview_window_after_completion=1

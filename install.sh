@@ -31,6 +31,7 @@ pip3 install numpy
 
 # cli tools
 brew install ack
+brew install ag
 brew install wget
 
 # brew cask

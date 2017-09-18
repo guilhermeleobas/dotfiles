@@ -1,11 +1,9 @@
-alias clang="~/dcc888/llvm/Release+Asserts/bin/clang"
-alias opt="~/dcc888/llvm/Release+Asserts/bin/opt"
-
-
-
+# alias clang="~/dcc888/llvm37/llvm_build/bin/clang"
+# alias opt="~/dcc888/llvm37/llvm_build/bin/opt"
+# alias llvm-config="~/dcc888/llvm37/llvm_build/bin/llvm-config"
 
 # source <(antibody init)
-source /usr/local/Cellar/antigen/1.3.4/share/antigen/antigen.zsh
+source /usr/local/Cellar/antigen/2.2.1/share/antigen/antigen.zsh
 
 # Load the oh-my-zsh's library.
 # antigen use oh-my-zsh
@@ -29,6 +27,7 @@ unsetopt HIST_VERIFY
 antigen apply
 
 alias vim="nvim"
+alias ack='ag'
 
 #
 # Defines transfer alias and provides easy command line file and folder sharing.
@@ -93,4 +92,4 @@ transfer() {
 
 export PYTHONDONTWRITEBYTECODE=1
 
-export PATH="$PATH:`yarn global bin`"
+export PATH="$PATH:/usr/local/opt/ruby/bin:~/twelf/sml/bin/:`yarn global bin`"
