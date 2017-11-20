@@ -42,7 +42,7 @@ let mapleader = ","
 let g:ycm_show_diagnostics_ui = 1
 let g:ycm_enable_diagnostic_highlighting = 0
 let g:ycm_global_ycm_extra_conf = '~/.config/nvim/ycm_extra_conf.py'
-let g:ycm_python_binary_path = '/usr/local/bin/python3'
+let g:ycm_python_binary_path = '/usr/bin/python3'
 " Goto definition with <leader>gt
 map <leader>gt :YcmCompleter GoTo<CR>
 nnoremap <leader>r :YcmForceCompileAndDiagnostics<CR>
@@ -52,15 +52,15 @@ let g:ctrlp_prompt_mappings = {
       \ 'AcceptSelection("e")': ['<c-t>'],
       \ 'AcceptSelection("t")': ['<cr>', '<2-LeftMouse>'],
       \ }
+" Change the working directory to the directory of the current file
+" c => the directory of the current file.
+" a => the directory of the current file, unless it is a subdirectory of the cwd
+" got it from https://github.com/ctrlpvim/ctrlp.vim
+let g:ctrlp_working_path_mode = 'ca'
 
 if executable('ag')
   let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
 endif
-
-" " Autoformat
-" let g:formatdef_custom_pep8 = "'autopep8 - --range '.a:firstline.' '.a:lastline.' --aggressive --aggressive --ignore E302'" 
-" let g:formatters_python = ['custom_pep8']
-" map ff <ESC>:Autoformat<CR>
 
 " yapf format
 map <C-Y> :call yapf#YAPF()<cr>
