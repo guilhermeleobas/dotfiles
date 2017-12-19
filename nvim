@@ -1,28 +1,32 @@
-  " remember to install vim-python for that
-let g:python_host_prog = '/usr/local/bin/python'
+" remember to install vim-python for that
+let g:python_host_prog = '/usr/local/bin/python3'
 
 " ================ Plug commands ==============
 
 call plug#begin('~/.config/nvim/plugged')
 
+" General purpose plugins
 Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-complete' }
-Plug 'editorconfig/editorconfig-vim'
 Plug 'jiangmiao/auto-pairs'
 Plug 'Yggdroot/indentLine'
-Plug 'vim-airline/vim-airline'
 Plug 'ctrlpvim/ctrlp.vim'
 Plug 'tomtom/tcomment_vim'
-Plug 'tpope/vim-surround'
-Plug 'tpope/vim-repeat'
-Plug 'matze/vim-move'
 Plug 'junegunn/vim-easy-align'
 Plug 'rhysd/accelerated-jk'
+Plug 'thinca/vim-quickrun'
 
+" tabular align
+Plug 'godlygeek/tabular'
+
+" Linter
 Plug 'google/yapf', { 'rtp': 'plugins/vim', 'for': 'python' }
 Plug 'rhysd/vim-clang-format'
 
+" Better cpp highlight
 Plug 'octol/vim-cpp-enhanced-highlight'
 
+" Themes and visual modifiers
+Plug 'vim-airline/vim-airline'
 Plug 'NLKNguyen/papercolor-theme'
 Plug 'marcopaganini/termschool-vim-theme'
 Plug 'michalbachowski/vim-wombat256mod'
@@ -30,19 +34,26 @@ Plug 'dracula/vim'
 Plug 'jnurmine/Zenburn'
 Plug 'morhetz/gruvbox'
 
+" Elixir
 Plug 'elixir-lang/vim-elixir'
 Plug 'slashmili/alchemist.vim'
+
+" search using ack/ag
+Plug 'mileszs/ack.vim'
 
 call plug#end()
 
 let mapleader = ","
 " ================ Plugins ==============
 
+" QuickRun
+map <leader>qr :QuickRun<cr>
+
 " YouCompleteMe flags
 let g:ycm_show_diagnostics_ui = 1
 let g:ycm_enable_diagnostic_highlighting = 0
 let g:ycm_global_ycm_extra_conf = '~/.config/nvim/ycm_extra_conf.py'
-let g:ycm_python_binary_path = '/usr/bin/python3'
+let g:ycm_python_binary_path = '/usr/local/bin/python3'
 " Goto definition with <leader>gt
 map <leader>gt :YcmCompleter GoTo<CR>
 nnoremap <leader>r :YcmForceCompileAndDiagnostics<CR>
@@ -58,16 +69,21 @@ let g:ctrlp_prompt_mappings = {
 " got it from https://github.com/ctrlpvim/ctrlp.vim
 let g:ctrlp_working_path_mode = 'ca'
 
+" replace ack by ag
 if executable('ag')
+  " in ctrlp
   let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
+  " in ack.vim
+  let g:ackprg = 'ag --vimgrep'
 endif
+
 
 " yapf format
 map <C-Y> :call yapf#YAPF()<cr>
 imap <C-Y> <c-o>:call yapf#YAPF()<cr>
 
-" Remap TableModeToggle
-map ,tm :TableModeToggle<CR>i
+" Turn on/off indentLine
+map <C-i> :IndentLinesToggle<cr>
 
 " accelerated-jk Plugin
 nmap j <Plug>(accelerated_jk_gj)
@@ -77,12 +93,6 @@ let g:accelerated_jk_acceleration_limit=100
 " vim repeat
 silent! call repeat#set("\<Plug>MyWonderfulMap", v:count)
 
-" vim-multiple-cursors (like ST)
-let g:multi_cursor_use_default_mapping=0
-let g:multi_cursor_next_key='<S-n>'
-let g:multi_cursor_prev_key='<S-p>'
-let g:multi_cursor_skip_key='<S-x>'
-let g:multi_cursor_quit_key='<Esc>'
 
 " toggle vim-better-whitespaces on/off
 map <leader>o :ToggleWhitespace<CR>
@@ -115,7 +125,7 @@ imap <leader>j <ESC>
 " cnoremap jj <ESC>
 
 " prevent cursor to return a char when pressing ESC
-inoremap <silent> <Esc> <C-O>:stopinsert<CR>
+" inoremap <silent> <Esc> <C-O>:stopinsert<CR>
 
 " remap 0 to ^
 noremap 0 ^
@@ -133,6 +143,8 @@ vnoremap > >gv
 vnoremap < <gv
 
 
+
+
 " ================ Indentation ======================
 
 set number
@@ -144,7 +156,8 @@ set tabstop=2 shiftwidth=2 softtabstop=2 expandtab smarttab
 set showmatch
 "set autoindent cindent
 set smartindent
-set clipboard=unnamed
+" set clipboard=unnamed
+set clipboard=unnamedplus
 set mouse=a
 set ruler
 set backspace=indent,eol,start
@@ -222,3 +235,4 @@ nnoremap <S-J> <C-W><C-J>
 nnoremap <S-K> <C-W><C-K>
 nnoremap <S-L> <C-W><C-L>
 nnoremap <S-H> <C-W><C-H>
+

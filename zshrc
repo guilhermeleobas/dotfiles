@@ -28,7 +28,7 @@ antigen apply
 
 alias vim="nvim"
 alias ack='ag'
-
+alias rpython="~/Documents/pypy/rpython/bin/rpython"
 
 #
 # Defines transfer alias and provides easy command line file and folder sharing.
