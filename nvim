@@ -36,7 +36,7 @@ Plug 'morhetz/gruvbox'
 
 " Elixir
 Plug 'elixir-lang/vim-elixir'
-Plug 'slashmili/alchemist.vim'
+" Plug 'slashmili/alchemist.vim'
 
 " search using ack/ag
 Plug 'mileszs/ack.vim'

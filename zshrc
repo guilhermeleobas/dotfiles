@@ -1,30 +1,20 @@
-# alias clang="~/dcc888/llvm37/llvm_build/bin/clang"
-# alias opt="~/dcc888/llvm37/llvm_build/bin/opt"
-# alias llvm-config="~/dcc888/llvm37/llvm_build/bin/llvm-config"
+alias clang="~/Programs/llvm38/build/bin/clang"
+alias clang++="~/Programs/llvm38/build/bin/clang++"
+alias opt="~/Programs/llvm38/build/bin/opt"
+alias llvm-config="~/Programs/llvm38/build/bin/llvm-config"
 
-# source <(antibody init)
-source /usr/local/Cellar/antigen/2.2.1/share/antigen/antigen.zsh
-
-# Load the oh-my-zsh's library.
-# antigen use oh-my-zsh
-
-# Bundles from the default repo (robbyrussell's oh-my-zsh).
-# antigen bundle pip
-# antigen bundle lein
-# antigen bundle command-not-found
-
-# Syntax highlighting bundle.
-antigen bundle zsh-users/zsh-syntax-highlighting
-
-# Load the theme.
-# antigen theme robbyrussell
-antigen theme steeef
+source ${HOME}/.zgen/zgen.zsh
+if ! zgen saved; then
+  zgen oh-my-zsh
+  zgen oh-my-zsh themes/steeef
+  zgen load zsh-users/zsh-syntax-highlighting
+  zgen save
+  
+  zgen save
+fi
 
 # execute immediately
 unsetopt HIST_VERIFY
-
-# Tell antigen that you're done.
-antigen apply
 
 alias vim="nvim"
 alias ack='ag'
@@ -91,6 +81,6 @@ transfer() {
 }
 
 
-export PYTHONDONTWRITEBYTECODE=1
-
-export PATH="$PATH:/usr/local/opt/ruby/bin:~/twelf/sml/bin/:`yarn global bin`"
+# export PYTHONDONTWRITEBYTECODE=1
+export PATH=$PATH:/opt/local/bin
+# export PATH="$PATH:/usr/local/opt/ruby/bin:~/twelf/sml/bin/:`yarn global bin`"

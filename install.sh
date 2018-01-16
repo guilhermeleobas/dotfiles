@@ -9,7 +9,8 @@ brew install neovim/neovim/neovim
 
 # terminal
 brew install zsh
-brew install antigen
+# brew install antigen
+git clone https://github.com/tarjoilija/zgen.git "${HOME}/.zgen"
 # set zsh the default shell
 chsh -s /bin/zsh
 
