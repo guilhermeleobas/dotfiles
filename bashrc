@@ -60,32 +60,32 @@ clone() {
   case $1 in
     rbc)
       echo "cloning rbc..."
-      git clone git@github.com:guilhermeleobas/rbc.git ${HOME}/git
+      git clone git@github.com:guilhermeleobas/rbc.git ${HOME}/git/rbc
       ;;
 
     numba)
       echo "cloning numba..."
-      git clone git@github.com:guilhermeleobas/numba.git ${HOME}/git
+      git clone git@github.com:guilhermeleobas/numba.git ${HOME}/git/numba
       ;;
 
     omniscidb)
       echo "cloning omniscidb..."
-      git clone git@github.com:omnisci/omniscidb-internal.git ${HOME}/git
+      git clone git@github.com:omnisci/omniscidb-internal.git ${HOME}/git/omniscidb-internal
       ;;
     
     sandbox)
       echo "cloning sandbox..."
-      git clone git@github.com:Quansight/pearu-sandbox.git ${HOME}/Quansight/
+      git clone git@github.com:Quansight/pearu-sandbox.git ${HOME}/Quansight/pearu-sandbox
       ;;
       
     goto)
       echo "cloning goto..."
-      git clone git@github.com:iridakos/goto.git ${HOME}/git/
+      git clone git@github.com:iridakos/goto.git ${HOME}/git/goto
       ;;
       
     theme)
       echo "cloning theme..."
-      git clone git@github.com:guilhermeleobas/prompt.git ${HOME}/git/
+      git clone git@github.com:guilhermeleobas/prompt.git ${HOME}/git/prompt
       make -C ${HOME}/git/prompt install
       ;;
 
@@ -133,7 +133,7 @@ build() {
     omnisci-nocuda)
       cmake -Wno-dev $CMAKE_OPTIONS_NOCUDA \
         -DCMAKE_BUILD_TYPE=DEBUG \
-        -DENABLE_TESTS=on \
+        -DENABLE_TESTS=off \
         -DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=gold" \
         ${HOME}/git/omniscidb-internal/
       ;;
@@ -141,7 +141,7 @@ build() {
     omnisci-cuda)
         cmake -Wno-dev $CMAKE_OPTIONS_CUDA \
           -DCMAKE_BUILD_TYPE=Debug \
-          -DENABLE_TESTS=on \
+          -DENABLE_TESTS=off \
           -DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=gold" \
           ~/git/omniscidb-internal/
       ;;
@@ -174,7 +174,6 @@ recreate() {
       conda activate default
       conda remove --name omniscidb-cpu-dev --all -y
       mamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/omniscidb-cpu-dev.yaml -n omniscidb-cpu-dev
-      nocuda-env
       env nocuda
       ;;
 
