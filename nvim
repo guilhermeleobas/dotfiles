@@ -1,62 +1,54 @@
 " remember to install vim-python for that
-let g:python_host_prog = '/usr/local/bin/python3'
+" let g:python_host_prog = '/usr/local/bin/python3'
 
 " ================ Plug commands ==============
 
 call plug#begin('~/.config/nvim/plugged')
 
 " General purpose plugins
-Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clang-complete' }
 Plug 'jiangmiao/auto-pairs'
 Plug 'Yggdroot/indentLine'
-Plug 'ctrlpvim/ctrlp.vim'
 Plug 'tomtom/tcomment_vim'
 Plug 'junegunn/vim-easy-align'
 Plug 'rhysd/accelerated-jk'
-Plug 'thinca/vim-quickrun'
+Plug 'rhysd/vim-llvm'
+Plug 'scrooloose/nerdtree'
+" Plug 'cjrh/vim-conda'
 
-" tabular align
-Plug 'godlygeek/tabular'
+" Fuzzy finder
+Plug 'ctrlpvim/ctrlp.vim'
 
 " Linter
-Plug 'google/yapf', { 'rtp': 'plugins/vim', 'for': 'python' }
-Plug 'rhysd/vim-clang-format'
+" Plug 'rhysd/vim-clang-format'
 
 " Better cpp highlight
 Plug 'octol/vim-cpp-enhanced-highlight'
 
+" RestructuredText
+Plug 'gu-fan/riv.vim'
+
 " Themes and visual modifiers
 Plug 'vim-airline/vim-airline'
 Plug 'NLKNguyen/papercolor-theme'
-Plug 'marcopaganini/termschool-vim-theme'
 Plug 'michalbachowski/vim-wombat256mod'
-Plug 'dracula/vim'
-Plug 'jnurmine/Zenburn'
-Plug 'morhetz/gruvbox'
+Plug 'junegunn/seoul256.vim'
+Plug 'zefei/cake16'
+Plug 'rakr/vim-colors-rakr'
+Plug 'jordwalke/flatlandia'
+Plug 'mhartington/oceanic-next'
+Plug 'rakr/vim-one'
 
 " Elixir
 Plug 'elixir-lang/vim-elixir'
-" Plug 'slashmili/alchemist.vim'
+Plug 'slashmili/alchemist.vim'
 
-" search using ack/ag
-Plug 'mileszs/ack.vim'
+" Python
+" Plug 'davidhalter/jedi-vim'
 
 call plug#end()
 
 let mapleader = ","
 " ================ Plugins ==============
-
-" QuickRun
-map <leader>qr :QuickRun<cr>
-
-" YouCompleteMe flags
-let g:ycm_show_diagnostics_ui = 1
-let g:ycm_enable_diagnostic_highlighting = 0
-let g:ycm_global_ycm_extra_conf = '~/.config/nvim/ycm_extra_conf.py'
-let g:ycm_python_binary_path = '/usr/local/bin/python3'
-" Goto definition with <leader>gt
-map <leader>gt :YcmCompleter GoTo<CR>
-nnoremap <leader>r :YcmForceCompileAndDiagnostics<CR>
 
 " ctrlP
 let g:ctrlp_prompt_mappings = {
@@ -67,7 +59,7 @@ let g:ctrlp_prompt_mappings = {
 " c => the directory of the current file.
 " a => the directory of the current file, unless it is a subdirectory of the cwd
 " got it from https://github.com/ctrlpvim/ctrlp.vim
-let g:ctrlp_working_path_mode = 'ca'
+let g:ctrlp_working_path_mode = 'a'
 
 " replace ack by ag
 if executable('ag')
@@ -78,12 +70,8 @@ if executable('ag')
 endif
 
 
-" yapf format
-map <C-Y> :call yapf#YAPF()<cr>
-imap <C-Y> <c-o>:call yapf#YAPF()<cr>
-
 " Turn on/off indentLine
-map <C-i> :IndentLinesToggle<cr>
+map <leader>i :IndentLinesToggle<cr>
 
 " accelerated-jk Plugin
 nmap j <Plug>(accelerated_jk_gj)
@@ -94,17 +82,16 @@ let g:accelerated_jk_acceleration_limit=100
 silent! call repeat#set("\<Plug>MyWonderfulMap", v:count)
 
 
-" toggle vim-better-whitespaces on/off
-map <leader>o :ToggleWhitespace<CR>
+" Jedi
+" let g:jedi#use_tabs_not_buffers = 1
+" let g:jedi#use_splits_not_buffers = "left"
+" autocmd FileType python setlocal completeopt-=preview
+
+"" ================ Remap keys ==============
 
 " Move visual block
 vnoremap J :m '>+1<CR>gv=gv
 vnoremap K :m '<-2<CR>gv=gv
-
-" ClangFormat
-map <leader>c :ClangFormat<CR>
-
-" ================ Remap keys ==============
 
 " saving and quitting
 map <leader>ww :w<CR>
@@ -113,14 +100,9 @@ map <leader>wq :wq<CR>
 map <leader>qq :q!<CR>
 imap <leader>j <ESC>
 
-" remap vim navigation keys one key to right
-" noremap j <Left>
-" noremap k <Down>
-" noremap l <Up>
-" noremap ; <Right>
-" noremap h <NOP>
 
 " alternative command to <ESC>
+tnoremap <ESC> <C-\><C-n>
 " inoremap jj <ESC>
 " cnoremap jj <ESC>
 
@@ -179,14 +161,26 @@ set nowb
 " ================ Visual ==============
 
 " vim true colors
-"let $NVIM_TUI_ENABLE_TRUE_COLOR=1
+" let $NVIM_TUI_ENABLE_TRUE_COLOR=1
+let $TERM="xterm-256color"
+" set termguicolors
 
 " theme
 colorscheme wombat256mod
-" colorscheme dracula
-" colorscheme PaperColor
-" colorscheme zenburn
-" colorscheme gruvbox
+" colorscheme seoul256
+" colorscheme cake16
+" colorscheme flatlandia
+let g:oceanic_next_terminal_bold = 1
+let g:oceanic_next_terminal_italic = 1
+" colorscheme OceanicNext
+
+" let g:airline_theme='one'
+" let g:one_allow_italics = 1
+" set bg=light
+" colorscheme one
+
+
+
 " set background=dark
 
 " close window after YCM suggest completion
@@ -201,7 +195,15 @@ set title               " show filename in status bar
 set cursorline          " highlights the current line
 
 " highlight current line
-hi CursorLine term=bold cterm=bold guibg=Grey40
+" hi CursorLine term=bold cterm=bold guibg=Grey40
+
+
+
+" ================ netwr ==============
+map <Leader>e :NERDTreeToggle<CR>
+" map <Leader>e :Explore<CR>
+" map <Leader>ve :Vexplore<CR>
+" map <Leader>se :Sexplore<CR>
 
 
 " ================ Move between tabs ==============

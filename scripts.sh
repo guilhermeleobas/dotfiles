@@ -1,12 +1,3 @@
-# Use 'guilhermeleobas/prompt' which is symlinked to '~/.prompt'.
-. ~/.prompt/prompt.bash
-
-# Add git completion to the prompt (comes from 'skeswa/prompt').
-. ~/.prompt/git-completion.bash
-
-[ -f ~/.fzf.bash ] && source ~/.fzf.bash
-
-export MAMBA_NO_BANNER=1
 
 omnisci-conda-run(){
   echo "running omniscidb..."
@@ -193,17 +184,40 @@ recreate() {
 }
 
 register_goto() {
-  goto -r pytorch ~/git/Quansight/pytorch
-  goto -r rbc ~/git/rbc
-  goto -r omnisci ~/git/omniscidb-internal
-  goto -r omnisci-nocuda ~/git/build-nocuda
-  goto -r omnisci-cuda ~/git/build-cuda
-  goto -r numba ~/git/numba
-  goto -r pearu-sandbox ${HOME}/git/Quansight/pearu-sandbox
+  if [[  $(hostname) =~ "qgpu" ]]; then
+    goto -r pytorch ~/git/Quansight/pytorch
+    goto -r rbc ~/git/rbc
+    goto -r omnisci ~/git/omniscidb-internal
+    goto -r omnisci-nocuda ~/git/build-nocuda
+    goto -r omnisci-cuda ~/git/build-cuda
+    goto -r numba ~/git/numba
+    goto -r pearu-sandbox ${HOME}/git/Quansight/pearu-sandbox
+  fi
+
+  if [[ $(hostname) =~ "Guilherme" ]]; then
+    goto -r rbc ${HOME}/Documents/GitHub/rbc
+    goto -r numba ${HOME}/Documents/GitHub/numba
+  fi
 }
 
-source ~/git/goto/goto.sh
+if [[ $(hostname) =~ qgpu ]]; then
 
-conda activate default
+  # Use 'guilhermeleobas/prompt' which is symlinked to '~/.prompt'.
+  . ~/.prompt/prompt.bash
+
+  # Add git completion to the prompt (comes from 'skeswa/prompt').
+  . ~/.prompt/git-completion.bash
+
+  # fzf
+  [ -f ~/.fzf.bash ] && source ~/.fzf.bash
+
+  # goto
+  [ -f ~/git/goto/goto.sh ] && source ~/git/goto/goto.sh
+
+  # use "default" conda env on qgpu machines
+  conda activate default
+fi
+
+export MAMBA_NO_BANNER=1
 
 git config --global alias.lg "log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --"

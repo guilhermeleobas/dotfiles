@@ -1,15 +1,11 @@
-alias clang="~/Programs/llvm38/build/bin/clang"
-alias clang++="~/Programs/llvm38/build/bin/clang++"
-alias opt="~/Programs/llvm38/build/bin/opt"
-alias llvm-config="~/Programs/llvm38/build/bin/llvm-config"
 
 source ${HOME}/.zgen/zgen.zsh
 if ! zgen saved; then
   zgen oh-my-zsh
   zgen oh-my-zsh themes/steeef
   zgen load zsh-users/zsh-syntax-highlighting
-  zgen save
-  
+  # zgen load zsh-users/zsh-autosuggestions
+  # zgen load denysdovhan/spaceship-prompt spaceship
   zgen save
 fi
 
@@ -17,8 +13,9 @@ fi
 unsetopt HIST_VERIFY
 
 alias vim="nvim"
-alias ack='ag'
-alias rpython="~/Documents/pypy/rpython/bin/rpython"
+
+export LC_ALL=en_US.UTF-8  
+export LANG=en_US.UTF-8
 
 #
 # Defines transfer alias and provides easy command line file and folder sharing.
@@ -33,54 +30,36 @@ if [ $? -ne 0 ]; then
   return 1
 fi
 
-transfer() {
-  # check arguments
-  if [ $# -eq 0 ];
-  then
-    echo "No arguments specified. Usage:\necho transfer /tmp/test.md\ncat /tmp/test.md | transfer test.md"
-    return 1
-  fi
+alias ccat="pygmentize -f terminal256 -O style=monokai -g"
 
-  # get temporarily filename, output is written to this file show progress can be showed
-  tmpfile=$( mktemp -t transferXXX )
+source ~/goto.sh
 
-  # upload stdin or file
-  file=$1
+alias conn_qgpu3='ssh -L 6274:localhost:6227 -L 6275:localhost:6275 -p 22 -i ~/Dropbox/ssh/omnisci guilhermel@gpu.quansight.dev'
+alias conn_qgpu2='ssh -L 6274:localhost:6227 -L 6275:localhost:6275 -p 2222 -i ~/Dropbox/ssh/omnisci guilhermel@gpu.quansight.dev'
+alias conn_qgpu1='ssh -l 6274:localhost:6227 -L 6275:localhost:6275 -p 2221 -i ~/Dropbox/ssh/omnisci guilhermel@gpu.quansight.dev'
 
-  if tty -s;
-  then
-    basefile=$(basename "$file" | sed -e 's/[^a-zA-Z0-9._-]/-/g')
+git config --global alias.lg "log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --"
 
-    if [ ! -e $file ];
-    then
-      echo "File $file doesn't exists."
-      return 1
-    fi
+# reset terminal
+alias reset_term="tput reset"
 
-    if [ -d $file ];
-    then
-      # zip directory and transfer
-      zipfile=$( mktemp -t transferXXX.zip )
-      cd $(dirname $file) && zip -r -q - $(basename $file) >> $zipfile
-      curl --progress-bar --upload-file "$zipfile" "https://transfer.sh/$basefile.zip" >> $tmpfile
-      rm -f $zipfile
+# fzf
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+source ${HOME}/gdrive/dotfiles/scripts.sh
+
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+__conda_setup="$('/Users/guilhermeleobas/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "/Users/guilhermeleobas/miniconda3/etc/profile.d/conda.sh" ]; then
+        . "/Users/guilhermeleobas/miniconda3/etc/profile.d/conda.sh"
     else
-      # transfer file
-      curl --progress-bar --upload-file "$file" "https://transfer.sh/$basefile" >> $tmpfile
+        export PATH="/Users/guilhermeleobas/miniconda3/bin:$PATH"
     fi
-  else
-    # transfer pipe
-    curl --progress-bar --upload-file "-" "https://transfer.sh/$file" >> $tmpfile
-  fi
+fi
+unset __conda_setup
+# <<< conda initialize <<<
 
-  # cat output link
-  cat $tmpfile
-
-  # cleanup
-  rm -f $tmpfile
-}
-
-
-# export PYTHONDONTWRITEBYTECODE=1
-export PATH=$PATH:/opt/local/bin
-# export PATH="$PATH:/usr/local/opt/ruby/bin:~/twelf/sml/bin/:`yarn global bin`"
