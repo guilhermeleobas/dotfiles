@@ -82,6 +82,12 @@ clone() {
       echo "cloning goto..."
       git clone git@github.com:iridakos/goto.git ${HOME}/git/
       ;;
+      
+    theme)
+      echo "cloning theme..."
+      git clone git@github.com:guilhermeleobas/prompt.git ${HOME}/git/
+      make -C ${HOME}/git/prompt install
+      ;;
 
     *)
       echo -n "clone(): unknown $1"
