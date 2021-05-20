@@ -8,7 +8,6 @@
 
 export MAMBA_NO_BANNER=1
 
-
 omnisci-conda-run(){
   echo "running omniscidb..."
   rm -rf data
@@ -78,9 +77,14 @@ clone() {
       echo "cloning sandbox..."
       git clone git@github.com:Quansight/pearu-sandbox.git ${HOME}/Quansight/
       ;;
+      
+    goto)
+      echo "cloning goto..."
+      git clone git@github.com:iridakos/goto.git ${HOME}/git/
+      ;;
 
     *)
-      echo -n "unknown"
+      echo -n "clone(): unknown $1"
       ;;
   esac
 }
@@ -99,20 +103,20 @@ env() {
       conda activate numba
       ;;
 
-    nocuda)
+    omnisci-nocuda)
       echo "activating env: omniscidb nocuda"
       export USE_ENV=omniscidb-cpu-dev
       . ~/git/Quansight/pearu-sandbox/working-envs/activate-omniscidb-internal-dev.sh
       ;;
 
-    cuda)
+    omnisci-cuda)
       echo "activating env: omniscidb nocuda"
       export USE_ENV=omniscidb-cuda-dev
       . ~/git/Quansight/pearu-sandbox/working-envs/activate-omniscidb-internal-dev.sh
       ;;
     
     *)
-      echo -n "env: unknown"
+      echo -n "env(): unknown $1"
       ;;
   esac
 }
@@ -120,7 +124,7 @@ env() {
 build() {
   echo $1
   case $1 in
-    nocuda)
+    omnisci-nocuda)
       cmake -Wno-dev $CMAKE_OPTIONS_NOCUDA \
         -DCMAKE_BUILD_TYPE=DEBUG \
         -DENABLE_TESTS=on \
@@ -128,7 +132,7 @@ build() {
         ${HOME}/git/omniscidb-internal/
       ;;
 
-    cuda)
+    omnisci-cuda)
         cmake -Wno-dev $CMAKE_OPTIONS_CUDA \
           -DCMAKE_BUILD_TYPE=Debug \
           -DENABLE_TESTS=on \
@@ -158,7 +162,7 @@ recreate() {
       echo "missing definitions"
       ;;
 
-    nocuda)
+    omnisci-nocuda)
       echo "recreate env: nocuda..."
       conda deactivate
       conda activate default
@@ -168,7 +172,7 @@ recreate() {
       env nocuda
       ;;
 
-    cuda)
+    omnisci-cuda)
       echo "activating env: omniscidb nocuda"
       conda deactivate
       conda activate default
@@ -178,7 +182,7 @@ recreate() {
       ;;
     
     *)
-      echo -n "env: unknown"
+      echo -n "env: unknown $1"
       ;;
   esac
 }
@@ -187,13 +191,13 @@ register_goto() {
   goto -r pytorch ~/git/Quansight/pytorch
   goto -r rbc ~/git/rbc
   goto -r omnisci ~/git/omniscidb-internal
-  goto -r build-nocuda ~/git/build-nocuda
-  goto -r build-cuda ~/git/build-cuda
+  goto -r omnisci-nocuda ~/git/build-nocuda
+  goto -r omnisci-cuda ~/git/build-cuda
   goto -r numba ~/git/numba
   goto -r pearu-sandbox ${HOME}/git/Quansight/pearu-sandbox
 }
 
-source ~/goto/goto.sh
+source ~/git/goto/goto.sh
 
 conda activate default
 
