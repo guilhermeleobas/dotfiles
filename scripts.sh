@@ -107,7 +107,7 @@ env() {
       ;;
 
     omnisci-cuda)
-      echo "activating env: omniscidb nocuda"
+      echo "activating env: omniscidb cuda"
       export USE_ENV=omniscidb-cuda-dev
       . ~/git/Quansight/pearu-sandbox/working-envs/activate-omniscidb-internal-dev.sh
       ;;
@@ -165,16 +165,16 @@ recreate() {
       conda activate default
       conda remove --name omniscidb-cpu-dev --all -y
       mamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/omniscidb-cpu-dev.yaml -n omniscidb-cpu-dev
-      env nocuda
+      env omnisci-nocuda
       ;;
 
     omnisci-cuda)
-      echo "activating env: omniscidb nocuda"
+      echo "activating env: omniscidb cuda"
       conda deactivate
       conda activate default
-      conda remove --name omniscidb-gpu-dev --all -y
+      conda remove --name omniscidb-cuda-dev --all -y
       mamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/omniscidb-dev.yaml -n omniscidb-cuda-dev
-      env cuda
+      env omnisci-cuda
       ;;
     
     *)
