@@ -218,6 +218,7 @@ recreate() {
       conda activate default
       conda remove --name taco --all -y
       mamba env create --file=${PREFIX}/taco/.conda/environment.yml -n taco
+      ;;
     
     *)
       echo -n "env: unknown $1"
