@@ -47,6 +47,10 @@ pytorch-pyi(){
   python -m tools.pyi.gen_pyi
 }
 
+reload() {
+  source ${HOME}/.bashrc
+}
+
 clone() {
   case $1 in
     rbc)
@@ -59,6 +63,11 @@ clone() {
       git clone git@github.com:guilhermeleobas/numba.git ${HOME}/git/numba
       ;;
 
+    llvmlite)
+      echo "cloning llvmlite..."
+      git clone git@github.com:numba/llvmlite.git ${HOME}/git/llvmlite
+      ;;
+
     omniscidb)
       echo "cloning omniscidb..."
       git clone git@github.com:omnisci/omniscidb-internal.git ${HOME}/git/omniscidb-internal
@@ -67,6 +76,11 @@ clone() {
     sandbox)
       echo "cloning sandbox..."
       git clone git@github.com:Quansight/pearu-sandbox.git ${HOME}/Quansight/pearu-sandbox
+      ;;
+    
+    taco)
+      echo "cloning Quansight-labs:taco..."
+      git clone git@github.com:Quansight-Labs/taco.git ${HOME}/git/taco
       ;;
       
     goto)
@@ -112,8 +126,13 @@ env() {
       . ~/git/Quansight/pearu-sandbox/working-envs/activate-omniscidb-internal-dev.sh
       ;;
     
+    taco)
+      echo "activating env: taco"
+      conda activate taco
+      ;;
+    
     *)
-      echo -n "env(): unknown $1"
+      echo -n "env(): unknown $1\n"
       ;;
   esac
 }
@@ -130,11 +149,15 @@ build() {
       ;;
 
     omnisci-cuda)
-        cmake -Wno-dev $CMAKE_OPTIONS_CUDA \
-          -DCMAKE_BUILD_TYPE=Debug \
-          -DENABLE_TESTS=off \
-          -DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=gold" \
-          ~/git/omniscidb-internal/
+      cmake -Wno-dev $CMAKE_OPTIONS_CUDA \
+        -DCMAKE_BUILD_TYPE=DEBUG \
+        -DENABLE_TESTS=off \
+        -DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=gold" \
+        ${HOME}/git/omniscidb-internal/
+      ;;
+    
+    taco)
+      cmake -DLLVM=ON ${HOME}/git/taco
       ;;
     
     *)
@@ -151,7 +174,6 @@ recreate() {
       conda activate default
       conda remove --name rbc --all -y
       mamba env create --file=${HOME}/git/rbc/.conda/environment.yml -n rbc
-      env rbc
       ;;
 
     numba)
@@ -165,7 +187,6 @@ recreate() {
       conda activate default
       conda remove --name omniscidb-cpu-dev --all -y
       mamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/omniscidb-cpu-dev.yaml -n omniscidb-cpu-dev
-      env omnisci-nocuda
       ;;
 
     omnisci-cuda)
@@ -174,7 +195,6 @@ recreate() {
       conda activate default
       conda remove --name omniscidb-cuda-dev --all -y
       mamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/omniscidb-dev.yaml -n omniscidb-cuda-dev
-      env omnisci-cuda
       ;;
     
     *)
