@@ -1,4 +1,10 @@
 
+if [[ $(hostname) =~ "qgpu" ]]; then
+  PREFIX=${HOME}/git
+else
+  PREFIX=${HOME}/Documents/GitHub/
+fi
+
 omnisci-conda-run(){
   echo "running omniscidb..."
   rm -rf data
@@ -48,29 +54,38 @@ pytorch-pyi(){
 }
 
 reload() {
-  source ${HOME}/.bashrc
+  if [[ $(hostname) =~ "qgpu" ]]; then
+    source ${HOME}/.bashrc
+  else
+    source ${HOME}/.zshrc
+  fi
 }
 
 clone() {
   case $1 in
     rbc)
       echo "cloning rbc..."
-      git clone git@github.com:guilhermeleobas/rbc.git ${HOME}/git/rbc
+      git clone git@github.com:guilhermeleobas/rbc.git ${PREFIX}/rbc
       ;;
 
     numba)
       echo "cloning numba..."
-      git clone git@github.com:guilhermeleobas/numba.git ${HOME}/git/numba
+      git clone git@github.com:guilhermeleobas/numba.git ${PREFIX}/numba
+      ;;
+    
+    numpy)
+      echo "cloning numpy..."
+      git clone git@github.com:numpy/numpy.git ${PREFIX}/numpy
       ;;
 
     llvmlite)
       echo "cloning llvmlite..."
-      git clone git@github.com:numba/llvmlite.git ${HOME}/git/llvmlite
+      git clone git@github.com:numba/llvmlite.git ${PREFIX}/llvmlite
       ;;
 
     omniscidb)
       echo "cloning omniscidb..."
-      git clone git@github.com:omnisci/omniscidb-internal.git ${HOME}/git/omniscidb-internal
+      git clone git@github.com:omnisci/omniscidb-internal.git ${PREFIX}/omniscidb-internal
       ;;
     
     sandbox)
@@ -80,18 +95,18 @@ clone() {
     
     taco)
       echo "cloning Quansight-labs:taco..."
-      git clone git@github.com:Quansight-Labs/taco.git ${HOME}/git/taco
+      git clone git@github.com:Quansight-Labs/taco.git ${PREFIX}/taco
       ;;
       
     goto)
       echo "cloning goto..."
-      git clone git@github.com:iridakos/goto.git ${HOME}/git/goto
+      git clone git@github.com:iridakos/goto.git ${PREFIX}/goto
       ;;
       
     theme)
       echo "cloning theme..."
-      git clone git@github.com:guilhermeleobas/prompt.git ${HOME}/git/prompt
-      make -C ${HOME}/git/prompt install
+      git clone git@github.com:guilhermeleobas/prompt.git ${PREFIX}/prompt
+      make -C ${PREFIX}/prompt install
       ;;
 
     *)
@@ -145,7 +160,7 @@ build() {
         -DCMAKE_BUILD_TYPE=DEBUG \
         -DENABLE_TESTS=off \
         -DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=gold" \
-        ${HOME}/git/omniscidb-internal/
+        ${PREFIX}/omniscidb-internal/
       ;;
 
     omnisci-cuda)
@@ -153,11 +168,11 @@ build() {
         -DCMAKE_BUILD_TYPE=DEBUG \
         -DENABLE_TESTS=off \
         -DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=gold" \
-        ${HOME}/git/omniscidb-internal/
+        ${PREFIX}/omniscidb-internal/
       ;;
     
     taco)
-      cmake -DLLVM=ON ${HOME}/git/taco
+      cmake -DLLVM=ON ${PREFIX}/taco
       ;;
     
     *)
@@ -173,7 +188,7 @@ recreate() {
       conda deactivate
       conda activate default
       conda remove --name rbc --all -y
-      mamba env create --file=${HOME}/git/rbc/.conda/environment.yml -n rbc
+      mamba env create --file=${PREFIX}/rbc/.conda/environment.yml -n rbc
       ;;
 
     numba)
@@ -211,7 +226,7 @@ register_goto() {
     goto -r omnisci-nocuda ~/git/build-nocuda
     goto -r omnisci-cuda ~/git/build-cuda
     goto -r numba ~/git/numba
-    goto -r pearu-sandbox ${HOME}/git/Quansight/pearu-sandbox
+    goto -r pearu-sandbox ${PREFIX}/Quansight/pearu-sandbox
   fi
 
   if [[ $(hostname) =~ "Guilherme" ]]; then
