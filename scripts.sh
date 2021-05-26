@@ -61,6 +61,34 @@ reload() {
   fi
 }
 
+install() {
+  echo "installing $1\n"
+  case $1 in
+    ag)
+      conda install silverseacher-ag -c conda-forge
+      ;;
+
+    fzf)
+      git clone git@github.com:junegunn/fzf.git ~/.fzf
+      ~/.fzf/install
+      ;;
+
+    goto)
+      git clone git@github.com:iridakos/goto.git ${PREFIX}/goto
+      source ~/git/goto/goto.sh
+      register_goto
+      ;;
+      
+    theme)
+      git clone git@github.com:guilhermeleobas/prompt.git ${PREFIX}/prompt
+      make -C ${PREFIX}/prompt install
+      ;;
+    *)
+      echo -n "install(): unknown $1"
+      ;;
+  esac
+}
+
 clone() {
   case $1 in
     rbc)
@@ -96,17 +124,6 @@ clone() {
     taco)
       echo "cloning Quansight-labs:taco..."
       git clone git@github.com:Quansight-Labs/taco.git ${PREFIX}/taco
-      ;;
-      
-    goto)
-      echo "cloning goto..."
-      git clone git@github.com:iridakos/goto.git ${PREFIX}/goto
-      ;;
-      
-    theme)
-      echo "cloning theme..."
-      git clone git@github.com:guilhermeleobas/prompt.git ${PREFIX}/prompt
-      make -C ${PREFIX}/prompt install
       ;;
 
     *)
@@ -227,20 +244,13 @@ recreate() {
 }
 
 register_goto() {
-  if [[  $(hostname) =~ "qgpu" ]]; then
-    goto -r pytorch ~/git/Quansight/pytorch
-    goto -r rbc ~/git/rbc
-    goto -r omnisci ~/git/omniscidb-internal
-    goto -r omnisci-nocuda ~/git/build-nocuda
-    goto -r omnisci-cuda ~/git/build-cuda
-    goto -r numba ~/git/numba
-    goto -r pearu-sandbox ${PREFIX}/Quansight/pearu-sandbox
-  fi
-
-  if [[ $(hostname) =~ "Guilherme" ]]; then
-    goto -r rbc ${HOME}/Documents/GitHub/rbc
-    goto -r numba ${HOME}/Documents/GitHub/numba
-  fi
+  goto -r pytorch ${PREFIX}/Quansight/pytorch
+  goto -r rbc ${PREFIX}/rbc
+  goto -r omnisci ${PREFIX}/omniscidb-internal
+  goto -r omnisci-nocuda ${PREFIX}/build-nocuda
+  goto -r omnisci-cuda ${PREFIX}/build-cuda
+  goto -r numba ${PREFIX}/numba
+  goto -r pearu-sandbox ${PREFIX}/Quansight/pearu-sandbox
 }
 
 if [[ $(hostname) =~ qgpu ]]; then
