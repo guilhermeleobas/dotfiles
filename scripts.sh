@@ -205,12 +205,19 @@ recreate() {
       ;;
 
     omnisci-cuda)
-      echo "activating env: omniscidb cuda"
+      echo "recreate env: omniscidb cuda"
       conda deactivate
       conda activate default
       conda remove --name omniscidb-cuda-dev --all -y
       mamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/omniscidb-dev.yaml -n omniscidb-cuda-dev
       ;;
+    
+    taco)
+      echo "recreate env: taco"
+      conda deactivate
+      conda activate default
+      conda remove --name taco --all -y
+      mamba env create --file=${PREFIX}/taco/.conda/environment.yml -n taco
     
     *)
       echo -n "env: unknown $1"
