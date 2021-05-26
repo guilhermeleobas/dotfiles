@@ -2,7 +2,7 @@
 if [[ $(hostname) =~ "qgpu" ]]; then
   PREFIX=${HOME}/git
 else
-  PREFIX=${HOME}/Documents/GitHub/
+  PREFIX=${HOME}/Documents/GitHub
 fi
 
 omnisci-conda-run(){
