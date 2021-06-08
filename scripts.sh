@@ -11,7 +11,7 @@ omnisci-conda-run(){
   mkdir data
   mamba run -n omniscidb-env omnisci_initdb data -f
   mamba run -n omniscidb-env omnisci_server --version
-  mamba run -n omniscidb-env omnisci_server --enable-runtime-udf --enable-table-functions
+  mamba run --live-stream --no-capture-output -n omniscidb-env omnisci_server --enable-runtime-udf --enable-table-functions
 }
 
 omnisci-conda-install(){
