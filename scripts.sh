@@ -176,7 +176,6 @@ build() {
       cmake -Wno-dev $CMAKE_OPTIONS_NOCUDA \
         -DCMAKE_BUILD_TYPE=DEBUG \
         -DENABLE_TESTS=off \
-        -DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=gold" \
         ${PREFIX}/omniscidb-internal/
       ;;
 
@@ -184,7 +183,6 @@ build() {
       cmake -Wno-dev $CMAKE_OPTIONS_CUDA \
         -DCMAKE_BUILD_TYPE=DEBUG \
         -DENABLE_TESTS=off \
-        -DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=gold" \
         ${PREFIX}/omniscidb-internal/
       ;;
     
