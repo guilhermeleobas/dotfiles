@@ -18,7 +18,7 @@ omnisci-conda-install(){
   conda deactivate
   conda activate default
   conda remove --name omniscidb-env --all -y
-  mamba create -n omniscidb-env omniscidb=5.5*=*_cpu -c conda-forge -y
+  mamba create -n omniscidb-env omniscidb=5.7*=*_cpu -c conda-forge -y
 }
 
 pytorch() {
