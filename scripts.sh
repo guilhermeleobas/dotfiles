@@ -208,7 +208,10 @@ recreate() {
 
     numba)
       echo "recreate env: numba..."
-      echo "missing definitions"
+      conda deactivate
+      conda activate default
+      conda remove --name numba --all -y
+      mamba create -n numba python=3.8 llvmlite numpy scipy jinja2 cffi
       ;;
 
     omnisci-nocuda)
