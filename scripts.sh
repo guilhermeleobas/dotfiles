@@ -187,7 +187,7 @@ build() {
       ;;
     
     taco)
-      cmake -DLLVM=ON ${PREFIX}/taco
+      cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DLLVM=ON -DCMAKE_CXX_FLAGS="-fuse-ld=gold" ${PREFIX}/taco
       ;;
     
     *)
