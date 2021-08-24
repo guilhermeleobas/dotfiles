@@ -32,12 +32,6 @@ fi
 
 alias ccat="pygmentize -f terminal256 -O style=monokai -g"
 
-source ~/goto.sh
-
-alias conn_qgpu3='ssh -L 6274:localhost:6227 -L 6275:localhost:6275 -p 22 -i ~/Dropbox/ssh/omnisci guilhermel@gpu.quansight.dev'
-alias conn_qgpu2='ssh -L 6274:localhost:6227 -L 6275:localhost:6275 -p 2222 -i ~/Dropbox/ssh/omnisci guilhermel@gpu.quansight.dev'
-alias conn_qgpu1='ssh -l 6274:localhost:6227 -L 6275:localhost:6275 -p 2221 -i ~/Dropbox/ssh/omnisci guilhermel@gpu.quansight.dev'
-
 git config --global alias.lg "log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --"
 
 # reset terminal
@@ -62,4 +56,3 @@ else
 fi
 unset __conda_setup
 # <<< conda initialize <<<
-
