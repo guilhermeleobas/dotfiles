@@ -1,5 +1,8 @@
+set -e
 
 if [[ $(hostname) =~ "qgpu" ]]; then
+  PREFIX=${HOME}/git
+elif [[ $(hostname) =~ "guilherme-server" ]]; then
   PREFIX=${HOME}/git
 else
   PREFIX=${HOME}/Documents/GitHub
@@ -11,12 +14,12 @@ omnisci-conda-run(){
   mkdir data
   mamba run -n omniscidb-env omnisci_initdb data -f
   mamba run -n omniscidb-env omnisci_server --version
-  mamba run --live-stream --no-capture-output -n omniscidb-env omnisci_server --enable-runtime-udf --enable-table-functions
+  mamba run -n omniscidb-env omnisci_server --enable-runtime-udf --enable-table-functions
 }
 
 omnisci-conda-install(){
   conda deactivate
-  conda activate default
+  conda activate base
   conda remove --name omniscidb-env --all -y
   mamba create -n omniscidb-env omniscidb=5.7*=*_cpu -c conda-forge -y
 }
@@ -56,41 +59,20 @@ pytorch-pyi(){
 reload() {
   if [[ $(hostname) =~ "qgpu" ]]; then
     source ${HOME}/.bashrc
+  elif [[ $(hostname) =~ "guilherme-server" ]]; then
+    source ${HOME}/.bashrc
   else
     source ${HOME}/.zshrc
   fi
 }
 
-install() {
-  echo "installing $1\n"
-  case $1 in
-    ag)
-      conda install silverseacher-ag -c conda-forge
-      ;;
-
-    fzf)
-      git clone git@github.com:junegunn/fzf.git ~/.fzf
-      ~/.fzf/install
-      ;;
-
-    goto)
-      git clone git@github.com:iridakos/goto.git ${PREFIX}/goto
-      source ~/git/goto/goto.sh
-      register_goto
-      ;;
-      
-    theme)
-      git clone git@github.com:guilhermeleobas/prompt.git ${PREFIX}/prompt
-      make -C ${PREFIX}/prompt install
-      ;;
-    *)
-      echo -n "install(): unknown $1"
-      ;;
-  esac
-}
-
 clone() {
   case $1 in
+    dotfiles)
+      echo "cloning dotfiles..."
+      git clone git@github.com:guilhermeleobas/dotfiles.git ${PREFIX}/dotfiles
+      ;;
+
     rbc)
       echo "cloning rbc..."
       git clone git@github.com:guilhermeleobas/rbc.git ${PREFIX}/rbc
@@ -118,12 +100,36 @@ clone() {
     
     sandbox)
       echo "cloning sandbox..."
-      git clone git@github.com:Quansight/pearu-sandbox.git ${HOME}/Quansight/pearu-sandbox
+      git clone git@github.com:Quansight/pearu-sandbox.git ${HOME}/git/Quansight/pearu-sandbox
       ;;
     
     taco)
       echo "cloning Quansight-labs:taco..."
       git clone git@github.com:Quansight-Labs/taco.git ${PREFIX}/taco
+      ;;
+
+    fzf)
+      git clone git@github.com:junegunn/fzf.git ~/.fzf
+      ~/.fzf/install
+      ;;
+
+    goto)
+      git clone git@github.com:iridakos/goto.git ${PREFIX}/goto
+      source ~/git/goto/goto.sh
+      register_goto
+      ;;
+
+    tpm)
+      git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+      ;;
+
+    ag)
+      conda install silverseacher-ag -c conda-forge
+      ;;
+      
+    theme)
+      git clone git@github.com:guilhermeleobas/prompt.git ${PREFIX}/prompt
+      make -C ${PREFIX}/prompt install
       ;;
 
     *)
@@ -170,74 +176,85 @@ env() {
 }
 
 build() {
-  echo $1
   case $1 in
     omnisci-nocuda)
+      env omnisci-nocuda
       cmake -Wno-dev $CMAKE_OPTIONS_NOCUDA \
-        -DCMAKE_BUILD_TYPE=DEBUG \
+        -DCMAKE_BUILD_TYPE=Release \
         -DENABLE_TESTS=off \
+	      -DENABLE_CUDA=off \
+        -DENABLE_FOLLY=off \
+        -DENABLE_AWS_S3=off \
+        -DENABLE_GEOS=off \
+        -DENABLE_JAVA_REMOTE_DEBUG=off \
+        -DENABLE_PROFILER=off \
+        -DENABLE_TESTS=off \
+        -DUSE_ALTERNATE_LINKER=lld \
+        -GNinja \
         ${PREFIX}/omniscidb-internal/
       ;;
 
     omnisci-cuda)
+      env omnisci-cuda
       cmake -Wno-dev $CMAKE_OPTIONS_CUDA \
         -DCMAKE_BUILD_TYPE=DEBUG \
         -DENABLE_TESTS=off \
+        -DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=gold" \
         ${PREFIX}/omniscidb-internal/
       ;;
-    
+
     taco)
-      cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DLLVM=ON -DCMAKE_CXX_FLAGS="-fuse-ld=gold" ${PREFIX}/taco
+      env taco
+      cmake -DLLVM=ON ${PREFIX}/taco \
+        -DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=gold" \
+        ${PREFIX}/taco
       ;;
-    
+
+    numba)
+      env numba
+      python setup.py build_ext --inplace
+      ;;
+
     *)
-      echo -n "cmake: unknown $1"
+      echo -n "build: unknown $1"
       ;;
   esac
 }
 
-recreate() {
+create() {
+  conda deactivate
+  conda activate base
+  
   case $1 in
     rbc)
-      echo "recreate env: rbc..."
-      conda deactivate
-      conda activate default
+      echo "create env: rbc..."
       conda remove --name rbc --all -y
       mamba env create --file=${PREFIX}/rbc/.conda/environment.yml -n rbc
       ;;
 
     numba)
-      echo "recreate env: numba..."
-      conda deactivate
-      conda activate default
-      conda remove --name numba --all -y
-      mamba create -n numba python=3.8 llvmlite numpy scipy jinja2 cffi
+      echo "create env: numba..."
+      mamba create -n numba python=3.8 llvmlite numpy cffi
       ;;
 
     omnisci-nocuda)
-      echo "recreate env: nocuda..."
-      conda deactivate
-      conda activate default
+      echo "create env: nocuda..."
       conda remove --name omniscidb-cpu-dev --all -y
       mamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/omniscidb-cpu-dev.yaml -n omniscidb-cpu-dev
       ;;
 
     omnisci-cuda)
-      echo "recreate env: omniscidb cuda"
-      conda deactivate
-      conda activate default
+      echo "create env: omniscidb cuda"
       conda remove --name omniscidb-cuda-dev --all -y
       mamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/omniscidb-dev.yaml -n omniscidb-cuda-dev
       ;;
-    
+
     taco)
       echo "recreate env: taco"
-      conda deactivate
-      conda activate default
       conda remove --name taco --all -y
       mamba env create --file=${PREFIX}/taco/.conda/environment.yml -n taco
       ;;
-    
+
     *)
       echo -n "env: unknown $1"
       ;;
@@ -247,11 +264,12 @@ recreate() {
 register_goto() {
   goto -r pytorch ${PREFIX}/Quansight/pytorch
   goto -r rbc ${PREFIX}/rbc
-  goto -r omnisci ${PREFIX}/omniscidb-internal
+  goto -r omniscidb ${PREFIX}/omniscidb-internal
   goto -r omnisci-nocuda ${PREFIX}/build-nocuda
   goto -r omnisci-cuda ${PREFIX}/build-cuda
   goto -r numba ${PREFIX}/numba
   goto -r pearu-sandbox ${PREFIX}/Quansight/pearu-sandbox
+  goto -r taco ${PREFIX}/taco
 }
 
 if [[ $(hostname) =~ qgpu ]]; then
@@ -270,6 +288,12 @@ if [[ $(hostname) =~ qgpu ]]; then
 
   # use "default" conda env on qgpu machines
   conda activate default
+elif [[ $(hostname) =~ "guilherme-server" ]]; then
+  # goto
+  [ -f ~/git/goto/goto.sh ] && source ~/git/goto/goto.sh
+
+  # use "base" conda env on qgpu machines
+  conda activate base
 fi
 
 export MAMBA_NO_BANNER=1
