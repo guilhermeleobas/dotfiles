@@ -17,19 +17,6 @@ alias vim="nvim"
 export LC_ALL=en_US.UTF-8  
 export LANG=en_US.UTF-8
 
-#
-# Defines transfer alias and provides easy command line file and folder sharing.
-#
-# Authors:
-#   Remco Verhoef <remco@dutchcoders.io>
-#
-
-curl --version 2>&1 > /dev/null
-if [ $? -ne 0 ]; then
-  echo "Could not find curl."
-  return 1
-fi
-
 alias ccat="pygmentize -f terminal256 -O style=monokai -g"
 
 git config --global alias.lg "log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --"
@@ -40,7 +27,7 @@ alias reset_term="tput reset"
 # fzf
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
-source ${HOME}/gdrive/dotfiles/scripts.sh
+# source ${HOME}/gdrive/dotfiles/scripts.sh
 
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!

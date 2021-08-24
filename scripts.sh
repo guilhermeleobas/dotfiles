@@ -1,5 +1,3 @@
-set -e
-
 if [[ $(hostname) =~ "qgpu" ]]; then
   PREFIX=${HOME}/git
 elif [[ $(hostname) =~ "guilherme-server" ]]; then
