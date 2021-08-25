@@ -186,7 +186,7 @@ build() {
         -DENABLE_GEOS=off \
         -DENABLE_JAVA_REMOTE_DEBUG=off \
         -DENABLE_PROFILER=off \
-        -DENABLE_TESTS=off \
+        -DENABLE_TESTS=on \
         -DUSE_ALTERNATE_LINKER=lld \
         -GNinja \
         ${PREFIX}/omniscidb-internal/
