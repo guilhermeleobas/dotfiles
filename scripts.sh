@@ -80,7 +80,7 @@ clone() {
       echo "cloning numba..."
       git clone git@github.com:guilhermeleobas/numba.git ${PREFIX}/numba
       ;;
-    
+
     numpy)
       echo "cloning numpy..."
       git clone git@github.com:numpy/numpy.git ${PREFIX}/numpy
@@ -95,12 +95,12 @@ clone() {
       echo "cloning omniscidb..."
       git clone git@github.com:omnisci/omniscidb-internal.git ${PREFIX}/omniscidb-internal
       ;;
-    
+
     sandbox)
       echo "cloning sandbox..."
       git clone git@github.com:Quansight/pearu-sandbox.git ${HOME}/git/Quansight/pearu-sandbox
       ;;
-    
+
     taco)
       echo "cloning Quansight-labs:taco..."
       git clone git@github.com:Quansight-Labs/taco.git ${PREFIX}/taco
@@ -124,7 +124,7 @@ clone() {
     ag)
       conda install silverseacher-ag -c conda-forge
       ;;
-      
+
     theme)
       git clone git@github.com:guilhermeleobas/prompt.git ${PREFIX}/prompt
       make -C ${PREFIX}/prompt install
@@ -161,12 +161,12 @@ env() {
       export USE_ENV=omniscidb-cuda-dev
       . ~/git/Quansight/pearu-sandbox/working-envs/activate-omniscidb-internal-dev.sh
       ;;
-    
+
     taco)
       echo "activating env: taco"
       conda activate taco
       ;;
-    
+
     *)
       echo -n "env(): unknown $1\n"
       ;;
@@ -186,18 +186,24 @@ build() {
         -DENABLE_GEOS=off \
         -DENABLE_JAVA_REMOTE_DEBUG=off \
         -DENABLE_PROFILER=off \
-        -DENABLE_TESTS=on \
+        -DENABLE_TESTS=off \
         -DUSE_ALTERNATE_LINKER=lld \
-        -GNinja \
         ${PREFIX}/omniscidb-internal/
       ;;
 
     omnisci-cuda)
       env omnisci-cuda
       cmake -Wno-dev $CMAKE_OPTIONS_CUDA \
-        -DCMAKE_BUILD_TYPE=DEBUG \
+        -DCMAKE_BUILD_TYPE=Release \
         -DENABLE_TESTS=off \
-        -DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=gold" \
+	      -DENABLE_CUDA=off \
+        -DENABLE_FOLLY=off \
+        -DENABLE_AWS_S3=off \
+        -DENABLE_GEOS=off \
+        -DENABLE_JAVA_REMOTE_DEBUG=off \
+        -DENABLE_PROFILER=off \
+        -DENABLE_TESTS=off \
+        -DUSE_ALTERNATE_LINKER=lld \
         ${PREFIX}/omniscidb-internal/
       ;;
 
@@ -219,10 +225,30 @@ build() {
   esac
 }
 
+run() {
+  case $1 in
+    omnisci-nocuda)
+      echo "running omniscidb..."
+      env omnisci-nocuda
+      bin/omnisci_server --enable-table-functions --enable-runtime-udf
+      ;;
+
+    omnisci-cuda)
+      echo "running omniscidb..."
+      env omnisci-nocuda
+      bin/omnisci_server --enable-table-functions --enable-runtime-udf
+      ;;
+
+    *)
+      echo -n "run: unknown $1"
+      ;;
+  esac
+}
+
 create() {
   conda deactivate
   conda activate base
-  
+
   case $1 in
     rbc)
       echo "create env: rbc..."
@@ -268,6 +294,7 @@ register_goto() {
   goto -r numba ${PREFIX}/numba
   goto -r pearu-sandbox ${PREFIX}/Quansight/pearu-sandbox
   goto -r taco ${PREFIX}/taco
+  goto -r dotfiles ${PREFIX}/dotfiles
 }
 
 if [[ $(hostname) =~ qgpu ]]; then
