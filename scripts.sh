@@ -136,8 +136,43 @@ clone() {
   esac
 }
 
+find_env() {
+  environment=""
+  local d=$(basename $(pwd))
+  case ${d} in
+    rbc)
+      environment=$d
+      ;;
+    numba)
+      environment=$d
+      ;;
+    taco)
+      environment=$d
+      ;;
+    numpy)
+      environment=$d
+      ;;
+    build-nocuda)
+      environment=omnisci-nocuda
+      ;;
+    build-cuda)
+      environment=omnisci-cuda
+      ;;
+    *)
+      echo "find_env(): unknown $d"
+      ;;
+  esac
+}
+
 env() {
-  case $1 in
+
+  if [[ $# -eq 0 ]]; then
+    find_env
+  else
+    environment=$1
+  fi
+
+  case ${environment} in
     rbc)
       echo "activating env: rbc"
       conda deactivate
@@ -174,7 +209,14 @@ env() {
 }
 
 build() {
-  case $1 in
+  
+  if [[ $# -eq 0 ]]; then
+    find_env
+  else
+    environment=$1
+  fi
+  
+  case $environment in
     omnisci-nocuda)
       env omnisci-nocuda
       cmake -Wno-dev $CMAKE_OPTIONS_NOCUDA \
@@ -226,7 +268,14 @@ build() {
 }
 
 run() {
-  case $1 in
+  
+  if [[ $# -eq 0 ]]; then
+    find_env
+  else
+    environment=$1
+  fi
+  
+  case $environment in
     omnisci-nocuda)
       echo "running omniscidb..."
       env omnisci-nocuda
