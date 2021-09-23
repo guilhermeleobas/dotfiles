@@ -209,19 +209,18 @@ env() {
 }
 
 build() {
-  
+
   if [[ $# -eq 0 ]]; then
     find_env
   else
     environment=$1
   fi
-  
+
   case $environment in
     omnisci-nocuda)
       env omnisci-nocuda
       cmake -Wno-dev $CMAKE_OPTIONS_NOCUDA \
-        -DCMAKE_BUILD_TYPE=Release \
-        -DENABLE_TESTS=off \
+        -DCMAKE_BUILD_TYPE=RelWithDebInfo \
 	      -DENABLE_CUDA=off \
         -DENABLE_FOLLY=off \
         -DENABLE_AWS_S3=off \
@@ -237,7 +236,6 @@ build() {
       env omnisci-cuda
       cmake -Wno-dev $CMAKE_OPTIONS_CUDA \
         -DCMAKE_BUILD_TYPE=Release \
-        -DENABLE_TESTS=off \
 	      -DENABLE_CUDA=off \
         -DENABLE_FOLLY=off \
         -DENABLE_AWS_S3=off \
@@ -268,13 +266,13 @@ build() {
 }
 
 run() {
-  
+
   if [[ $# -eq 0 ]]; then
     find_env
   else
     environment=$1
   fi
-  
+
   case $environment in
     omnisci-nocuda)
       echo "running omniscidb..."
@@ -297,8 +295,14 @@ run() {
 create() {
   conda deactivate
   conda activate base
+  
+  if [[ $# -eq 0 ]]; then
+    find_env
+  else
+    environment=$1
+  fi
 
-  case $1 in
+  case $environment in
     rbc)
       echo "create env: rbc..."
       conda remove --name rbc --all -y
