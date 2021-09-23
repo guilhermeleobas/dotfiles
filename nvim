@@ -179,8 +179,6 @@ let g:oceanic_next_terminal_italic = 1
 " set bg=light
 " colorscheme one
 
-
-
 " set background=dark
 
 " close window after YCM suggest completion
