@@ -58,7 +58,7 @@ reload() {
   if [[ $(hostname) =~ "qgpu" ]]; then
     source ${HOME}/.bashrc
   elif [[ $(hostname) =~ "guilherme-server" ]]; then
-    source ${HOME}/.bashrc
+    source ${HOME}/.zshrc
   else
     source ${HOME}/.zshrc
   fi
@@ -227,7 +227,7 @@ build() {
         -DENABLE_GEOS=off \
         -DENABLE_JAVA_REMOTE_DEBUG=off \
         -DENABLE_PROFILER=off \
-        -DENABLE_TESTS=off \
+        -DENABLE_TESTS=on \
         -DUSE_ALTERNATE_LINKER=lld \
         ${PREFIX}/omniscidb-internal/
       ;;
