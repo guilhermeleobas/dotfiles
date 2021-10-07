@@ -221,13 +221,14 @@ build() {
       env omnisci-nocuda
       cmake -Wno-dev $CMAKE_OPTIONS_NOCUDA \
         -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-	      -DENABLE_CUDA=off \
+        -DENABLE_CUDA=off \
         -DENABLE_FOLLY=off \
         -DENABLE_AWS_S3=off \
         -DENABLE_GEOS=off \
         -DENABLE_JAVA_REMOTE_DEBUG=off \
         -DENABLE_PROFILER=off \
-        -DENABLE_TESTS=on \
+        -DENABLE_FSI_ODBC=off \
+        -DENABLE_TESTS=off \
         -DUSE_ALTERNATE_LINKER=lld \
         ${PREFIX}/omniscidb-internal/
       ;;
@@ -338,6 +339,10 @@ create() {
   esac
 }
 
+edit() {
+  vim ~/git/dotfiles/scripts.sh
+}
+
 register_goto() {
   goto -r pytorch ${PREFIX}/Quansight/pytorch
   goto -r rbc ${PREFIX}/rbc
@@ -366,12 +371,9 @@ if [[ $(hostname) =~ qgpu ]]; then
 
   # use "default" conda env on qgpu machines
   conda activate default
-elif [[ $(hostname) =~ "guilherme-server" ]]; then
+else
   # goto
   [ -f ~/git/goto/goto.sh ] && source ~/git/goto/goto.sh
-
-  # use "base" conda env on qgpu machines
-  conda activate base
 fi
 
 export MAMBA_NO_BANNER=1
