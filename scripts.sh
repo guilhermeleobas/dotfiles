@@ -227,7 +227,8 @@ build() {
         -DENABLE_GEOS=off \
         -DENABLE_JAVA_REMOTE_DEBUG=off \
         -DENABLE_PROFILER=off \
-        -DENABLE_TESTS=off \
+        -DENABLE_FSI_ODBC=off \
+        -DENABLE_TESTS=on \
         -DUSE_ALTERNATE_LINKER=lld \
         ${PREFIX}/omniscidb-internal/
       ;;
@@ -294,7 +295,11 @@ run() {
 
 create() {
   conda deactivate
-  conda activate base
+  if [[ $(hostname) =~ qgpu ]]; then
+    conda activate default
+  else
+    conda activate base
+  fi
   
   if [[ $# -eq 0 ]]; then
     find_env
