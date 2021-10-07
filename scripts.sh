@@ -295,7 +295,11 @@ run() {
 
 create() {
   conda deactivate
-  conda activate base
+  if [[ $(hostname) =~ qgpu ]]; then
+    conda activate default
+  else
+    conda activate base
+  fi
   
   if [[ $# -eq 0 ]]; then
     find_env
