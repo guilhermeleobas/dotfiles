@@ -3,7 +3,7 @@ if [[ $(hostname) =~ "qgpu" ]]; then
 elif [[ $(hostname) =~ "guilherme-server" ]]; then
   PREFIX=${HOME}/git
 else
-  PREFIX=${HOME}/Documents/GitHub
+  PREFIX=${HOME}/git
 fi
 
 omnisci-conda-run(){
@@ -58,7 +58,7 @@ reload() {
   if [[ $(hostname) =~ "qgpu" ]]; then
     source ${HOME}/.bashrc
   elif [[ $(hostname) =~ "guilherme-server" ]]; then
-    source ${HOME}/.bashrc
+    source ${HOME}/.zshrc
   else
     source ${HOME}/.zshrc
   fi

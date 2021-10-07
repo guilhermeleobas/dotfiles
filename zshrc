@@ -27,7 +27,7 @@ alias reset_term="tput reset"
 # fzf
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
-# source ${HOME}/gdrive/dotfiles/scripts.sh
+source ${HOME}/gdrive/dotfiles/scripts.sh
 
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
