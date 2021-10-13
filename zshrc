@@ -4,7 +4,7 @@ if ! zgen saved; then
   zgen oh-my-zsh
   zgen oh-my-zsh themes/steeef
   zgen load zsh-users/zsh-syntax-highlighting
-  # zgen load zsh-users/zsh-autosuggestions
+  zgen load zsh-users/zsh-autosuggestions
   # zgen load denysdovhan/spaceship-prompt spaceship
   zgen save
 fi
@@ -28,7 +28,6 @@ alias reset_term="tput reset"
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 source ${HOME}/git/dotfiles/scripts.sh
-
 
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!

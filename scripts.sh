@@ -122,7 +122,7 @@ clone() {
       ;;
 
     ag)
-      conda install silverseacher-ag -c conda-forge
+      mamba install silverseacher-ag -c conda-forge
       ;;
 
     theme)
@@ -153,10 +153,10 @@ find_env() {
       environment=$d
       ;;
     build-nocuda)
-      environment=omnisci-nocuda
+      environment=omniscidb-cpu-dev
       ;;
     build-cuda)
-      environment=omnisci-cuda
+      environment=omniscidb-cuda-dev
       ;;
     *)
       echo "find_env(): unknown $d"
@@ -171,41 +171,44 @@ env() {
   else
     environment=$1
   fi
+  
+  if [[ "${environment}" != "${CONDA_DEFAULT_ENV}" ]]; then
+    case ${environment} in
+      rbc)
+        echo "activating env: rbc"
+        conda deactivate
+        conda activate rbc
+        ;;
 
-  case ${environment} in
-    rbc)
-      echo "activating env: rbc"
-      conda deactivate
-      conda activate rbc
-      ;;
+      numba)
+        echo "activating env: numba"
+        conda deactivate
+        conda activate numba
+        ;;
 
-    numba)
-      echo "activating env: numba"
-      conda deactivate
-      conda activate numba
-      ;;
+      omniscidb-cpu-dev)
+        echo "activating env: omniscidb nocuda"
+        export USE_ENV=omniscidb-cpu-dev
+        . ~/git/Quansight/pearu-sandbox/working-envs/activate-omniscidb-internal-dev.sh
+        ;;
 
-    omnisci-nocuda)
-      echo "activating env: omniscidb nocuda"
-      export USE_ENV=omniscidb-cpu-dev
-      . ~/git/Quansight/pearu-sandbox/working-envs/activate-omniscidb-internal-dev.sh
-      ;;
+      omniscidb-cuda-dev)
+        echo "activating env: omniscidb cuda"
+        export CUDA_HOME=/usr/local/cuda/
+        export USE_ENV=omniscidb-cuda-dev
+        . ~/git/Quansight/pearu-sandbox/working-envs/activate-omniscidb-internal-dev.sh
+        ;;
 
-    omnisci-cuda)
-      echo "activating env: omniscidb cuda"
-      export USE_ENV=omniscidb-cuda-dev
-      . ~/git/Quansight/pearu-sandbox/working-envs/activate-omniscidb-internal-dev.sh
-      ;;
+      taco)
+        echo "activating env: taco"
+        conda activate taco
+        ;;
 
-    taco)
-      echo "activating env: taco"
-      conda activate taco
-      ;;
-
-    *)
-      echo -n "env(): unknown $1\n"
-      ;;
-  esac
+      *)
+        echo -n "env(): unknown $1\n"
+        ;;
+    esac
+  fi
 }
 
 build() {
@@ -217,8 +220,8 @@ build() {
   fi
 
   case $environment in
-    omnisci-nocuda)
-      env omnisci-nocuda
+    omniscidb-cpu-dev)
+      env omniscidb-cpu-dev
       cmake -Wno-dev $CMAKE_OPTIONS_NOCUDA \
         -DCMAKE_BUILD_TYPE=RelWithDebInfo \
         -DENABLE_CUDA=off \
@@ -233,16 +236,17 @@ build() {
         ${PREFIX}/omniscidb-internal/
       ;;
 
-    omnisci-cuda)
-      env omnisci-cuda
+    omniscidb-cuda-dev)
+      env omniscidb-cuda-dev
       cmake -Wno-dev $CMAKE_OPTIONS_CUDA \
         -DCMAKE_BUILD_TYPE=Release \
-	      -DENABLE_CUDA=off \
+	      -DENABLE_CUDA=on \
         -DENABLE_FOLLY=off \
         -DENABLE_AWS_S3=off \
         -DENABLE_GEOS=off \
         -DENABLE_JAVA_REMOTE_DEBUG=off \
         -DENABLE_PROFILER=off \
+        -DENABLE_FSI_ODBC=off \
         -DENABLE_TESTS=off \
         -DUSE_ALTERNATE_LINKER=lld \
         ${PREFIX}/omniscidb-internal/
@@ -275,16 +279,18 @@ run() {
   fi
 
   case $environment in
-    omnisci-nocuda)
+    omniscidb-cpu-dev)
       echo "running omniscidb..."
-      env omnisci-nocuda
-      bin/omnisci_server --enable-table-functions --enable-runtime-udf
+      echo "bin/omnisci_server --enable-runtime-udf --enable-table-functions --log-channels PTX,IR --log-severity-clog=WARNING"
+      env omniscidb-cpu-dev
+      bin/omnisci_server --enable-runtime-udf --enable-table-functions --log-channels PTX,IR --log-severity-clog=WARNING
       ;;
 
-    omnisci-cuda)
+    omniscidb-cuda-dev)
       echo "running omniscidb..."
-      env omnisci-nocuda
-      bin/omnisci_server --enable-table-functions --enable-runtime-udf
+      echo "bin/omnisci_server --enable-runtime-udf --enable-table-functions --log-channels PTX,IR --log-severity-clog=WARNING"
+      env omniscidb-cuda-dev
+      bin/omnisci_server --enable-runtime-udf --enable-table-functions --log-channels PTX,IR --log-severity-clog=WARNING
       ;;
 
     *)
@@ -316,16 +322,17 @@ create() {
 
     numba)
       echo "create env: numba..."
+      conda remove --name numba --all -y
       mamba create -n numba python=3.8 llvmlite numpy cffi
       ;;
 
-    omnisci-nocuda)
+    omniscidb-cpu-dev)
       echo "create env: nocuda..."
       conda remove --name omniscidb-cpu-dev --all -y
       mamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/omniscidb-cpu-dev.yaml -n omniscidb-cpu-dev
       ;;
 
-    omnisci-cuda)
+    omniscidb-cuda-dev)
       echo "create env: omniscidb cuda"
       conda remove --name omniscidb-cuda-dev --all -y
       mamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/omniscidb-dev.yaml -n omniscidb-cuda-dev
