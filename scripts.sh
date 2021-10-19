@@ -230,6 +230,8 @@ build() {
         -DENABLE_GEOS=off \
         -DENABLE_JAVA_REMOTE_DEBUG=off \
         -DENABLE_PROFILER=off \
+        -DBENCHMARK_ENABLE_EXCEPTIONS=off \
+        -DBENCHMARK_ENABLE_GTEST_TESTS=off \
         -DENABLE_FSI_ODBC=off \
         -DENABLE_TESTS=off \
         -DUSE_ALTERNATE_LINKER=lld \
@@ -246,6 +248,8 @@ build() {
         -DENABLE_GEOS=off \
         -DENABLE_JAVA_REMOTE_DEBUG=off \
         -DENABLE_PROFILER=off \
+        -DBENCHMARK_ENABLE_EXCEPTIONS=off \
+        -DBENCHMARK_ENABLE_GTEST_TESTS=off \
         -DENABLE_FSI_ODBC=off \
         -DENABLE_TESTS=off \
         -DUSE_ALTERNATE_LINKER=lld \
@@ -268,6 +272,10 @@ build() {
       echo -n "build: unknown $1"
       ;;
   esac
+}
+
+query() {
+  bin/omnisql --passwd HyperInteractive < ../query.sql
 }
 
 run() {
@@ -294,8 +302,29 @@ run() {
       ;;
 
     *)
-      echo -n "run: unknown $1"
+      echo -n "run: unknown $environment"
       ;;
+  esac
+}
+
+test() {
+
+  if [[ $# -eq 0 ]]; then
+    find_env
+  else
+    environment=$1
+  fi
+  
+  case $environment in
+    numba)
+      echo "running numba tests..."
+      echo "python -m numba.runtests -f -b -v -g -m 15 -- numba.tests"
+      env numba
+      python -m numba.runtests -b -v -g -m 15 -- numba.tests
+      ;;
+
+    *)
+      echo -n "test: unknown $environment"
   esac
 }
 
