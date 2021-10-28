@@ -289,16 +289,16 @@ run() {
   case $environment in
     omniscidb-cpu-dev)
       echo "running omniscidb..."
-      echo "bin/omnisci_server --enable-runtime-udf --enable-table-functions --log-channels PTX,IR --log-severity-clog=WARNING"
+      echo "bin/omnisci_server --enable-dev-table-functions --enable-runtime-udf --enable-table-functions --log-channels PTX,IR --log-severity-clog=WARNING"
       env omniscidb-cpu-dev
-      bin/omnisci_server --enable-runtime-udf --enable-table-functions --log-channels PTX,IR --log-severity-clog=WARNING
+      bin/omnisci_server --enable-dev-table-functions --enable-runtime-udf --enable-table-functions --log-channels PTX,IR --log-severity-clog=WARNING
       ;;
 
     omniscidb-cuda-dev)
       echo "running omniscidb..."
-      echo "bin/omnisci_server --enable-runtime-udf --enable-table-functions --log-channels PTX,IR --log-severity-clog=WARNING"
+      echo "bin/omnisci_server --enable-dev-table-functions --enable-runtime-udf --enable-table-functions --log-channels PTX,IR --log-severity-clog=WARNING"
       env omniscidb-cuda-dev
-      bin/omnisci_server --enable-runtime-udf --enable-table-functions --log-channels PTX,IR --log-severity-clog=WARNING
+      bin/omnisci_server --enable-dev-table-functions --enable-runtime-udf --enable-table-functions --log-channels PTX,IR --log-severity-clog=WARNING
       ;;
 
     *)
