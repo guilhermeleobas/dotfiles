@@ -314,13 +314,20 @@ test() {
   else
     environment=$1
   fi
-  
+
   case $environment in
     numba)
       echo "running numba tests..."
       echo "python -m numba.runtests -f -b -v -g -m 15 -- numba.tests"
       env numba
       python -m numba.runtests -b -v -g -m 15 -- numba.tests
+      ;;
+
+    omniscidb-cpu-dev)
+      echo "running omniscidb cpu tests..."
+      echo "Tests/TableFunctionTests"
+      env omniscidb-cpu-dev
+      Tests/TableFunctionTests
       ;;
 
     *)
