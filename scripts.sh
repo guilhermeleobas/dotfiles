@@ -7,6 +7,8 @@ else
 fi
 
 omnisci-conda-run(){
+  conda deactivate
+  conda activate omniscidb-env
   echo "running omniscidb..."
   rm -rf data
   mkdir data
@@ -16,33 +18,15 @@ omnisci-conda-run(){
 }
 
 omnisci-conda-install(){
-  conda deactivate
-  conda activate base
-  conda remove --name omniscidb-env --all -y
-  mamba create -n omniscidb-env omniscidb=5.7*=*_cpu -c conda-forge -y
-}
-
-pytorch() {
-
-  export USE_CUDA=0
-  export USE_DISTRIBUTED=0
-  export USE_MKLDNN=0
-  export USE_FBGEMM=0
-  export USE_NNPACK=0
-  export USE_QNNPACK=0
-  export USE_XNNPACK=0
-  export USE_NCCL=0
-  export MAX_JOBS=24
-
-  . ~/git/Quansight/pearu-sandbox/working-envs/activate-pytorch-dev.sh
-
-  # Enable ccache
-  # export CCACHE_COMPRESS=true
-  # export CMAKE_C_COMPILER_LAUNCHER=ccache
-  # export CMAKE_CXX_COMPILER_LAUNCHER=ccache
-  # export CMAKE_CUDA_COMPILER_LAUNCHER=ccache
-
-  export LD=$(which lld)
+  if [[ $# -eq 2 ]]; then
+    echo $0 $1 $2
+    conda deactivate
+    conda activate base
+    conda remove --name omniscidb-env --all -y
+    mamba create -n omniscidb-env "omniscidb=$1*=*_$2" -c conda-forge -y
+  else
+    echo 'usage: omnisci-conda-install version cpu|gpu'
+  fi
 }
 
 pytorch-update(){
@@ -146,10 +130,16 @@ find_env() {
     numba)
       environment=$d
       ;;
+    llvmlite)
+      environment=$d
+      ;;
     taco)
       environment=$d
       ;;
     numpy)
+      environment=$d
+      ;;
+    pytorch)
       environment=$d
       ;;
     build-nocuda)
@@ -171,19 +161,13 @@ env() {
   else
     environment=$1
   fi
-  
+
   if [[ "${environment}" != "${CONDA_DEFAULT_ENV}" ]]; then
     case ${environment} in
-      rbc)
-        echo "activating env: rbc"
+      taco|rbc|numba|numpy|llvmlite)
+        echo "activating env: ${environment}"
         conda deactivate
-        conda activate rbc
-        ;;
-
-      numba)
-        echo "activating env: numba"
-        conda deactivate
-        conda activate numba
+        conda activate ${environment}
         ;;
 
       omniscidb-cpu-dev)
@@ -199,13 +183,29 @@ env() {
         . ~/git/Quansight/pearu-sandbox/working-envs/activate-omniscidb-internal-dev.sh
         ;;
 
-      taco)
-        echo "activating env: taco"
-        conda activate taco
+      pytorch)
+        echo "activating env: pytorch"
+        export USE_CUDA=0
+        export USE_DISTRIBUTED=0
+        export USE_MKLDNN=0
+        export USE_FBGEMM=0
+        export USE_NNPACK=0
+        export USE_QNNPACK=0
+        export USE_XNNPACK=0
+        export USE_NCCL=0
+        export MAX_JOBS=24
+        . ~/git/Quansight/pearu-sandbox/working-envs/activate-pytorch-dev.sh
+        # Enable ccache
+        # export CCACHE_COMPRESS=true
+        # export CMAKE_C_COMPILER_LAUNCHER=ccache
+        # export CMAKE_CXX_COMPILER_LAUNCHER=ccache
+        # export CMAKE_CUDA_COMPILER_LAUNCHER=ccache
+
+        export LD=$(which lld)
         ;;
 
       *)
-        echo -n "env(): unknown $1\n"
+        echo -n "env(): unknown ${environment}\n"
         ;;
     esac
   fi
@@ -256,6 +256,11 @@ build() {
         ${PREFIX}/omniscidb-internal/
       ;;
 
+    pytorch)
+      env pytorch
+      python setup.py develop -j10
+      ;;
+
     taco)
       env taco
       cmake -DLLVM=ON ${PREFIX}/taco \
@@ -266,6 +271,16 @@ build() {
     numba)
       env numba
       python setup.py build_ext --inplace
+      ;;
+
+    llvmlite)
+      env llvmlite
+      python setup.py build
+      ;;
+
+    numpy)
+      env numpy
+      python setup.py build_ext --inplace -j10
       ;;
 
     *)
@@ -289,16 +304,16 @@ run() {
   case $environment in
     omniscidb-cpu-dev)
       echo "running omniscidb..."
-      echo "bin/omnisci_server --enable-dev-table-functions --enable-runtime-udf --enable-table-functions --log-channels PTX,IR --log-severity-clog=WARNING"
+      echo "bin/omnisci_server --enable-dev-table-functions --enable-runtime-udf --enable-table-functions --enable-debug-timer --log-channels PTX,IR --log-severity-clog=WARNING"
       env omniscidb-cpu-dev
-      bin/omnisci_server --enable-dev-table-functions --enable-runtime-udf --enable-table-functions --log-channels PTX,IR --log-severity-clog=WARNING
+      bin/omnisci_server --enable-dev-table-functions --enable-runtime-udf --enable-table-functions --enable-debug-timer --log-channels PTX,IR --log-severity-clog=WARNING
       ;;
 
     omniscidb-cuda-dev)
       echo "running omniscidb..."
-      echo "bin/omnisci_server --enable-dev-table-functions --enable-runtime-udf --enable-table-functions --log-channels PTX,IR --log-severity-clog=WARNING"
+      echo "bin/omnisci_server --enable-dev-table-functions --enable-runtime-udf --enable-table-functions --enable-debug-timer --log-channels PTX,IR --log-severity-clog=WARNING"
       env omniscidb-cuda-dev
-      bin/omnisci_server --enable-dev-table-functions --enable-runtime-udf --enable-table-functions --log-channels PTX,IR --log-severity-clog=WARNING
+      bin/omnisci_server --enable-dev-table-functions --enable-runtime-udf --enable-table-functions --enable-debug-timer --log-channels PTX,IR --log-severity-clog=WARNING
       ;;
 
     *)
@@ -342,7 +357,7 @@ create() {
   else
     conda activate base
   fi
-  
+
   if [[ $# -eq 0 ]]; then
     find_env
   else
@@ -360,6 +375,20 @@ create() {
       echo "create env: numba..."
       conda remove --name numba --all -y
       mamba create -n numba python=3.8 llvmlite numpy cffi
+      ;;
+
+    numpy)
+      echo "create env: numpy..."
+      conda remove --name numpy --all -y
+      mamba env create --file=${PREFIX}/numpy/environment.yml -n numpy
+      ;;
+
+    llvmlite)
+      echo "create env: llvmlite..."
+      conda remove --name llvmlite --all -y
+      mamba create -n llvmlite python=3.9 -c conda-forge -y
+      mamba install -n llvmlite llvmdev -c numba -y
+      mamba install -n llvmlite compilers cmake make -c conda-forge -y
       ;;
 
     omniscidb-cpu-dev)
@@ -397,6 +426,8 @@ register_goto() {
   goto -r omnisci-nocuda ${PREFIX}/build-nocuda
   goto -r omnisci-cuda ${PREFIX}/build-cuda
   goto -r numba ${PREFIX}/numba
+  goto -r llvmlite ${PREFIX}/llvmlite
+  goto -r numpy ${PREFIX}/numpy
   goto -r pearu-sandbox ${PREFIX}/Quansight/pearu-sandbox
   goto -r taco ${PREFIX}/taco
   goto -r dotfiles ${PREFIX}/dotfiles
