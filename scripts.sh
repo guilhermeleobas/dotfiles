@@ -267,6 +267,11 @@ build() {
         -DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=gold" \
         ${PREFIX}/taco
       ;;
+      
+    rbc)
+      env rbc
+      python setup.py develop
+      ;;
 
     numba)
       env numba
