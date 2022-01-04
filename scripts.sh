@@ -233,6 +233,7 @@ build() {
         -DBENCHMARK_ENABLE_EXCEPTIONS=off \
         -DBENCHMARK_ENABLE_GTEST_TESTS=off \
         -DENABLE_FSI_ODBC=off \
+        -DENABLE_RENDERING=off \
         -DENABLE_TESTS=off \
         -DUSE_ALTERNATE_LINKER=lld \
         ${PREFIX}/omniscidb-internal/
@@ -251,6 +252,7 @@ build() {
         -DBENCHMARK_ENABLE_EXCEPTIONS=off \
         -DBENCHMARK_ENABLE_GTEST_TESTS=off \
         -DENABLE_FSI_ODBC=off \
+        -DENABLE_RENDERING=off \
         -DENABLE_TESTS=off \
         -DUSE_ALTERNATE_LINKER=lld \
         ${PREFIX}/omniscidb-internal/
