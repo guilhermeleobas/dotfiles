@@ -124,23 +124,11 @@ find_env() {
   environment=""
   local d=$(basename $(pwd))
   case ${d} in
-    rbc)
+    rbc|numba|llvmlite|taco|numpy|pytorch)
       environment=$d
       ;;
-    numba)
-      environment=$d
-      ;;
-    llvmlite)
-      environment=$d
-      ;;
-    taco)
-      environment=$d
-      ;;
-    numpy)
-      environment=$d
-      ;;
-    pytorch)
-      environment=$d
+    llvm-project)
+      environment=llvm
       ;;
     build-nocuda)
       environment=omniscidb-cpu-dev
@@ -164,7 +152,7 @@ env() {
 
   if [[ "${environment}" != "${CONDA_DEFAULT_ENV}" ]]; then
     case ${environment} in
-      taco|rbc|numba|numpy|llvmlite)
+      taco|rbc|numba|numpy|llvmlite|llvm)
         echo "activating env: ${environment}"
         conda deactivate
         conda activate ${environment}
@@ -234,6 +222,7 @@ build() {
         -DBENCHMARK_ENABLE_GTEST_TESTS=off \
         -DENABLE_FSI_ODBC=off \
         -DENABLE_RENDERING=off \
+        -DENABLE_SYSTEM_TFS=off \
         -DENABLE_TESTS=off \
         -DUSE_ALTERNATE_LINKER=lld \
         ${PREFIX}/omniscidb-internal/
@@ -256,6 +245,27 @@ build() {
         -DENABLE_TESTS=off \
         -DUSE_ALTERNATE_LINKER=lld \
         ${PREFIX}/omniscidb-internal/
+      ;;
+      
+    llvm)
+      env llvm
+      cd ${PREFIX}/llvm-project/build
+      cmake ../llvm/ \
+        -DCMAKE_INSTALL_PREFIX="${CONDA_PREFIX}" \
+        -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra;compiler-rt" \
+        -DLLVM_TARGETS_TO_BUILD="X86" \
+        -DLLVM_USE_LINKER=lld \
+        -DLLVM_CCACHE_BUILD=ON \
+        -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+        -DLLVM_ENABLE_RTTI=ON \
+        -DLLVM_INCLUDE_TESTS=OFF \
+        -DLLVM_INCLUDE_GO_TESTS=OFF \
+        -DLLVM_INCLUDE_UTILS=OFF \
+        -DLLVM_INSTALL_UTILS=OFF \
+        -DLLVM_UTILS_INSTALL_DIR=libexec/llvm \
+        -DLLVM_INCLUDE_DOCS=OFF \
+        -DLLVM_INCLUDE_EXAMPLES=OFF \
+        -DHAVE_LIBEDIT=OFF
       ;;
 
     pytorch)
@@ -398,6 +408,12 @@ create() {
       mamba install -n llvmlite compilers cmake make -c conda-forge -y
       ;;
 
+    llvm)
+      echo "creating env: llvm..."
+      conda remove --name llvm --all -y
+      mamba create -n llvm cmake ccache compilers make -c conda-forge -y
+      ;;
+
     omniscidb-cpu-dev)
       echo "create env: nocuda..."
       conda remove --name omniscidb-cpu-dev --all -y
@@ -417,7 +433,7 @@ create() {
       ;;
 
     *)
-      echo -n "env: unknown $1"
+      echo -n "env: unknown ${environment}"
       ;;
   esac
 }
@@ -438,6 +454,7 @@ register_goto() {
   goto -r pearu-sandbox ${PREFIX}/Quansight/pearu-sandbox
   goto -r taco ${PREFIX}/taco
   goto -r dotfiles ${PREFIX}/dotfiles
+  goto -r llvm ${PREFIX}/llvm-project
 }
 
 if [[ $(hostname) =~ qgpu ]]; then
