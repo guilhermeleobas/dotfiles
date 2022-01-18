@@ -13,8 +13,13 @@ omnisci-conda-run(){
   rm -rf data
   mkdir data
   mamba run -n omniscidb-env omnisci_initdb data -f
-  mamba run -n omniscidb-env omnisci_server --version
-  mamba run -n omniscidb-env omnisci_server --enable-runtime-udf --enable-table-functions
+  version=$(mamba run -n omniscidb-env omnisci_server --version)
+  echo ${version}
+  EXTRA_FLAGS=""
+  if [[ ${version} =~ "5.10" ]]; then
+    EXTRA_FLAGS="--enable-dev-table-functions"
+  fi
+  mamba run -n omniscidb-env omnisci_server --enable-runtime-udf --enable-table-functions ${EXTRA_FLAGS}
 }
 
 omnisci-conda-install(){
@@ -25,7 +30,7 @@ omnisci-conda-install(){
     conda remove --name omniscidb-env --all -y
     mamba create -n omniscidb-env "omniscidb=$1*=*_$2" -c conda-forge -y
   else
-    echo 'usage: omnisci-conda-install version cpu|gpu'
+    echo 'usage: omnisci-conda-install version cpu|cuda'
   fi
 }
 
@@ -58,6 +63,11 @@ clone() {
     rbc)
       echo "cloning rbc..."
       git clone git@github.com:guilhermeleobas/rbc.git ${PREFIX}/rbc
+      ;;
+
+    ibis-omniscidb)
+      echo "cloning numba..."
+      git clone git@github.com:omnisci/ibis-omniscidb.git ${PREFIX}/ibis-omniscidb
       ;;
 
     numba)
@@ -124,7 +134,7 @@ find_env() {
   environment=""
   local d=$(basename $(pwd))
   case ${d} in
-    rbc|numba|llvmlite|taco|numpy|pytorch)
+    rbc|numba|llvmlite|taco|numpy|pytorch|ibis-omniscidb)
       environment=$d
       ;;
     llvm-project)
@@ -152,7 +162,7 @@ env() {
 
   if [[ "${environment}" != "${CONDA_DEFAULT_ENV}" ]]; then
     case ${environment} in
-      taco|rbc|numba|numpy|llvmlite|llvm)
+      taco|rbc|numba|numpy|llvmlite|llvm|ibis-omniscidb)
         echo "activating env: ${environment}"
         conda deactivate
         conda activate ${environment}
@@ -381,54 +391,45 @@ create() {
     environment=$1
   fi
 
+  echo "create env: ${environment}..."
+  conda remove --name ${environment} --all -y
+
   case $environment in
     rbc)
-      echo "create env: rbc..."
-      conda remove --name rbc --all -y
       mamba env create --file=${PREFIX}/rbc/.conda/environment.yml -n rbc
       ;;
 
     numba)
-      echo "create env: numba..."
-      conda remove --name numba --all -y
       mamba create -n numba python=3.8 llvmlite numpy cffi
       ;;
 
     numpy)
-      echo "create env: numpy..."
-      conda remove --name numpy --all -y
       mamba env create --file=${PREFIX}/numpy/environment.yml -n numpy
+      ;;
+      
+    ibis-omniscidb)
+      mamba env create --file=${PREFIX}/ibis-omniscidb/environment-dev.yaml -n ibis-omniscidb
       ;;
 
     llvmlite)
-      echo "create env: llvmlite..."
-      conda remove --name llvmlite --all -y
       mamba create -n llvmlite python=3.9 -c conda-forge -y
       mamba install -n llvmlite llvmdev -c numba -y
       mamba install -n llvmlite compilers cmake make -c conda-forge -y
       ;;
 
     llvm)
-      echo "creating env: llvm..."
-      conda remove --name llvm --all -y
       mamba create -n llvm cmake ccache compilers make -c conda-forge -y
       ;;
 
     omniscidb-cpu-dev)
-      echo "create env: nocuda..."
-      conda remove --name omniscidb-cpu-dev --all -y
       mamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/omniscidb-cpu-dev.yaml -n omniscidb-cpu-dev
       ;;
 
     omniscidb-cuda-dev)
-      echo "create env: omniscidb cuda"
-      conda remove --name omniscidb-cuda-dev --all -y
       mamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/omniscidb-dev.yaml -n omniscidb-cuda-dev
       ;;
 
     taco)
-      echo "recreate env: taco"
-      conda remove --name taco --all -y
       mamba env create --file=${PREFIX}/taco/.conda/environment.yml -n taco
       ;;
 
