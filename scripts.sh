@@ -63,10 +63,18 @@ clone() {
     rbc)
       echo "cloning rbc..."
       git clone git@github.com:guilhermeleobas/rbc.git ${PREFIX}/rbc
+      pushd ${PREFIX}/rbc
+      git remote add upstream git@github.com:xnd-project/rbc.git
+      popd
+      ;;
+
+    rbc-feedstock)
+      echo "cloning rbc-feedstock..."
+      git clone git@github.com:conda-forge/rbc-feedstock.git ${PREFIX}/rbc-feedstock
       ;;
 
     ibis-omniscidb)
-      echo "cloning numba..."
+      echo "cloning ibis-omniscidb..."
       git clone git@github.com:omnisci/ibis-omniscidb.git ${PREFIX}/ibis-omniscidb
       ;;
 
@@ -233,8 +241,9 @@ build() {
         -DENABLE_FSI_ODBC=off \
         -DENABLE_RENDERING=off \
         -DENABLE_SYSTEM_TFS=off \
+        -DENABLE_ML_ONEDAL_TFS=off \
         -DENABLE_TESTS=off \
-        -DUSE_ALTERNATE_LINKER=lld \
+        -DCMAKE_CXX_FLAGS="-B/usr/local/bin/mold" \
         ${PREFIX}/omniscidb-internal/
       ;;
 
@@ -297,6 +306,7 @@ build() {
 
     numba)
       env numba
+      echo "python setup.py build_ext --inplace"
       python setup.py build_ext --inplace
       ;;
 
@@ -365,6 +375,13 @@ test() {
       python -m numba.runtests -b -v -g -m 15 -- numba.tests
       ;;
 
+    rbc)
+      echo "running rbc tests..."
+      echo "pytest --tb=short rbc/tests"
+      env rbc
+      pytest --tb=short rbc/tests/
+      ;;
+
     omniscidb-cpu-dev)
       echo "running omniscidb cpu tests..."
       echo "Tests/TableFunctionTests"
@@ -406,7 +423,7 @@ create() {
     numpy)
       mamba env create --file=${PREFIX}/numpy/environment.yml -n numpy
       ;;
-      
+
     ibis-omniscidb)
       mamba env create --file=${PREFIX}/ibis-omniscidb/environment-dev.yaml -n ibis-omniscidb
       ;;
@@ -423,6 +440,7 @@ create() {
 
     omniscidb-cpu-dev)
       mamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/omniscidb-cpu-dev.yaml -n omniscidb-cpu-dev
+      mamba install -n omniscidb-cpu-dev fmt -c conda-forge -y
       ;;
 
     omniscidb-cuda-dev)
@@ -440,7 +458,7 @@ create() {
 }
 
 edit() {
-  vim ~/git/dotfiles/scripts.sh
+  code ~/git/dotfiles/scripts.sh
 }
 
 register_goto() {
