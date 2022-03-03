@@ -68,9 +68,9 @@ clone() {
       popd
       ;;
 
-    rbc-feedstock)
-      echo "cloning rbc-feedstock..."
-      git clone git@github.com:conda-forge/rbc-feedstock.git ${PREFIX}/rbc-feedstock
+    rbc-feedstock|omniscidb-feedstock)
+      echo "cloning $1..."
+      git clone git@github.com:guilhermeleobas/$1.git ${PREFIX}/$1/
       ;;
 
     ibis-omniscidb)
