@@ -93,9 +93,9 @@ clone() {
       git clone git@github.com:numba/llvmlite.git ${PREFIX}/llvmlite
       ;;
 
-    omniscidb)
-      echo "cloning omniscidb..."
-      git clone git@github.com:omnisci/omniscidb-internal.git ${PREFIX}/omniscidb-internal
+    heavydb)
+      echo "cloning heavydb..."
+      git clone git@github.com:omnisci/heavydb-internal.git ${PREFIX}/heavydb-internal
       ;;
 
     sandbox)
@@ -229,7 +229,7 @@ build() {
     omniscidb-cpu-dev)
       env omniscidb-cpu-dev
       cmake -Wno-dev $CMAKE_OPTIONS_NOCUDA \
-        -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+        -DCMAKE_BUILD_TYPE=DEBUG \
         -DENABLE_CUDA=off \
         -DENABLE_FOLLY=off \
         -DENABLE_AWS_S3=off \
@@ -243,7 +243,7 @@ build() {
         -DENABLE_SYSTEM_TFS=off \
         -DENABLE_ML_ONEDAL_TFS=off \
         -DENABLE_TESTS=off \
-        -DCMAKE_CXX_FLAGS="-B/usr/local/bin/mold" \
+        -DUSE_ALTERNATE_LINKER="lld" \
         ${PREFIX}/omniscidb-internal/
       ;;
 
@@ -330,6 +330,12 @@ query() {
   bin/omnisql --passwd HyperInteractive < ../query.sql
 }
 
+sql() {
+  goto omnisci-nocuda
+  env
+  bin/omnisql --passwd HyperInteractive
+}
+
 run() {
 
   if [[ $# -eq 0 ]]; then
@@ -340,17 +346,17 @@ run() {
 
   case $environment in
     omniscidb-cpu-dev)
-      echo "running omniscidb..."
-      echo "bin/omnisci_server --enable-dev-table-functions --enable-runtime-udf --enable-table-functions --enable-debug-timer --log-channels PTX,IR --log-severity-clog=WARNING"
+      echo "running heavydb..."
+      echo "bin/heavydb --enable-dev-table-functions --enable-runtime-udf --enable-table-functions --enable-debug-timer --log-channels PTX,IR --log-severity-clog=WARNING"
       env omniscidb-cpu-dev
-      bin/omnisci_server --enable-dev-table-functions --enable-runtime-udf --enable-table-functions --enable-debug-timer --log-channels PTX,IR --log-severity-clog=WARNING
+      bin/heavydb --enable-dev-table-functions --enable-runtime-udf --enable-table-functions --enable-debug-timer --log-channels PTX,IR --log-severity-clog=WARNING
       ;;
 
     omniscidb-cuda-dev)
-      echo "running omniscidb..."
-      echo "bin/omnisci_server --enable-dev-table-functions --enable-runtime-udf --enable-table-functions --enable-debug-timer --log-channels PTX,IR --log-severity-clog=WARNING"
+      echo "running heavydb..."
+      echo "bin/heavydb --enable-dev-table-functions --enable-runtime-udf --enable-table-functions --enable-debug-timer --log-channels PTX,IR --log-severity-clog=WARNING"
       env omniscidb-cuda-dev
-      bin/omnisci_server --enable-dev-table-functions --enable-runtime-udf --enable-table-functions --enable-debug-timer --log-channels PTX,IR --log-severity-clog=WARNING
+      bin/heavydb --enable-dev-table-functions --enable-runtime-udf --enable-table-functions --enable-debug-timer --log-channels PTX,IR --log-severity-clog=WARNING
       ;;
 
     *)
