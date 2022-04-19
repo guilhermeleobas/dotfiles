@@ -298,7 +298,7 @@ build() {
         -DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=gold" \
         ${PREFIX}/taco
       ;;
-      
+
     rbc)
       env rbc
       python setup.py develop
@@ -306,8 +306,8 @@ build() {
 
     numba)
       env numba
-      echo "python setup.py build_ext --inplace"
-      python setup.py build_ext --inplace
+      echo "python setup.py build_ext --inplace -j10"
+      python setup.py build_ext --inplace -j10
       ;;
 
     llvmlite)
