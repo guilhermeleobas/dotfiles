@@ -34,6 +34,30 @@ omnisci-conda-install(){
   fi
 }
 
+heavydb-conda-run(){
+  conda deactivate
+  conda activate heavydb-env
+  echo "running heavydb..."
+  rm -rf storage
+  mkdir storage
+  mamba run -n heavydb-env initheavy storage -f
+  version=$(mamba run -n heavydb-env heavydb --version)
+  echo ${version}
+  mamba run -n omniscidb-env heavydb --enable-runtime-udf --enable-table-functions --enable-dev-table-functions
+}
+
+heavydb-conda-install(){
+  if [[ $# -eq 2 ]]; then
+    echo $0 $1 $2
+    conda deactivate
+    conda activate base
+    conda remove --name heavydb-env --all -y
+    mamba create -n heavydb-env "heavydb=$1*=*_$2" -c conda-forge -y
+  else
+    echo 'usage: heavydb-conda-install version cpu|cuda'
+  fi
+}
+
 pytorch-update(){
   git submodule sync
   git submodule update --init --recursive
@@ -95,7 +119,7 @@ clone() {
 
     heavydb)
       echo "cloning heavydb..."
-      git clone git@github.com:omnisci/heavydb-internal.git ${PREFIX}/heavydb-internal
+      git clone git@github.com:heavyai/heavydb-internal.git ${PREFIX}/heavydb-internal
       ;;
 
     sandbox)
@@ -244,7 +268,7 @@ build() {
         -DENABLE_ML_ONEDAL_TFS=off \
         -DENABLE_TESTS=off \
         -DUSE_ALTERNATE_LINKER="lld" \
-        ${PREFIX}/omniscidb-internal/
+        ${PREFIX}/heavydb-internal/
       ;;
 
     omniscidb-cuda-dev)
@@ -263,7 +287,7 @@ build() {
         -DENABLE_RENDERING=off \
         -DENABLE_TESTS=off \
         -DUSE_ALTERNATE_LINKER=lld \
-        ${PREFIX}/omniscidb-internal/
+        ${PREFIX}/heavydb-internal/
       ;;
       
     llvm)
@@ -470,9 +494,9 @@ edit() {
 register_goto() {
   goto -r pytorch ${PREFIX}/Quansight/pytorch
   goto -r rbc ${PREFIX}/rbc
-  goto -r omniscidb ${PREFIX}/omniscidb-internal
-  goto -r omnisci-nocuda ${PREFIX}/build-nocuda
-  goto -r omnisci-cuda ${PREFIX}/build-cuda
+  goto -r heavydb ${PREFIX}/heavydb-internal
+  goto -r heavydb-nocuda ${PREFIX}/build-nocuda
+  goto -r heavydb-cuda ${PREFIX}/build-cuda
   goto -r numba ${PREFIX}/numba
   goto -r llvmlite ${PREFIX}/llvmlite
   goto -r numpy ${PREFIX}/numpy
