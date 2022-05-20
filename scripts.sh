@@ -141,6 +141,11 @@ clone() {
       git clone git@github.com:numba/llvmlite.git ${PREFIX}/llvmlite
       ;;
 
+    heavydb-oss)
+      echo "cloning heavydb oss..."
+      git clone git@github.com:heavyai/heavydb.git ${PREFIX}/heavydb
+      ;;
+
     heavydb)
       echo "cloning heavydb..."
       git clone git@github.com:heavyai/heavydb-internal.git ${PREFIX}/heavydb-internal
@@ -313,7 +318,7 @@ build() {
         -DUSE_ALTERNATE_LINKER=lld \
         ${PREFIX}/heavydb-internal/
       ;;
-      
+
     llvm)
       env llvm
       cd ${PREFIX}/llvm-project/build
@@ -395,16 +400,16 @@ run() {
   case $environment in
     omniscidb-cpu-dev)
       echo "running heavydb..."
-      echo "bin/heavydb --enable-dev-table-functions --enable-runtime-udf --enable-table-functions --enable-debug-timer --log-channels PTX,IR --log-severity-clog=WARNING"
+      echo "bin/heavydb --enable-dev-table-functions --enable-runtime-udfs --enable-table-functions --enable-debug-timer --log-channels PTX,IR --log-severity-clog=WARNING"
       env omniscidb-cpu-dev
-      bin/heavydb --enable-dev-table-functions --enable-runtime-udf --enable-table-functions --enable-debug-timer --log-channels PTX,IR --log-severity-clog=WARNING
+      bin/heavydb --enable-dev-table-functions --enable-runtime-udfs --enable-table-functions --enable-debug-timer --log-channels PTX,IR --log-severity-clog=WARNING
       ;;
 
     omniscidb-cuda-dev)
       echo "running heavydb..."
-      echo "bin/heavydb --enable-dev-table-functions --enable-runtime-udf --enable-table-functions --enable-debug-timer --log-channels PTX,IR --log-severity-clog=WARNING"
+      echo "bin/heavydb --enable-dev-table-functions --enable-runtime-udfs --enable-table-functions --enable-debug-timer --log-channels PTX,IR --log-severity-clog=WARNING"
       env omniscidb-cuda-dev
-      bin/heavydb --enable-dev-table-functions --enable-runtime-udf --enable-table-functions --enable-debug-timer --log-channels PTX,IR --log-severity-clog=WARNING
+      bin/heavydb --enable-dev-table-functions --enable-runtime-udfs --enable-table-functions --enable-debug-timer --log-channels PTX,IR --log-severity-clog=WARNING
       ;;
 
     *)
@@ -413,7 +418,7 @@ run() {
   esac
 }
 
-test() {
+run_tests() {
 
   if [[ $# -eq 0 ]]; then
     find_env
@@ -434,13 +439,6 @@ test() {
       echo "pytest --tb=short rbc/tests"
       env rbc
       pytest --tb=short rbc/tests/
-      ;;
-
-    omniscidb-cpu-dev)
-      echo "running omniscidb cpu tests..."
-      echo "Tests/TableFunctionTests"
-      env omniscidb-cpu-dev
-      Tests/TableFunctionTests
       ;;
 
     *)
@@ -512,7 +510,7 @@ create() {
 }
 
 edit() {
-  code ~/git/dotfiles/scripts.sh
+  vim ~/git/dotfiles/scripts.sh
 }
 
 register_goto() {
