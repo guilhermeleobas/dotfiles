@@ -6,6 +6,30 @@ else
   PREFIX=${HOME}/git
 fi
 
+heavy-conda-run(){
+  conda deactivate
+  conda activate heavydb-env
+  echo "running heavydb..."
+  rm -rf storage
+  mkdir storage
+  mamba run -n heavydb-env initheavy storage -f
+  version=$(mamba run -n heavydb-env heavydb --version)
+  echo ${version}
+  mamba run -n omniscidb-env omnisci_server --enable-runtime-udf --enable-table-functions --enable-dev-table-functions
+}
+
+heavy-conda-install(){
+  if [[ $# -eq 2 ]]; then
+    echo $0 $1 $2
+    conda deactivate
+    conda activate base
+    conda remove --name heavydb-env --all -y
+    mamba create -n heavydb-env "heavydb=$1*=*_$2" -c conda-forge -y
+  else
+    echo 'usage: heavy-conda-install version cpu|cuda'
+  fi
+}
+
 omnisci-conda-run(){
   conda deactivate
   conda activate omniscidb-env
