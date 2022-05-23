@@ -296,7 +296,6 @@ build() {
         -DENABLE_SYSTEM_TFS=off \
         -DENABLE_TESTS=off \
         -DUSE_ALTERNATE_LINKER="lld" \
-        -GNinja \
         ${PREFIX}/heavydb-internal/
       ;;
 
