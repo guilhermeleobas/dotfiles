@@ -294,9 +294,9 @@ build() {
         -DENABLE_FSI_ODBC=off \
         -DENABLE_RENDERING=off \
         -DENABLE_SYSTEM_TFS=off \
-        -DENABLE_ML_ONEDAL_TFS=off \
         -DENABLE_TESTS=off \
         -DUSE_ALTERNATE_LINKER="lld" \
+        -GNinja \
         ${PREFIX}/heavydb-internal/
       ;;
 
@@ -316,6 +316,7 @@ build() {
         -DENABLE_RENDERING=off \
         -DENABLE_TESTS=off \
         -DUSE_ALTERNATE_LINKER=lld \
+        -GNinja \
         ${PREFIX}/heavydb-internal/
       ;;
 
@@ -510,7 +511,7 @@ create() {
 }
 
 edit() {
-  vim ~/git/dotfiles/scripts.sh
+  code ~/git/dotfiles/scripts.sh
 }
 
 register_goto() {
