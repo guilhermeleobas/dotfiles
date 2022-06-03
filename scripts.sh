@@ -15,7 +15,7 @@ heavy-conda-run(){
   mamba run -n heavydb-env initheavy storage -f
   version=$(mamba run -n heavydb-env heavydb --version)
   echo ${version}
-  mamba run -n omniscidb-env omnisci_server --enable-runtime-udf --enable-table-functions --enable-dev-table-functions
+  mamba run -n heavydb-env heavydb --enable-runtime-udf --enable-table-functions --enable-dev-table-functions --enable-udf-registration-for-all-users
 }
 
 heavy-conda-install(){
