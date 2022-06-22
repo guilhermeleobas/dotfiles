@@ -315,7 +315,6 @@ build() {
         -DENABLE_RENDERING=off \
         -DENABLE_TESTS=off \
         -DUSE_ALTERNATE_LINKER=lld \
-        -GNinja \
         ${PREFIX}/heavydb-internal/
       ;;
 
@@ -469,7 +468,7 @@ create() {
       ;;
 
     numba)
-      mamba create -n numba python=3.8 llvmlite numpy cffi
+      mamba create -n numba python=3.9 llvmlite=0.39 numpy cffi pdbpp -c numba/label/dev
       ;;
 
     numpy)
