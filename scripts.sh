@@ -399,16 +399,16 @@ run() {
   case $environment in
     omniscidb-cpu-dev)
       echo "running heavydb..."
-      echo "bin/heavydb --enable-dev-table-functions --enable-runtime-udfs --enable-table-functions --enable-debug-timer --log-channels PTX,IR --log-severity-clog=WARNING"
+      echo "bin/heavydb --enable-dev-table-functions --enable-udf-registration-for-all-users --enable-runtime-udfs --enable-table-functions --enable-debug-timer --log-channels PTX,IR --log-severity-clog=WARNING"
       env omniscidb-cpu-dev
-      bin/heavydb --enable-dev-table-functions --enable-runtime-udfs --enable-table-functions --enable-debug-timer --log-channels PTX,IR --log-severity-clog=WARNING
+      bin/heavydb --enable-dev-table-functions --enable-udf-registration-for-all-users --enable-runtime-udfs --enable-table-functions --enable-debug-timer --log-channels PTX,IR --log-severity-clog=WARNING
       ;;
 
     omniscidb-cuda-dev)
       echo "running heavydb..."
-      echo "bin/heavydb --enable-dev-table-functions --enable-runtime-udfs --enable-table-functions --enable-debug-timer --log-channels PTX,IR --log-severity-clog=WARNING"
+      echo "bin/heavydb --enable-dev-table-functions --enable-udf-registration-for-all-users --enable-runtime-udfs --enable-table-functions --enable-debug-timer --log-channels PTX,IR --log-severity-clog=WARNING"
       env omniscidb-cuda-dev
-      bin/heavydb --enable-dev-table-functions --enable-runtime-udfs --enable-table-functions --enable-debug-timer --log-channels PTX,IR --log-severity-clog=WARNING
+      bin/heavydb --enable-dev-table-functions --enable-udf-registration-for-all-users --enable-runtime-udfs --enable-table-functions --enable-debug-timer --log-channels PTX,IR --log-severity-clog=WARNING
       ;;
 
     *)
@@ -464,11 +464,11 @@ create() {
 
   case $environment in
     rbc)
-      mamba env create --file=${PREFIX}/rbc/.conda/environment.yml -n rbc
+      mamba env create --file=${PREFIX}/rbc/environment.yml -n rbc
       ;;
 
     numba)
-      mamba create -n numba python=3.9 llvmlite=0.39 numpy cffi pdbpp -c numba/label/dev
+      mamba create -n numba python=3.9 llvmlite=0.39 numpy cffi pdbpp pytest -c numba/label/dev
       ;;
 
     numpy)
@@ -510,6 +510,10 @@ create() {
 
 edit() {
   code ~/git/dotfiles/scripts.sh
+}
+
+flake8_diff() {
+  git diff HEAD^ | flake8 --diff
 }
 
 register_goto() {
