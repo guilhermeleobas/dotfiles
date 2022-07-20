@@ -161,6 +161,20 @@ clone() {
       git clone git@github.com:Quansight-Labs/taco.git ${PREFIX}/taco
       ;;
 
+
+    *)
+      echo -n "clone(): unknown $1"
+      ;;
+  esac
+}
+
+install() {
+  case $1 in
+    micromamba)
+      curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/latest | tar -xvj bin/micromamba
+      ./bin/micromamba shell init -s zsh -p ~/micromamba
+      ;;
+
     fzf)
       git clone git@github.com:junegunn/fzf.git ~/.fzf
       ~/.fzf/install
@@ -183,10 +197,6 @@ clone() {
     theme)
       git clone git@github.com:guilhermeleobas/prompt.git ${PREFIX}/prompt
       make -C ${PREFIX}/prompt install
-      ;;
-
-    *)
-      echo -n "clone(): unknown $1"
       ;;
   esac
 }
