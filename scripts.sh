@@ -94,8 +94,6 @@ pytorch-pyi(){
 reload() {
   if [[ $(hostname) =~ "qgpu" ]]; then
     source ${HOME}/.bashrc
-  elif [[ $(hostname) =~ "guilherme-server" ]]; then
-    source ${HOME}/.zshrc
   else
     source ${HOME}/.zshrc
   fi
@@ -161,7 +159,6 @@ clone() {
       git clone git@github.com:Quansight-Labs/taco.git ${PREFIX}/taco
       ;;
 
-
     *)
       echo -n "clone(): unknown $1"
       ;;
@@ -197,6 +194,14 @@ install() {
     theme)
       git clone git@github.com:guilhermeleobas/prompt.git ${PREFIX}/prompt
       make -C ${PREFIX}/prompt install
+      ;;
+
+    zgen)
+      git clone https://github.com/tarjoilija/zgen.git "${HOME}/.zgen"
+      ;;
+
+    *)
+      echo -n "install: unknown $1"
       ;;
   esac
 }
