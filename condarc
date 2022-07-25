@@ -1,0 +1,4 @@
+channels:
+  - numba
+  - conda-forge
+  - defaults
