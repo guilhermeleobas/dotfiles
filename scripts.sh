@@ -1,10 +1,11 @@
-if [[ $(hostname) =~ "qgpu" ]]; then
-  PREFIX=${HOME}/git
-elif [[ $(hostname) =~ "guilherme-server" ]]; then
-  PREFIX=${HOME}/git
-else
-  PREFIX=${HOME}/git
+PREFIX=${HOME}/git
+
+
+if ! [[ -x "$(command -v conda)" ]]; then
+  alias conda=micromamba
+  alias mamba=micromamba
 fi
+
 
 heavy-conda-run(){
   conda deactivate
@@ -479,7 +480,7 @@ create() {
 
   case $environment in
     rbc)
-      mamba env create --file=${PREFIX}/rbc/environment.yml -n rbc
+      mamba create --file=${PREFIX}/rbc/environment.yml -n rbc
       ;;
 
     numba)
@@ -487,7 +488,7 @@ create() {
       ;;
 
     numpy)
-      mamba env create --file=${PREFIX}/numpy/environment.yml -n numpy
+      mamba create --file=${PREFIX}/numpy/environment.yml -n numpy
       ;;
 
     ibis-omniscidb)
@@ -505,16 +506,16 @@ create() {
       ;;
 
     omniscidb-cpu-dev)
-      mamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/omniscidb-cpu-dev.yaml -n omniscidb-cpu-dev
+      mamba create --file=~/git/Quansight/pearu-sandbox/conda-envs/omniscidb-cpu-dev.yaml -n omniscidb-cpu-dev
       mamba install -n omniscidb-cpu-dev fmt -c conda-forge -y
       ;;
 
     omniscidb-cuda-dev)
-      mamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/omniscidb-dev.yaml -n omniscidb-cuda-dev
+      mamba create --file=~/git/Quansight/pearu-sandbox/conda-envs/omniscidb-dev.yaml -n omniscidb-cuda-dev
       ;;
 
     taco)
-      mamba env create --file=${PREFIX}/taco/.conda/environment.yml -n taco
+      mamba create --file=${PREFIX}/taco/.conda/environment.yml -n taco
       ;;
 
     *)
