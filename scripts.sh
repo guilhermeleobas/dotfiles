@@ -311,6 +311,7 @@ build() {
         -DENABLE_RENDERING=off \
         -DENABLE_SYSTEM_TFS=off \
         -DENABLE_TESTS=off \
+        -DENABLE_SYSTEM_TFS=on \
         -DUSE_ALTERNATE_LINKER="lld" \
         ${PREFIX}/heavydb-internal/
       ;;
@@ -329,6 +330,7 @@ build() {
         -DBENCHMARK_ENABLE_GTEST_TESTS=off \
         -DENABLE_FSI_ODBC=off \
         -DENABLE_RENDERING=off \
+        -DENABLE_SYSTEM_TFS=on \
         -DENABLE_TESTS=off \
         -DUSE_ALTERNATE_LINKER=lld \
         ${PREFIX}/heavydb-internal/
@@ -399,7 +401,7 @@ query() {
 }
 
 sql() {
-  goto omnisci-nocuda
+  goto heavydb-nocuda
   env
   bin/omnisql --passwd HyperInteractive
 }
