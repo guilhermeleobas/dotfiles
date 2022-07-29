@@ -29,6 +29,8 @@ alias reset_term="tput reset"
 
 source ${HOME}/git/dotfiles/scripts.sh
 
+export PATH="${HOME}/git/dotfiles:$PATH"
+
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
 __conda_setup="$('/home/guilhermeleobas/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
@@ -44,20 +46,3 @@ fi
 unset __conda_setup
 # <<< conda initialize <<<
 
-
-# >>> mamba initialize >>>
-# !! Contents within this block are managed by 'mamba init' !!
-export MAMBA_EXE="/home/guilhermeleobas/bin/micromamba";
-export MAMBA_ROOT_PREFIX="/home/guilhermeleobas/micromamba";
-__mamba_setup="$('/home/guilhermeleobas/bin/micromamba' shell hook --shell zsh --prefix '/home/guilhermeleobas/micromamba' 2> /dev/null)"
-if [ $? -eq 0 ]; then
-    eval "$__mamba_setup"
-else
-    if [ -f "/home/guilhermeleobas/micromamba/etc/profile.d/micromamba.sh" ]; then
-        . "/home/guilhermeleobas/micromamba/etc/profile.d/micromamba.sh"
-    else
-        export  PATH="/home/guilhermeleobas/micromamba/bin:$PATH"  # extra space after export prevents interference from conda init
-    fi
-fi
-unset __mamba_setup
-# <<< mamba initialize <<<

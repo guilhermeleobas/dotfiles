@@ -1,12 +1,6 @@
 PREFIX=${HOME}/git
 
 
-if ! [[ -x "$(command -v conda)" ]]; then
-  alias conda=micromamba
-  alias mamba=micromamba
-fi
-
-
 heavy-conda-run(){
   conda deactivate
   conda activate heavydb-env
@@ -25,7 +19,7 @@ heavy-conda-install(){
     conda deactivate
     conda activate base
     conda remove --name heavydb-env --all -y
-    mamba create -n heavydb-env "heavydb=$1*=*_$2" -c conda-forge -y
+    mamba env create -n heavydb-env "heavydb=$1*=*_$2" -c conda-forge -y
   else
     echo 'usage: heavy-conda-install version cpu|cuda'
   fi
@@ -53,7 +47,7 @@ omnisci-conda-install(){
     conda deactivate
     conda activate base
     conda remove --name omniscidb-env --all -y
-    mamba create -n omniscidb-env "omniscidb=$1*=*_$2" -c conda-forge -y
+    mamba env create -n omniscidb-env "omniscidb=$1*=*_$2" -c conda-forge -y
   else
     echo 'usage: omnisci-conda-install version cpu|cuda'
   fi
@@ -77,7 +71,7 @@ heavydb-conda-install(){
     conda deactivate
     conda activate base
     conda remove --name heavydb-env --all -y
-    mamba create -n heavydb-env "heavydb=$1*=*_$2" -c conda-forge -y
+    mamba env create -n heavydb-env "heavydb=$1*=*_$2" -c conda-forge -y
   else
     echo 'usage: heavydb-conda-install version cpu|cuda'
   fi
@@ -115,7 +109,7 @@ clone() {
       popd
       ;;
 
-    rbc-feedstock|omniscidb-feedstock)
+    rbc-feedstock|heavydb-ext-feedstock)
       echo "cloning $1..."
       git clone git@github.com:guilhermeleobas/$1.git ${PREFIX}/$1/
       ;;
@@ -173,6 +167,11 @@ install() {
       ./bin/micromamba shell init -s zsh -p ~/micromamba
       ;;
 
+    miniconda)
+      wget -q https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+      bash Miniconda3-latest-Linux-x86_64.sh -b -u
+      ;;
+
     fzf)
       git clone git@github.com:junegunn/fzf.git ~/.fzf
       ~/.fzf/install
@@ -189,7 +188,7 @@ install() {
       ;;
 
     ag)
-      mamba install silverseacher-ag -c conda-forge
+      mamba install -c conda-forge -n base the_silver_searcher
       ;;
 
     theme)
@@ -217,10 +216,10 @@ find_env() {
     llvm-project)
       environment=llvm
       ;;
-    build-nocuda)
+    heavydb-nocuda)
       environment=omniscidb-cpu-dev
       ;;
-    build-cuda)
+    heavydb-cuda)
       environment=omniscidb-cuda-dev
       ;;
     *)
@@ -246,13 +245,13 @@ env() {
         ;;
 
       omniscidb-cpu-dev)
-        echo "activating env: omniscidb nocuda"
+        echo "activating env: heavydb nocuda"
         export USE_ENV=omniscidb-cpu-dev
         . ~/git/Quansight/pearu-sandbox/working-envs/activate-omniscidb-internal-dev.sh
         ;;
 
       omniscidb-cuda-dev)
-        echo "activating env: omniscidb cuda"
+        echo "activating env: heavydb cuda"
         export CUDA_HOME=/usr/local/cuda/
         export USE_ENV=omniscidb-cuda-dev
         . ~/git/Quansight/pearu-sandbox/working-envs/activate-omniscidb-internal-dev.sh
@@ -311,6 +310,7 @@ build() {
         -DENABLE_RENDERING=off \
         -DENABLE_SYSTEM_TFS=off \
         -DENABLE_TESTS=off \
+        -DENABLE_ASAN=on \
         -DENABLE_SYSTEM_TFS=on \
         -DUSE_ALTERNATE_LINKER="lld" \
         ${PREFIX}/heavydb-internal/
@@ -482,7 +482,7 @@ create() {
 
   case $environment in
     rbc)
-      mamba create --file=${PREFIX}/rbc/environment.yml -n rbc
+      mamba env create --file=${PREFIX}/rbc/environment.yml -n rbc
       ;;
 
     numba)
@@ -490,7 +490,7 @@ create() {
       ;;
 
     numpy)
-      mamba create --file=${PREFIX}/numpy/environment.yml -n numpy
+      mamba env create --file=${PREFIX}/numpy/environment.yml -n numpy
       ;;
 
     ibis-omniscidb)
@@ -498,26 +498,26 @@ create() {
       ;;
 
     llvmlite)
-      mamba create -n llvmlite python=3.9 -c conda-forge -y
+      mamba env create -n llvmlite python=3.9 -c conda-forge -y
       mamba install -n llvmlite llvmdev -c numba -y
       mamba install -n llvmlite compilers cmake make -c conda-forge -y
       ;;
 
     llvm)
-      mamba create -n llvm cmake ccache compilers make -c conda-forge -y
+      mamba env create -n llvm cmake ccache compilers make -c conda-forge -y
       ;;
 
     omniscidb-cpu-dev)
-      mamba create --file=~/git/Quansight/pearu-sandbox/conda-envs/omniscidb-cpu-dev.yaml -n omniscidb-cpu-dev
+      mamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/omniscidb-cpu-dev.yaml -n omniscidb-cpu-dev
       mamba install -n omniscidb-cpu-dev fmt -c conda-forge -y
       ;;
 
     omniscidb-cuda-dev)
-      mamba create --file=~/git/Quansight/pearu-sandbox/conda-envs/omniscidb-dev.yaml -n omniscidb-cuda-dev
+      mamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/omniscidb-dev.yaml -n omniscidb-cuda-dev
       ;;
 
     taco)
-      mamba create --file=${PREFIX}/taco/.conda/environment.yml -n taco
+      mamba env create --file=${PREFIX}/taco/.conda/environment.yml -n taco
       ;;
 
     *)
@@ -527,7 +527,18 @@ create() {
 }
 
 edit() {
-  code ~/git/dotfiles/scripts.sh
+  if [[ $# -eq 1 ]]; then
+    $1 ~/git/dotfiles/scripts.sh
+  else
+    code ~/git/dotfiles/scripts.sh
+  fi
+}
+
+sync_dotfiles() {
+  goto dotfiles
+  git add -A
+  git commit --amend
+  git push -f
 }
 
 flake8_diff() {
@@ -535,11 +546,12 @@ flake8_diff() {
 }
 
 register_goto() {
+  goto -c
   goto -r pytorch ${PREFIX}/Quansight/pytorch
   goto -r rbc ${PREFIX}/rbc
   goto -r heavydb ${PREFIX}/heavydb-internal
-  goto -r heavydb-nocuda ${PREFIX}/build-nocuda
-  goto -r heavydb-cuda ${PREFIX}/build-cuda
+  goto -r heavydb-nocuda ${PREFIX}/heavydb-nocuda
+  goto -r heavydb-cuda ${PREFIX}/heavydb-cuda
   goto -r numba ${PREFIX}/numba
   goto -r llvmlite ${PREFIX}/llvmlite
   goto -r numpy ${PREFIX}/numpy
