@@ -537,7 +537,7 @@ edit() {
 sync_dotfiles() {
   goto dotfiles
   git add -A
-  git commit --amend
+  git commit -m "`date`"
   git push -f
 }
 
