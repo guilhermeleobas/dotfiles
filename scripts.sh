@@ -190,6 +190,10 @@ install() {
     ag)
       mamba install -c conda-forge -n base the_silver_searcher
       ;;
+      
+    gh)
+      mamba install -c conda-forge -n base gh
+      ;;
 
     theme)
       git clone git@github.com:guilhermeleobas/prompt.git ${PREFIX}/prompt
