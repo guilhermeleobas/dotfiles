@@ -545,7 +545,7 @@ sync_dotfiles() {
   git push -f
 }
 
-flake8_diff() {
+run_flake8() {
   git diff HEAD^ | flake8 --diff
 }
 
