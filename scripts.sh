@@ -80,6 +80,7 @@ heavydb-conda-install(){
 pytorch-update(){
   git submodule sync
   git submodule update --init --recursive
+  popd
 }
 
 pytorch-pyi(){
