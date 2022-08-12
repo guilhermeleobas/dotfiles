@@ -80,7 +80,6 @@ heavydb-conda-install(){
 pytorch-update(){
   git submodule sync
   git submodule update --init --recursive
-  cd -
 }
 
 pytorch-pyi(){
@@ -544,6 +543,7 @@ sync_dotfiles() {
   git add -A
   git commit -m "`date`"
   git push -f
+  cd -
 }
 
 run_flake8() {
