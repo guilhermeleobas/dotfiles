@@ -167,11 +167,6 @@ install() {
       ./bin/micromamba shell init -s zsh -p ~/micromamba
       ;;
 
-    miniconda)
-      wget -q https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-      bash Miniconda3-latest-Linux-x86_64.sh -b -u
-      ;;
-
     fzf)
       git clone git@github.com:junegunn/fzf.git ~/.fzf
       ~/.fzf/install
@@ -190,7 +185,7 @@ install() {
     ag)
       mamba install -c conda-forge -n base the_silver_searcher
       ;;
-      
+
     gh)
       mamba install -c conda-forge -n base gh
       ;;
