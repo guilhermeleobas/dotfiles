@@ -128,6 +128,11 @@ clone() {
       echo "cloning numpy..."
       git clone git@github.com:numpy/numpy.git ${PREFIX}/numpy
       ;;
+      
+    cpython)
+      echo "cloning cpython..."
+      git clone git@github.com:python/cpython.git --single-branch ${PREFIX}/cpython
+      ;;
 
     llvmlite)
       echo "cloning llvmlite..."
@@ -183,11 +188,11 @@ install() {
       ;;
 
     ag)
-      mamba install -c conda-forge -n base the_silver_searcher
+      mamba install -c conda-forge the_silver_searcher
       ;;
 
     gh)
-      mamba install -c conda-forge -n base gh
+      mamba install -c conda-forge gh
       ;;
 
     theme)
@@ -309,9 +314,9 @@ build() {
         -DENABLE_RENDERING=off \
         -DENABLE_SYSTEM_TFS=off \
         -DENABLE_TESTS=off \
-        -DENABLE_ASAN=on \
+        -DENABLE_ASAN=off \
         -DENABLE_SYSTEM_TFS=on \
-        -DUSE_ALTERNATE_LINKER="lld" \
+        -DUSE_ALTERNATE_LINKER=lld \
         ${PREFIX}/heavydb-internal/
       ;;
 
