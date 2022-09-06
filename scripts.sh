@@ -183,11 +183,11 @@ install() {
       ;;
 
     ag)
-      mamba install -c conda-forge -n base the_silver_searcher
+      mamba install -c conda-forge the_silver_searcher
       ;;
 
     gh)
-      mamba install -c conda-forge -n base gh
+      mamba install -c conda-forge gh
       ;;
 
     theme)
