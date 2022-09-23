@@ -547,7 +547,13 @@ edit() {
   fi
 }
 
-sync_dotfiles() {
+pull_dotfiles() {
+  goto dotfiles
+  git pull
+  cd -
+}
+
+push_dotfiles() {
   goto dotfiles
   git add -A
   git commit -m "`date`"
