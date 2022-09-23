@@ -313,7 +313,7 @@ build() {
         -DENABLE_FSI_ODBC=off \
         -DENABLE_RENDERING=off \
         -DENABLE_SYSTEM_TFS=off \
-        -DENABLE_TESTS=off \
+        -DENABLE_TESTS=on \
         -DENABLE_ASAN=off \
         -DENABLE_SYSTEM_TFS=on \
         -DUSE_ALTERNATE_LINKER=lld \
@@ -335,7 +335,8 @@ build() {
         -DENABLE_FSI_ODBC=off \
         -DENABLE_RENDERING=off \
         -DENABLE_SYSTEM_TFS=on \
-        -DENABLE_TESTS=off \
+        -DENABLE_TESTS=on \
+        -DENABLE_ASAN=off \
         -DUSE_ALTERNATE_LINKER=lld \
         ${PREFIX}/heavydb-internal/
       ;;
@@ -404,6 +405,15 @@ query() {
   bin/omnisql --passwd HyperInteractive < ../query.sql
 }
 
+query_benchmark() {
+  for i in $(seq 1 10); do
+    echo "select avg(cardinality(content_tokens)) from (select strtok_to_array$1(content_text, ' ?.!:') as content_tokens from hacker_news_comments limit ${i}00000);" > /tmp/file.sql
+    echo "query..."
+    cat /tmp/file.sql
+    hyperfine "bin/omnisql --passwd HyperInteractive < /tmp/file.sql"
+  done
+}
+
 sql() {
   env
   bin/omnisql --passwd HyperInteractive
@@ -429,7 +439,7 @@ run() {
       echo "running heavydb..."
       echo "bin/heavydb --enable-dev-table-functions --enable-udf-registration-for-all-users --enable-runtime-udfs --enable-table-functions --enable-debug-timer --log-channels PTX,IR --log-severity-clog=WARNING --log-severity=DEBUG4"
       env omniscidb-cuda-dev
-      bin/heavydb --enable-dev-table-functions --enable-udf-registration-for-all-users --enable-runtime-udfs --enable-table-functions --enable-debug-timer --log-channels PTX,IR --log-severity-clog=WARNING --log-severity=DEBUG4
+      bin/heavydb --enable-dev-table-functions --enable-udf-registration-for-all-users --enable-runtime-udfs --enable-table-functions --enable-debug-timer --log-channels PTX,IR --log-severity-clog=WARNING
       ;;
 
     *)
