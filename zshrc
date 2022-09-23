@@ -27,7 +27,7 @@ alias reset_term="tput reset"
 
 source ${HOME}/git/dotfiles/scripts.sh
 
-export PATH="${HOME}/git/dotfiles:$PATH"  # commented out by conda initialize
+export PATH="${HOME}/git/dotfiles:$PATH"
 
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!

@@ -499,7 +499,7 @@ create() {
       ;;
 
     numba)
-      mamba create -n numba python=3.9 llvmlite=0.40 numpy cffi pdbpp pytest -c numba/label/dev
+      mamba create -n numba python=3.9 llvmlite=0.40 numpy cffi pytest -c numba/label/dev
       ;;
 
     numpy)
