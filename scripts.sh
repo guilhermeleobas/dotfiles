@@ -177,6 +177,14 @@ install() {
       ./bin/micromamba shell init -s zsh -p ~/micromamba
       ;;
 
+    vim-plug)
+      curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+      ;;
+      
+    nvim-plug)
+      sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+      ;;
+
     fzf)
       git clone git@github.com:junegunn/fzf.git ~/.fzf
       ~/.fzf/install
@@ -186,6 +194,10 @@ install() {
       git clone git@github.com:iridakos/goto.git ${PREFIX}/goto
       source ~/git/goto/goto.sh
       register_goto
+      ;;
+
+    miniconda)
+      bash <(curl -L conda.sh)
       ;;
 
     tpm)
@@ -226,10 +238,10 @@ find_env() {
       environment=llvm
       ;;
     heavydb-nocuda)
-      environment=omniscidb-cpu-dev
+      environment=heavydb-cpu-dev
       ;;
     heavydb-cuda)
-      environment=omniscidb-cuda-dev
+      environment=heavydb-cuda-dev
       ;;
     *)
       echo "find_env(): unknown $d"
@@ -253,17 +265,17 @@ env() {
         conda activate ${environment}
         ;;
 
-      omniscidb-cpu-dev)
+      heavydb-cpu-dev)
         echo "activating env: heavydb nocuda"
-        export USE_ENV=omniscidb-cpu-dev
-        . ~/git/Quansight/pearu-sandbox/working-envs/activate-omniscidb-internal-dev.sh
+        export USE_ENV=heavydb-cpu-dev
+        . ~/git/Quansight/pearu-sandbox/working-envs/activate-heavydb-internal-dev.sh
         ;;
 
-      omniscidb-cuda-dev)
+      heavydb-cuda-dev)
         echo "activating env: heavydb cuda"
         export CUDA_HOME=/usr/local/cuda/
-        export USE_ENV=omniscidb-cuda-dev
-        . ~/git/Quansight/pearu-sandbox/working-envs/activate-omniscidb-internal-dev.sh
+        export USE_ENV=heavydb-cuda-dev
+        . ~/git/Quansight/pearu-sandbox/working-envs/activate-heavydb-internal-dev.sh
         ;;
 
       pytorch)
@@ -303,8 +315,8 @@ build() {
   fi
 
   case $environment in
-    omniscidb-cpu-dev)
-      env omniscidb-cpu-dev
+    heavydb-cpu-dev)
+      env heavydb-cpu-dev
       cmake -Wno-dev $CMAKE_OPTIONS_NOCUDA \
         -DCMAKE_BUILD_TYPE=DEBUG \
         -DENABLE_CUDA=off \
@@ -318,7 +330,7 @@ build() {
         -DENABLE_FSI_ODBC=off \
         -DENABLE_RENDERING=off \
         -DENABLE_SYSTEM_TFS=off \
-        -DENABLE_TESTS=on \
+        -DENABLE_TESTS=off \
         -DENABLE_ASAN=off \
         -DENABLE_SYSTEM_TFS=on \
         -DUSE_ALTERNATE_LINKER=lld \
@@ -327,8 +339,8 @@ build() {
         ${PREFIX}/heavydb-internal/
       ;;
 
-    omniscidb-cuda-dev)
-      env omniscidb-cuda-dev
+    heavydb-cuda-dev)
+      env heavydb-cuda-dev
       cmake -Wno-dev $CMAKE_OPTIONS_CUDA \
         -DCMAKE_BUILD_TYPE=RelWithDebInfo \
 	      -DENABLE_CUDA=on \
@@ -437,17 +449,17 @@ run() {
   fi
 
   case $environment in
-    omniscidb-cpu-dev)
+    heavydb-cpu-dev)
       echo "running heavydb..."
       echo "bin/heavydb --enable-dev-table-functions --enable-udf-registration-for-all-users --enable-runtime-udfs --enable-table-functions --enable-debug-timer --log-channels PTX,IR --log-severity-clog=WARNING"
-      env omniscidb-cpu-dev
+      env heavydb-cpu-dev
       bin/heavydb --enable-dev-table-functions --enable-udf-registration-for-all-users --enable-runtime-udfs --enable-table-functions --enable-debug-timer --log-channels PTX,IR --log-severity-clog=WARNING
       ;;
 
-    omniscidb-cuda-dev)
+    heavydb-cuda-dev)
       echo "running heavydb..."
       echo "bin/heavydb --enable-dev-table-functions --enable-udf-registration-for-all-users --enable-runtime-udfs --enable-table-functions --enable-debug-timer --log-channels PTX,IR --log-severity-clog=WARNING --log-severity=DEBUG4"
-      env omniscidb-cuda-dev
+      env heavydb-cuda-dev
       bin/heavydb --enable-dev-table-functions --enable-udf-registration-for-all-users --enable-runtime-udfs --enable-table-functions --enable-debug-timer --log-channels PTX,IR --log-severity-clog=WARNING --log-severity=DEBUG4
       ;;
 
@@ -529,13 +541,13 @@ create() {
       mamba env create -n llvm cmake ccache compilers make -c conda-forge -y
       ;;
 
-    omniscidb-cpu-dev)
-      mamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/omniscidb-cpu-dev.yaml -n omniscidb-cpu-dev
-      mamba install -n omniscidb-cpu-dev fmt -c conda-forge -y
+    heavydb-cpu-dev)
+      mamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/omniscidb-cpu-dev.yaml -n heavydb-cpu-dev
+      mamba install -n heavydb-cpu-dev fmt -c conda-forge -y
       ;;
 
-    omniscidb-cuda-dev)
-      mamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/omniscidb-dev.yaml -n omniscidb-cuda-dev
+    heavydb-cuda-dev)
+      mamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/heavydb-dev.yaml -n heavydb-cuda-dev
       ;;
 
     taco)
