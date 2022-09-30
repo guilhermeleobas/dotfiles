@@ -114,9 +114,14 @@ clone() {
       git clone git@github.com:guilhermeleobas/$1.git ${PREFIX}/$1/
       ;;
 
-    ibis-omniscidb)
-      echo "cloning ibis-omniscidb..."
-      git clone git@github.com:omnisci/ibis-omniscidb.git ${PREFIX}/ibis-omniscidb
+    ibis-heavyai)
+      echo "cloning ibis-heavyai..."
+      git clone git@github.com:heavyai/ibis-heavyai.git ${PREFIX}/ibis-heavyai
+      ;;
+
+    ibis)
+      echo "cloning ibis..."
+      git clone git@github.com:ibis-project/ibis.git ${PREFIX}/ibis
       ;;
 
     numba)
@@ -214,7 +219,7 @@ find_env() {
   environment=""
   local d=$(basename $(pwd))
   case ${d} in
-    rbc|numba|llvmlite|taco|numpy|pytorch|ibis-omniscidb)
+    rbc|numba|llvmlite|taco|numpy|pytorch|ibis-heavyai)
       environment=$d
       ;;
     llvm-project)
@@ -242,7 +247,7 @@ env() {
 
   if [[ "${environment}" != "${CONDA_DEFAULT_ENV}" ]]; then
     case ${environment} in
-      taco|rbc|numba|numpy|llvmlite|llvm|ibis-omniscidb)
+      taco|rbc|numba|numpy|llvmlite|llvm|ibis-heavyai)
         echo "activating env: ${environment}"
         conda deactivate
         conda activate ${environment}
@@ -506,8 +511,8 @@ create() {
       mamba env create --file=${PREFIX}/numpy/environment.yml -n numpy
       ;;
 
-    ibis-omniscidb)
-      mamba env create --file=${PREFIX}/ibis-omniscidb/environment-dev.yaml -n ibis-omniscidb
+    ibis-heavyai)
+      mamba env create --file=${PREFIX}/ibis-heavyai/environment.yaml -n ibis-heavyai
       ;;
 
     llvmlite)
