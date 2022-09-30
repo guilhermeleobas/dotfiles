@@ -2,12 +2,20 @@
 source ${HOME}/.zgen/zgen.zsh
 if ! zgen saved; then
   zgen oh-my-zsh
-  zgen oh-my-zsh themes/steeef
+  if [[ $(hostname) =~ "server" ]]; then
+    zgen oh-my-zsh themes/awesomepanda
+  else
+    zgen oh-my-zsh themes/steeef
+  fi
   zgen load zsh-users/zsh-syntax-highlighting
   zgen load zsh-users/zsh-autosuggestions
   # zgen load denysdovhan/spaceship-prompt spaceship
   zgen save
 fi
+
+# PROMPT=$'
+# %{$purple%}%n${PR_RST} at %{$orange%}%m${PR_RST} in %{$limegreen%}%~${PR_RST} $vcs_info_msg_0_$(virtualenv_info)
+# $ '
 
 # execute immediately
 unsetopt HIST_VERIFY
