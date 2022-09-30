@@ -322,13 +322,15 @@ build() {
         -DENABLE_ASAN=off \
         -DENABLE_SYSTEM_TFS=on \
         -DUSE_ALTERNATE_LINKER=lld \
+        -DCMAKE_C_COMPILER=clang \
+        -DCMAKE_CXX_COMPILER=clang++ \
         ${PREFIX}/heavydb-internal/
       ;;
 
     omniscidb-cuda-dev)
       env omniscidb-cuda-dev
       cmake -Wno-dev $CMAKE_OPTIONS_CUDA \
-        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_BUILD_TYPE=RelWithDebInfo \
 	      -DENABLE_CUDA=on \
         -DENABLE_FOLLY=off \
         -DENABLE_AWS_S3=off \
@@ -343,6 +345,8 @@ build() {
         -DENABLE_TESTS=on \
         -DENABLE_ASAN=off \
         -DUSE_ALTERNATE_LINKER=lld \
+        -DCMAKE_C_COMPILER=clang \
+        -DCMAKE_CXX_COMPILER=clang++ \
         ${PREFIX}/heavydb-internal/
       ;;
 
@@ -444,7 +448,7 @@ run() {
       echo "running heavydb..."
       echo "bin/heavydb --enable-dev-table-functions --enable-udf-registration-for-all-users --enable-runtime-udfs --enable-table-functions --enable-debug-timer --log-channels PTX,IR --log-severity-clog=WARNING --log-severity=DEBUG4"
       env omniscidb-cuda-dev
-      bin/heavydb --enable-dev-table-functions --enable-udf-registration-for-all-users --enable-runtime-udfs --enable-table-functions --enable-debug-timer --log-channels PTX,IR --log-severity-clog=WARNING
+      bin/heavydb --enable-dev-table-functions --enable-udf-registration-for-all-users --enable-runtime-udfs --enable-table-functions --enable-debug-timer --log-channels PTX,IR --log-severity-clog=WARNING --log-severity=DEBUG4
       ;;
 
     *)
@@ -584,6 +588,7 @@ register_goto() {
   goto -r taco ${PREFIX}/taco
   goto -r dotfiles ${PREFIX}/dotfiles
   goto -r llvm ${PREFIX}/llvm-project
+  goto -r cpython ${PREFIX}/cpython
 }
 
 if [[ $(hostname) =~ qgpu ]]; then
