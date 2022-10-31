@@ -334,8 +334,6 @@ build() {
         -DENABLE_ASAN=off \
         -DENABLE_SYSTEM_TFS=on \
         -DUSE_ALTERNATE_LINKER=lld \
-        -DCMAKE_C_COMPILER=clang \
-        -DCMAKE_CXX_COMPILER=clang++ \
         ${PREFIX}/heavydb-internal/
       ;;
 
@@ -354,11 +352,9 @@ build() {
         -DENABLE_FSI_ODBC=off \
         -DENABLE_RENDERING=off \
         -DENABLE_SYSTEM_TFS=on \
-        -DENABLE_TESTS=on \
+        -DENABLE_TESTS=off \
         -DENABLE_ASAN=off \
         -DUSE_ALTERNATE_LINKER=lld \
-        -DCMAKE_C_COMPILER=clang \
-        -DCMAKE_CXX_COMPILER=clang++ \
         ${PREFIX}/heavydb-internal/
       ;;
 

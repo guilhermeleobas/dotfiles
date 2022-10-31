@@ -2,11 +2,12 @@
 source ${HOME}/.zgen/zgen.zsh
 if ! zgen saved; then
   zgen oh-my-zsh
-  if [[ $(hostname) =~ "server" ]]; then
-    zgen oh-my-zsh themes/awesomepanda
-  else
-    zgen oh-my-zsh themes/steeef
-  fi
+  # if [[ $(hostname) =~ "server" ]]; then
+  #   zgen oh-my-zsh themes/awesomepanda
+  # else
+  #   zgen oh-my-zsh themes/steeef
+  # fi
+  zgen oh-my-zsh themes/steeef
   zgen load zsh-users/zsh-syntax-highlighting
   zgen load zsh-users/zsh-autosuggestions
   # zgen load denysdovhan/spaceship-prompt spaceship
