@@ -259,7 +259,7 @@ env() {
 
   if [[ "${environment}" != "${CONDA_DEFAULT_ENV}" ]]; then
     case ${environment} in
-      taco|rbc|numba|numpy|llvmlite|llvm|ibis-heavyai)
+      taco|rbc|numba|numpy|llvmlite|llvm|ibis-heavyai|base)
         echo "activating env: ${environment}"
         conda deactivate
         conda activate ${environment}
