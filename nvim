@@ -24,9 +24,6 @@ Plug 'ctrlpvim/ctrlp.vim'
 " Better cpp highlight
 Plug 'octol/vim-cpp-enhanced-highlight'
 
-" RestructuredText
-Plug 'gu-fan/riv.vim'
-
 " Themes and visual modifiers
 Plug 'vim-airline/vim-airline'
 Plug 'NLKNguyen/papercolor-theme'

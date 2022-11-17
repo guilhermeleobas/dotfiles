@@ -1,4 +1,10 @@
 #!/bin/bash
 # the pbcopy script
-tee <&0 | clip.exe
-exit 0
+if [[ $(hostname) =~ "guilhermeleobas-server" ]]; then
+  alias pbcopy='xclip -selection clipboard'
+  alias pbpaste='xclip -selection clipboard -o'
+else
+  tee <&0 | clip.exe
+  exit 0
+fi
+

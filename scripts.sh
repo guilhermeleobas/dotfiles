@@ -19,7 +19,7 @@ heavy-conda-install(){
     conda deactivate
     conda activate base
     conda remove --name heavydb-env --all -y
-    mamba env create -n heavydb-env "heavydb=$1*=*_$2" -c conda-forge -y
+    mamba create -n heavydb-env "heavydb=$1*=*_$2" -c conda-forge -y
   else
     echo 'usage: heavy-conda-install version cpu|cuda'
   fi
@@ -318,7 +318,8 @@ build() {
     heavydb-cpu-dev)
       env heavydb-cpu-dev
       cmake -Wno-dev $CMAKE_OPTIONS_NOCUDA \
-        -DCMAKE_BUILD_TYPE=DEBUG \
+        -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+        -DENABLE_WARNINGS_AS_ERRORS=off \
         -DENABLE_CUDA=off \
         -DENABLE_FOLLY=off \
         -DENABLE_AWS_S3=off \
@@ -330,9 +331,13 @@ build() {
         -DENABLE_FSI_ODBC=off \
         -DENABLE_RENDERING=off \
         -DENABLE_SYSTEM_TFS=off \
+        -DENABLE_ML_ONEDAL_TFS=off \
+        -DENABLE_ML_MLPACK_TFS=off \
+        -DENABLE_POINT_CLOUD_TFS=off \
+        -DENABLE_PDAL=off \
+        -DENABLE_RF_PROP_TFS=off \
         -DENABLE_TESTS=off \
         -DENABLE_ASAN=off \
-        -DENABLE_SYSTEM_TFS=on \
         -DUSE_ALTERNATE_LINKER=lld \
         ${PREFIX}/heavydb-internal/
       ;;
@@ -341,7 +346,7 @@ build() {
       env heavydb-cuda-dev
       cmake -Wno-dev $CMAKE_OPTIONS_CUDA \
         -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-	      -DENABLE_CUDA=on \
+        -DENABLE_WARNINGS_AS_ERRORS=off \
         -DENABLE_FOLLY=off \
         -DENABLE_AWS_S3=off \
         -DENABLE_GEOS=off \
@@ -351,7 +356,12 @@ build() {
         -DBENCHMARK_ENABLE_GTEST_TESTS=off \
         -DENABLE_FSI_ODBC=off \
         -DENABLE_RENDERING=off \
-        -DENABLE_SYSTEM_TFS=on \
+        -DENABLE_SYSTEM_TFS=off \
+        -DENABLE_ML_ONEDAL_TFS=off \
+        -DENABLE_ML_MLPACK_TFS=off \
+        -DENABLE_POINT_CLOUD_TFS=off \
+        -DENABLE_PDAL=off \
+        -DENABLE_RF_PROP_TFS=off \
         -DENABLE_TESTS=off \
         -DENABLE_ASAN=off \
         -DUSE_ALTERNATE_LINKER=lld \
@@ -419,7 +429,7 @@ build() {
 }
 
 query() {
-  bin/omnisql --passwd HyperInteractive < ../query.sql
+  bin/heavysql --passwd HyperInteractive < ../query.sql
 }
 
 query_benchmark() {
@@ -433,7 +443,7 @@ query_benchmark() {
 
 sql() {
   env
-  bin/omnisql --passwd HyperInteractive
+  bin/heavysql --passwd HyperInteractive
 }
 
 run() {
@@ -538,8 +548,8 @@ create() {
       ;;
 
     heavydb-cpu-dev)
-      mamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/omniscidb-cpu-dev.yaml -n heavydb-cpu-dev
-      mamba install -n heavydb-cpu-dev fmt -c conda-forge -y
+      mamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/heavydb-cpu-dev.yaml -n heavydb-cpu-dev
+      # mamba install -n heavydb-cpu-dev fmt arrow=5.0=cpu -c conda-forge -y
       ;;
 
     heavydb-cuda-dev)
