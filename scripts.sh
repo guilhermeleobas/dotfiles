@@ -180,7 +180,7 @@ install() {
     vim-plug)
       curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
       ;;
-      
+
     nvim-plug)
       sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
       ;;
@@ -231,7 +231,7 @@ find_env() {
   environment=""
   local d=$(basename $(pwd))
   case ${d} in
-    rbc|numba|llvmlite|taco|numpy|pytorch|ibis-heavyai)
+    rbc|numba|llvmlite|taco|numpy|pytorch|ibis-heavyai|cython)
       environment=$d
       ;;
     llvm-project)
@@ -259,7 +259,7 @@ env() {
 
   if [[ "${environment}" != "${CONDA_DEFAULT_ENV}" ]]; then
     case ${environment} in
-      taco|rbc|numba|numpy|llvmlite|llvm|ibis-heavyai|base)
+      taco|rbc|numba|numpy|llvmlite|llvm|ibis-heavyai|base|cython)
         echo "activating env: ${environment}"
         conda deactivate
         conda activate ${environment}
@@ -401,6 +401,11 @@ build() {
         ${PREFIX}/taco
       ;;
 
+    cython)
+      env cython
+      NUMBA_DISABLE_OPENMP=1 python setup.py build_ext --inplace -j10
+      ;;
+
     rbc)
       env rbc
       python setup.py develop
@@ -523,6 +528,12 @@ create() {
   case $environment in
     rbc)
       mamba env create --file=${PREFIX}/rbc/environment.yml -n rbc
+      ;;
+
+    cython)
+      mamba env create --file=${PREFIX}/cython/environment.yml -n cython
+      env cython
+      pip install Cython==3.0.0a11
       ;;
 
     numba)
