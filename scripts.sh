@@ -77,15 +77,6 @@ heavydb-conda-install(){
   fi
 }
 
-pytorch-update(){
-  git submodule sync
-  git submodule update --init --recursive
-}
-
-pytorch-pyi(){
-  python -m tools.pyi.gen_pyi
-}
-
 reload() {
   if [[ $(hostname) =~ "qgpu" ]]; then
     source ${HOME}/.bashrc
@@ -159,11 +150,6 @@ clone() {
       git clone git@github.com:Quansight/pearu-sandbox.git ${HOME}/git/Quansight/pearu-sandbox
       ;;
 
-    taco)
-      echo "cloning Quansight-labs:taco..."
-      git clone git@github.com:Quansight-Labs/taco.git ${PREFIX}/taco
-      ;;
-
     *)
       echo -n "clone(): unknown $1"
       ;;
@@ -231,9 +217,6 @@ find_env() {
   environment=""
   local d=$(basename $(pwd))
   case ${d} in
-    rbc|numba|llvmlite|taco|numpy|pytorch|ibis-heavyai|cython)
-      environment=$d
-      ;;
     llvm-project)
       environment=llvm
       ;;
@@ -244,7 +227,8 @@ find_env() {
       environment=heavydb-cuda-dev
       ;;
     *)
-      echo "find_env(): unknown $d"
+      # use the folder name as conda environment name
+      environment=$d
       ;;
   esac
 }
@@ -259,12 +243,6 @@ env() {
 
   if [[ "${environment}" != "${CONDA_DEFAULT_ENV}" ]]; then
     case ${environment} in
-      taco|rbc|numba|numpy|llvmlite|llvm|ibis-heavyai|base|cython)
-        echo "activating env: ${environment}"
-        conda deactivate
-        conda activate ${environment}
-        ;;
-
       heavydb-cpu-dev)
         echo "activating env: heavydb nocuda"
         export USE_ENV=heavydb-cpu-dev
@@ -278,29 +256,16 @@ env() {
         . ~/git/Quansight/pearu-sandbox/working-envs/activate-heavydb-internal-dev.sh
         ;;
 
-      pytorch)
-        echo "activating env: pytorch"
-        export USE_CUDA=0
-        export USE_DISTRIBUTED=0
-        export USE_MKLDNN=0
-        export USE_FBGEMM=0
-        export USE_NNPACK=0
-        export USE_QNNPACK=0
-        export USE_XNNPACK=0
-        export USE_NCCL=0
-        export MAX_JOBS=24
-        . ~/git/Quansight/pearu-sandbox/working-envs/activate-pytorch-dev.sh
-        # Enable ccache
-        # export CCACHE_COMPRESS=true
-        # export CMAKE_C_COMPILER_LAUNCHER=ccache
-        # export CMAKE_CXX_COMPILER_LAUNCHER=ccache
-        # export CMAKE_CUDA_COMPILER_LAUNCHER=ccache
-
-        export LD=$(which lld)
-        ;;
-
       *)
-        echo -n "env(): unknown ${environment}\n"
+        echo "activating env: ${environment}"
+        conda deactivate
+        conda activate ${environment}
+
+        if [[ $? -ne 0 ]]; then
+          echo "activating default env..."
+          conda activate ${CONDA_DEFAULT_ENV}
+        fi
+
         ;;
     esac
   fi
@@ -389,18 +354,6 @@ build() {
         -DHAVE_LIBEDIT=OFF
       ;;
 
-    pytorch)
-      env pytorch
-      python setup.py develop -j10
-      ;;
-
-    taco)
-      env taco
-      cmake -DLLVM=ON ${PREFIX}/taco \
-        -DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=gold" \
-        ${PREFIX}/taco
-      ;;
-
     cython)
       env cython
       NUMBA_DISABLE_OPENMP=1 python setup.py build_ext --inplace -j10
@@ -480,34 +433,6 @@ run() {
   esac
 }
 
-run_tests() {
-
-  if [[ $# -eq 0 ]]; then
-    find_env
-  else
-    environment=$1
-  fi
-
-  case $environment in
-    numba)
-      echo "running numba tests..."
-      echo "python -m numba.runtests -f -b -v -g -m 15 -- numba.tests"
-      env numba
-      python -m numba.runtests -b -v -g -m 15 -- numba.tests
-      ;;
-
-    rbc)
-      echo "running rbc tests..."
-      echo "pytest --tb=short rbc/tests"
-      env rbc
-      pytest --tb=short rbc/tests/
-      ;;
-
-    *)
-      echo -n "test: unknown $environment"
-  esac
-}
-
 create() {
   conda deactivate
   if [[ $(hostname) =~ qgpu ]]; then
@@ -518,12 +443,19 @@ create() {
 
   if [[ $# -eq 0 ]]; then
     find_env
+  elif [[ $1 =~ empty ]]; then
+    find_env
   else
     environment=$1
   fi
 
   echo "create env: ${environment}..."
   conda remove --name ${environment} --all -y
+
+  if [[ $1 =~ empty ]]; then
+    mamba create --name $environment
+    return
+  fi
 
   case $environment in
     rbc)
@@ -560,15 +492,10 @@ create() {
 
     heavydb-cpu-dev)
       mamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/heavydb-cpu-dev.yaml -n heavydb-cpu-dev
-      # mamba install -n heavydb-cpu-dev fmt arrow=5.0=cpu -c conda-forge -y
       ;;
 
     heavydb-cuda-dev)
       mamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/heavydb-dev.yaml -n heavydb-cuda-dev
-      ;;
-
-    taco)
-      mamba env create --file=${PREFIX}/taco/.conda/environment.yml -n taco
       ;;
 
     *)
@@ -605,7 +532,6 @@ run_flake8() {
 
 register_goto() {
   goto -c
-  goto -r pytorch ${PREFIX}/Quansight/pytorch
   goto -r rbc ${PREFIX}/rbc
   goto -r heavydb ${PREFIX}/heavydb-internal
   goto -r heavydb-nocuda ${PREFIX}/heavydb-nocuda
@@ -614,10 +540,14 @@ register_goto() {
   goto -r llvmlite ${PREFIX}/llvmlite
   goto -r numpy ${PREFIX}/numpy
   goto -r pearu-sandbox ${PREFIX}/Quansight/pearu-sandbox
-  goto -r taco ${PREFIX}/taco
   goto -r dotfiles ${PREFIX}/dotfiles
   goto -r llvm ${PREFIX}/llvm-project
   goto -r cpython ${PREFIX}/cpython
+}
+
+update_goto() {
+  local d=$(basename $(pwd))
+  goto -r $d $(pwd)
 }
 
 if [[ $(hostname) =~ qgpu ]]; then
