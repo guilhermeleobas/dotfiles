@@ -78,11 +78,12 @@ heavydb-conda-install(){
 }
 
 reload() {
-  if [[ $(hostname) =~ "qgpu" ]]; then
-    source ${HOME}/.bashrc
-  else
-    source ${HOME}/.zshrc
-  fi
+  # if [[ $(hostname) =~ "qgpu" ]]; then
+  #   source ${HOME}/.bashrc
+  # else
+  #   source ${HOME}/.zshrc
+  # fi
+  exec ${SHELL}
 }
 
 clone() {
@@ -502,6 +503,8 @@ create() {
       echo -n "env: unknown ${environment}"
       ;;
   esac
+  
+  env
 }
 
 edit() {
