@@ -121,6 +121,16 @@ clone() {
       git clone git@github.com:guilhermeleobas/numba.git ${PREFIX}/numba
       ;;
 
+    numba-scipy)
+      echo "cloning numba-scipy..."
+      git clone git@github.com:numba/numba-scipy.git ${PREFIX}/numba-scipy
+      ;;
+
+    numba-extras)
+      echo "cloning numba-extras..."
+      git clone git@github.com:numba/numba-extras.git ${PREFIX}/numba-extras
+      ;;
+
     numpy)
       echo "cloning numpy..."
       git clone git@github.com:numpy/numpy.git ${PREFIX}/numpy
@@ -434,6 +444,13 @@ run() {
   esac
 }
 
+remove() {
+  conda deactivate
+  conda activate base
+  find_env
+  conda remove --name ${environment} --all -y
+}
+
 create() {
   conda deactivate
   if [[ $(hostname) =~ qgpu ]]; then
@@ -442,21 +459,26 @@ create() {
     conda activate base
   fi
 
+  local flag=""
+
   if [[ $# -eq 0 ]]; then
     find_env
-  elif [[ $1 =~ empty ]]; then
-    find_env
   else
-    environment=$1
+    case "$1" in
+      --name | -n)
+        flag=$1
+        environment=$2
+        ;;
+
+      *)
+        environment=$1
+        ;;
+
+    esac
   fi
 
   echo "create env: ${environment}..."
   conda remove --name ${environment} --all -y
-
-  if [[ $1 =~ empty ]]; then
-    mamba create --name $environment
-    return
-  fi
 
   case $environment in
     rbc)
@@ -500,7 +522,16 @@ create() {
       ;;
 
     *)
-      echo -n "env: unknown ${environment}"
+      case "$flag" in
+        -n | --name)
+          mamba create --name ${environment}
+          ;;
+
+        *)
+          echo -n "env: unknown ${environment}"
+          ;;
+      esac
+
       ;;
   esac
   
