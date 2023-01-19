@@ -116,6 +116,11 @@ clone() {
       git clone git@github.com:ibis-project/ibis.git ${PREFIX}/ibis
       ;;
 
+    mold)
+      echo "cloning mold..."
+      git clone git@github.com:rui314/mold ${PREFIX}/mold --single-branch --branch v1.9.0
+      ;;
+
     numba)
       echo "cloning numba..."
       git clone git@github.com:guilhermeleobas/numba.git ${PREFIX}/numba
@@ -375,9 +380,17 @@ build() {
       python setup.py develop
       ;;
 
+    mold)
+      env mold
+      cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=. ${PREFIX}/mold
+      ;;
+
     numba)
       env numba
       echo "python setup.py build_ext --inplace -j10"
+      if [[ $(uname -s) =~ "Darwin" ]]; then
+        export NUMBA_DISABLE_OPENMP=1
+      fi
       python setup.py build_ext --inplace -j10
       ;;
 
@@ -491,6 +504,10 @@ create() {
       pip install Cython==3.0.0a11
       ;;
 
+    mold)
+      mamba create -n mold clang clangxx cmake make tbb -c conda-forge -y
+      ;;
+
     numba)
       mamba create -n numba python=3.9 llvmlite=0.40 numpy cffi pytest -c numba/label/dev
       ;;
@@ -535,7 +552,7 @@ create() {
       ;;
   esac
   
-  env
+  env ${environment}
 }
 
 edit() {
@@ -566,17 +583,16 @@ run_flake8() {
 
 register_goto() {
   goto -c
-  goto -r rbc ${PREFIX}/rbc
   goto -r heavydb ${PREFIX}/heavydb-internal
   goto -r heavydb-nocuda ${PREFIX}/heavydb-nocuda
   goto -r heavydb-cuda ${PREFIX}/heavydb-cuda
-  goto -r numba ${PREFIX}/numba
-  goto -r llvmlite ${PREFIX}/llvmlite
-  goto -r numpy ${PREFIX}/numpy
   goto -r pearu-sandbox ${PREFIX}/Quansight/pearu-sandbox
-  goto -r dotfiles ${PREFIX}/dotfiles
   goto -r llvm ${PREFIX}/llvm-project
-  goto -r cpython ${PREFIX}/cpython
+
+  for d in ${PREFIX}/*; do
+    local b=$(basename $d)
+    goto -r $b $d
+  done
 }
 
 update_goto() {
