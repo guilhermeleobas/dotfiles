@@ -101,7 +101,7 @@ clone() {
       popd
       ;;
 
-    rbc-feedstock|heavydb-ext-feedstock)
+    rbc-feedstock|heavydb-ext-feedstock|pyflyby|numba)
       echo "cloning $1..."
       git clone git@github.com:guilhermeleobas/$1.git ${PREFIX}/$1/
       ;;
@@ -121,11 +121,6 @@ clone() {
       git clone git@github.com:rui314/mold ${PREFIX}/mold --single-branch --branch v1.9.0
       ;;
 
-    numba)
-      echo "cloning numba..."
-      git clone git@github.com:guilhermeleobas/numba.git ${PREFIX}/numba
-      ;;
-
     numba-scipy)
       echo "cloning numba-scipy..."
       git clone git@github.com:numba/numba-scipy.git ${PREFIX}/numba-scipy
@@ -140,7 +135,7 @@ clone() {
       echo "cloning numpy..."
       git clone git@github.com:numpy/numpy.git ${PREFIX}/numpy
       ;;
-      
+
     cpython)
       echo "cloning cpython..."
       git clone git@github.com:python/cpython.git --single-branch ${PREFIX}/cpython
@@ -521,9 +516,8 @@ create() {
       ;;
 
     llvmlite)
-      mamba env create -n llvmlite python=3.9 -c conda-forge -y
-      mamba install -n llvmlite llvmdev -c numba -y
-      mamba install -n llvmlite compilers cmake make -c conda-forge -y
+      mamba create -n llvmlite
+      mamba install -n llvmlite python=3.9 compilers cmake make llvmdev=11.1.0 -c numba -c conda-forge -y
       ;;
 
     llvm)
