@@ -88,27 +88,14 @@ reload() {
 
 clone() {
   case $1 in
-    dotfiles)
-      echo "cloning dotfiles..."
-      git clone git@github.com:guilhermeleobas/dotfiles.git ${PREFIX}/dotfiles
-      ;;
-
-    rbc)
-      echo "cloning rbc..."
-      git clone git@github.com:guilhermeleobas/rbc.git ${PREFIX}/rbc
-      pushd ${PREFIX}/rbc
-      git remote add upstream git@github.com:xnd-project/rbc.git
-      popd
-      ;;
-
-    rbc-feedstock|heavydb-ext-feedstock|pyflyby|numba)
+    dotfiles|rbc|rbc-feedstock|heavydb-ext-feedstock|numba)
       echo "cloning $1..."
       git clone git@github.com:guilhermeleobas/$1.git ${PREFIX}/$1/
       ;;
 
-    ibis-heavyai)
-      echo "cloning ibis-heavyai..."
-      git clone git@github.com:heavyai/ibis-heavyai.git ${PREFIX}/ibis-heavyai
+    ibis-heavyai|heavyai|heavydb|heavydb-internal)
+      echo "cloning $1..."
+      git clone git@github.com:heavyai/$1.git ${PREFIX}/$1
       ;;
 
     ibis)
@@ -121,14 +108,9 @@ clone() {
       git clone git@github.com:rui314/mold ${PREFIX}/mold --single-branch --branch v1.9.0
       ;;
 
-    numba-scipy)
-      echo "cloning numba-scipy..."
-      git clone git@github.com:numba/numba-scipy.git ${PREFIX}/numba-scipy
-      ;;
-
-    numba-extras)
-      echo "cloning numba-extras..."
-      git clone git@github.com:numba/numba-extras.git ${PREFIX}/numba-extras
+    llvmlite|numba-extras|numba-scipy)
+      echo "cloning $1..."
+      git clone git@github.com:numba/$1.git ${PREFIX}/$1
       ;;
 
     numpy)
@@ -139,21 +121,6 @@ clone() {
     cpython)
       echo "cloning cpython..."
       git clone git@github.com:python/cpython.git --single-branch ${PREFIX}/cpython
-      ;;
-
-    llvmlite)
-      echo "cloning llvmlite..."
-      git clone git@github.com:numba/llvmlite.git ${PREFIX}/llvmlite
-      ;;
-
-    heavydb-oss)
-      echo "cloning heavydb oss..."
-      git clone git@github.com:heavyai/heavydb.git ${PREFIX}/heavydb
-      ;;
-
-    heavydb)
-      echo "cloning heavydb..."
-      git clone git@github.com:heavyai/heavydb-internal.git ${PREFIX}/heavydb-internal
       ;;
 
     sandbox)
@@ -409,15 +376,6 @@ query() {
   bin/heavysql --passwd HyperInteractive < ../query.sql
 }
 
-query_benchmark() {
-  for i in $(seq 1 10); do
-    echo "select avg(cardinality(content_tokens)) from (select strtok_to_array$1(content_text, ' ?.!:') as content_tokens from hacker_news_comments limit ${i}00000);" > /tmp/file.sql
-    echo "query..."
-    cat /tmp/file.sql
-    hyperfine "bin/omnisql --passwd HyperInteractive < /tmp/file.sql"
-  done
-}
-
 sql() {
   env
   bin/heavysql --passwd HyperInteractive
@@ -545,7 +503,7 @@ create() {
 
       ;;
   esac
-  
+
   env ${environment}
 }
 
