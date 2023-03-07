@@ -27,8 +27,6 @@ unsetopt HIST_VERIFY
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
 
-alias ccat="pygmentize -f terminal256 -O style=monokai -g"
-
 git config --global alias.lg "log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --"
 
 # reset terminal
