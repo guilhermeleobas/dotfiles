@@ -88,7 +88,7 @@ reload() {
 
 clone() {
   case $1 in
-    dotfiles|rbc|rbc-feedstock|heavydb-ext-feedstock|numba)
+    dotfiles|rbc|rbc-feedstock|heavydb-ext-feedstock|heavyai-feedstock|numba)
       echo "cloning $1..."
       git clone git@github.com:guilhermeleobas/$1.git ${PREFIX}/$1/
       ;;
@@ -462,7 +462,7 @@ create() {
       ;;
 
     numba)
-      mamba create -n numba python=3.9 llvmlite=0.40 numpy cffi pytest -c numba/label/dev
+      mamba create -n numba python=3.11 llvmlite=0.40 numpy cffi pytest -c numba/label/dev
       ;;
 
     numpy)
@@ -483,7 +483,7 @@ create() {
       ;;
 
     heavydb-cpu-dev)
-      mamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/heavydb-cpu-dev.yaml -n heavydb-cpu-dev
+      mamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/heavydb-dev.yaml -n heavydb-cpu-dev
       ;;
 
     heavydb-cuda-dev)
