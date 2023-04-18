@@ -592,8 +592,8 @@ else
 
   if [[ $(hostname) =~ "MacBook-Pro" ]]; then
   PROMPT=$'
-  %{$purple%}%n${PR_RST} at %{$limegreen%}%m${PR_RST} in %{$limegreen%}%~${PR_RST} $vcs_info_msg_0_$(virtualenv_info)
-  $ '
+%{$purple%}%n${PR_RST} at %{$limegreen%}%m${PR_RST} in %{$limegreen%}%~${PR_RST} $vcs_info_msg_0_$(virtualenv_info)
+$ '
   fi
 
   # execute immediately
