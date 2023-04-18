@@ -10,7 +10,7 @@ heavy-conda-run(){
   mamba run -n heavydb-env initheavy storage -f
   version=$(mamba run -n heavydb-env heavydb --version)
   echo ${version}
-  mamba run -n heavydb-env heavydb --enable-runtime-udf --enable-table-functions --enable-dev-table-functions --enable-udf-registration-for-all-users
+  mamba run -n heavydb-env heavydb --enable-runtime-udf --enable-table-functions --enable-dev-table-functions --enable-udf-registration-for-all-users  --enable-debug-timer --log-channels PTX,IR --log-severity-clog=WARNING --log-severity=DEBUG4
 }
 
 heavy-conda-install(){
@@ -261,6 +261,7 @@ build() {
     heavydb-cpu-dev)
       env heavydb-cpu-dev
       cmake -Wno-dev $CMAKE_OPTIONS_NOCUDA \
+        -GNinja \
         -DCMAKE_BUILD_TYPE=RelWithDebInfo \
         -DENABLE_WARNINGS_AS_ERRORS=off \
         -DENABLE_CUDA=off \
@@ -288,6 +289,7 @@ build() {
     heavydb-cuda-dev)
       env heavydb-cuda-dev
       cmake -Wno-dev $CMAKE_OPTIONS_CUDA \
+        -GNinja \
         -DCMAKE_BUILD_TYPE=RelWithDebInfo \
         -DENABLE_WARNINGS_AS_ERRORS=off \
         -DENABLE_FOLLY=off \
@@ -473,6 +475,10 @@ create() {
       mamba env create --file=${PREFIX}/ibis-heavyai/environment.yaml -n ibis-heavyai
       ;;
 
+    heavyai)
+      mamba env create --file=${PREFIX}/heavyai/ci/environment_gpu.yml -n heavyai
+      ;;
+
     llvmlite)
       mamba create -n llvmlite
       mamba install -n llvmlite python=3.9 compilers cmake make llvmdev=11.1.0 -c numba -c conda-forge -y
@@ -569,8 +575,44 @@ if [[ $(hostname) =~ qgpu ]]; then
   # use "default" conda env on qgpu machines
   conda activate default
 else
+  source ${HOME}/.zgen/zgen.zsh
+  if ! zgen saved; then
+    zgen oh-my-zsh
+    # if [[ $(hostname) =~ "server" ]]; then
+    #   zgen oh-my-zsh themes/awesomepanda
+    # else
+    #   zgen oh-my-zsh themes/steeef
+    # fi
+    zgen oh-my-zsh themes/steeef
+    zgen load zsh-users/zsh-syntax-highlighting
+    zgen load zsh-users/zsh-autosuggestions
+    # zgen load denysdovhan/spaceship-prompt spaceship
+    zgen save
+  fi
+
+  if [[ $(hostname) =~ "MacBook-Pro" ]]; then
+  PROMPT=$'
+  %{$purple%}%n${PR_RST} at %{$limegreen%}%m${PR_RST} in %{$limegreen%}%~${PR_RST} $vcs_info_msg_0_$(virtualenv_info)
+  $ '
+  fi
+
+  # execute immediately
+  unsetopt HIST_VERIFY
+
+  export LC_ALL=en_US.UTF-8
+  export LANG=en_US.UTF-8
+
+  # git lg
+  git config --global alias.lg "log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --"
+
+  # reset terminal
+  alias reset_term="tput reset"
+
   # goto
   [ -f ~/git/goto/goto.sh ] && source ~/git/goto/goto.sh
+
+  # fzf
+  [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 fi
 
 export MAMBA_NO_BANNER=1
