@@ -93,9 +93,14 @@ clone() {
       git clone git@github.com:guilhermeleobas/$1.git ${PREFIX}/$1/
       ;;
 
-    ibis-heavyai|heavyai|heavydb|heavydb-internal)
+    ibis-heavyai|heavyai|heavydb|heavydb-internal|sqlalchemy-heavyai)
       echo "cloning $1..."
       git clone git@github.com:heavyai/$1.git ${PREFIX}/$1
+      ;;
+
+    sqlalchemy)
+      echo "cloning sqlalchemy..."
+      git clone git@github.com:sqlalchemy/sqlalchemy.git --single-branch ${PREFIX}/sqlalchemy
       ;;
 
     ibis)
@@ -479,6 +484,10 @@ create() {
       mamba env create --file=${PREFIX}/heavyai/ci/environment_gpu.yml -n heavyai
       ;;
 
+    sqlalchemy-heavyai)
+      mamba env create --file=${PREFIX}/sqlalchemy-heavyai/environment.yaml -n sqlalchemy-heavyai
+      ;;
+
     llvmlite)
       mamba create -n llvmlite
       mamba install -n llvmlite python=3.9 compilers cmake make llvmdev=11.1.0 -c numba -c conda-forge -y
@@ -489,7 +498,7 @@ create() {
       ;;
 
     heavydb-cpu-dev)
-      mamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/heavydb-dev.yaml -n heavydb-cpu-dev
+      mamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/heavydb-cpu-dev.yaml -n heavydb-cpu-dev
       ;;
 
     heavydb-cuda-dev)
