@@ -574,6 +574,7 @@ check_require_sync() {
   local status_output
   status_output=$(git status --porcelain)
 
+  # fetch origin and compare local/remote commit
   git fetch origin
   local local_commit=$(git rev-parse master)
   local remote_commit=$(git rev-parse origin/master)
