@@ -593,6 +593,8 @@ check_require_sync() {
 
       pull_dotfiles
 
+      #test
+
       if [[ "$status_output" ]]; then
         git stash pop
       fi
