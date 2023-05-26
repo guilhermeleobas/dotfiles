@@ -558,6 +558,34 @@ update_goto() {
   goto -r $d $(pwd)
 }
 
+check_require_sync() {
+  # Run 'git status' command
+  goto dotfiles
+
+  local status_output
+  status_output=$(git status --porcelain)
+
+  # Check if there are files to be committed
+  if [[ -n "$status_output" ]]; then
+    git status
+    echo "dotfiles requires sync"
+    echo -n "Do you want to sync it now? (Y/n) "
+    read -r input
+    if [[ "${input}" == "Y" ]]; then
+      # Execute your code block here
+      echo "Syncronizing..."
+      git stash
+      pull_dotfiles
+      git stash pop
+      push_dotfiles
+    fi
+  fi
+
+  cd - > /dev/null
+}
+
+check_require_sync
+
 if [[ $(hostname) =~ qgpu ]]; then
 
   # Use 'guilhermeleobas/prompt' which is symlinked to '~/.prompt'.
