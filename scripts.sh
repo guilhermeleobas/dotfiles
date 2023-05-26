@@ -571,7 +571,7 @@ check_require_sync() {
     echo "dotfiles requires sync"
     echo -n "Do you want to sync it now? (Y/n) "
     read -r input
-    if [[ "${input}" == "Y" ]]; then
+    if [[ "${input}" == "Y" || "${input}" == "y" ]]; then
       # Execute your code block here
       echo "Syncronizing..."
       git stash
