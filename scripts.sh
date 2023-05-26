@@ -593,13 +593,11 @@ check_require_sync() {
 
       pull_dotfiles
 
-      #test
-
       if [[ "$status_output" ]]; then
         git stash pop
+        push_dotfiles
       fi
 
-      push_dotfiles
     fi
   fi
 
