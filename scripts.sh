@@ -574,8 +574,12 @@ check_require_sync() {
   local status_output
   status_output=$(git status --porcelain)
 
+  git fetch origin
+  local local_commit=$(git rev-parse master)
+  local remote_commit=$(git rev-parse origin/master)
+
   # Check if there are files to be committed
-  if [[ -n "$status_output" ]]; then
+  if [[ -n "$status_output" || "${local_commit}" != "${remote_commit}" ]]; then
     git status
     echo "dotfiles requires sync"
     echo -n "Do you want to sync it now? (Y/n) "
