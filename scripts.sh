@@ -588,9 +588,16 @@ check_require_sync() {
     if [[ "${input}" == "Y" || "${input}" == "y" ]]; then
       # Execute your code block here
       echo "Syncronizing..."
-      git stash
+      if [[ "$status_output" ]]; then
+        git stash
+      fi
+
       pull_dotfiles
-      git stash pop
+
+      if [[ "$status_output" ]]; then
+        git stash pop
+      fi
+
       push_dotfiles
     fi
   fi
