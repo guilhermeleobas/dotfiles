@@ -584,8 +584,6 @@ check_require_sync() {
   cd - > /dev/null
 }
 
-check_require_sync
-
 if [[ $(hostname) =~ qgpu ]]; then
 
   # Use 'guilhermeleobas/prompt' which is symlinked to '~/.prompt'.
@@ -599,6 +597,9 @@ if [[ $(hostname) =~ qgpu ]]; then
 
   # goto
   [ -f ~/git/goto/goto.sh ] && source ~/git/goto/goto.sh
+
+  # check if dotfiles is in sync with github
+  check_require_sync
 
   # use "default" conda env on qgpu machines
   conda activate default
@@ -638,6 +639,9 @@ $ '
 
   # goto
   [ -f ~/git/goto/goto.sh ] && source ~/git/goto/goto.sh
+
+  # check if dotfiles is in sync with github
+  check_require_sync
 
   # fzf
   [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
