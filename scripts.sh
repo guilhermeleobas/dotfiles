@@ -586,7 +586,6 @@ check_require_sync() {
     echo -n "Do you want to sync it now? (Y/n) "
     read -r input
     if [[ "${input}" == "Y" || "${input}" == "y" ]]; then
-      # Execute your code block here
       echo "Syncronizing..."
       if [[ "$status_output" ]]; then
         git stash
