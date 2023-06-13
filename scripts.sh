@@ -380,7 +380,11 @@ build() {
 }
 
 query() {
-  bin/heavysql --passwd HyperInteractive < ../query.sql
+  if [[ "${CONDA_DEFAULT_ENV}" =~ "heavydb-cuda-dev" ]]; then
+    ${PREFIX}/heavydb-cuda/bin/heavysql --passwd HyperInteractive < ${PREFIX}/query.sql
+  else
+    ${PREFIX}/heavydb-nocuda/bin/heavysql --passwd HyperInteractive < ${PREFIX}/query.sql
+  fi
 }
 
 sql() {
