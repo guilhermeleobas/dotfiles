@@ -2,52 +2,52 @@ PREFIX=${HOME}/git
 
 
 heavy-conda-run(){
-  conda deactivate
-  conda activate heavydb-env
+  micromamba deactivate
+  micromamba activate heavydb-env
   echo "running heavydb..."
   rm -rf storage
   mkdir storage
-  mamba run -n heavydb-env initheavy storage -f
-  version=$(mamba run -n heavydb-env heavydb --version)
+  micromamba run -n heavydb-env initheavy storage -f
+  version=$(micromamba run -n heavydb-env heavydb --version)
   echo ${version}
-  mamba run -n heavydb-env heavydb --enable-runtime-udf --enable-table-functions --enable-dev-table-functions --enable-udf-registration-for-all-users  --enable-debug-timer --log-channels PTX,IR --log-severity-clog=WARNING --log-severity=DEBUG4
+  micromamba run -n heavydb-env heavydb --enable-runtime-udf --enable-table-functions --enable-dev-table-functions --enable-udf-registration-for-all-users  --enable-debug-timer --log-channels PTX,IR --log-severity-clog=WARNING --log-severity=DEBUG4
 }
 
 heavy-conda-install(){
   if [[ $# -eq 2 ]]; then
     echo $0 $1 $2
-    conda deactivate
-    conda activate base
-    conda remove --name heavydb-env --all -y
-    mamba create -n heavydb-env "heavydb=$1*=*_$2" -c conda-forge -y
+    micromamba deactivate
+    micromamba activate base
+    micromamba remove --name heavydb-env --all -y
+    micromamba create -n heavydb-env "heavydb=$1*=*_$2" -c conda-forge -y
   else
     echo 'usage: heavy-conda-install version cpu|cuda'
   fi
 }
 
 omnisci-conda-run(){
-  conda deactivate
-  conda activate omniscidb-env
+  micromamba deactivate
+  micromamba activate omniscidb-env
   echo "running omniscidb..."
   rm -rf data
   mkdir data
-  mamba run -n omniscidb-env omnisci_initdb data -f
-  version=$(mamba run -n omniscidb-env omnisci_server --version)
+  micromamba run -n omniscidb-env omnisci_initdb data -f
+  version=$(micromamba run -n omniscidb-env omnisci_server --version)
   echo ${version}
   EXTRA_FLAGS=""
   if [[ ${version} =~ "5.10" ]]; then
     EXTRA_FLAGS="--enable-dev-table-functions"
   fi
-  mamba run -n omniscidb-env omnisci_server --enable-runtime-udf --enable-table-functions ${EXTRA_FLAGS}
+  micromamba run -n omniscidb-env omnisci_server --enable-runtime-udf --enable-table-functions ${EXTRA_FLAGS}
 }
 
 omnisci-conda-install(){
   if [[ $# -eq 2 ]]; then
     echo $0 $1 $2
-    conda deactivate
-    conda activate base
-    conda remove --name omniscidb-env --all -y
-    mamba env create -n omniscidb-env "omniscidb=$1*=*_$2" -c conda-forge -y
+    micromamba deactivate
+    micromamba activate base
+    micromamba remove --name omniscidb-env --all -y
+    micromamba env create -n omniscidb-env "omniscidb=$1*=*_$2" -c conda-forge -y
   else
     echo 'usage: omnisci-conda-install version cpu|cuda'
   fi
@@ -59,19 +59,19 @@ heavydb-conda-run(){
   echo "running heavydb..."
   rm -rf storage
   mkdir storage
-  mamba run -n heavydb-env initheavy storage -f
-  version=$(mamba run -n heavydb-env heavydb --version)
+  micromamba run -n heavydb-env initheavy storage -f
+  version=$(micromamba run -n heavydb-env heavydb --version)
   echo ${version}
-  mamba run -n omniscidb-env heavydb --enable-runtime-udf --enable-table-functions --enable-dev-table-functions
+  micromamba run -n omniscidb-env heavydb --enable-runtime-udf --enable-table-functions --enable-dev-table-functions
 }
 
 heavydb-conda-install(){
   if [[ $# -eq 2 ]]; then
     echo $0 $1 $2
-    conda deactivate
-    conda activate base
-    conda remove --name heavydb-env --all -y
-    mamba env create -n heavydb-env "heavydb=$1*=*_$2" -c conda-forge -y
+    micromamba deactivate
+    micromamba activate base
+    micromamba remove --name heavydb-env --all -y
+    micromamba env create -n heavydb-env "heavydb=$1*=*_$2" -c conda-forge -y
   else
     echo 'usage: heavydb-conda-install version cpu|cuda'
   fi
@@ -142,7 +142,7 @@ clone() {
 install() {
   case $1 in
     micromamba)
-      curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/latest | tar -xvj bin/micromamba
+      curl -Ls https://micro.micromamba.pm/api/micromamba/linux-64/latest | tar -xvj bin/micromamba
       ./bin/micromamba shell init -s zsh -p ~/micromamba
       ;;
 
@@ -174,11 +174,11 @@ install() {
       ;;
 
     ag)
-      mamba install -c conda-forge the_silver_searcher
+      micromamba install -c conda-forge the_silver_searcher
       ;;
 
     gh)
-      mamba install -c conda-forge gh
+      micromamba install -c conda-forge gh
       ;;
 
     theme)
@@ -224,34 +224,32 @@ env() {
     environment=$1
   fi
 
-  if [[ "${environment}" != "${CONDA_DEFAULT_ENV}" ]]; then
-    case ${environment} in
-      heavydb-cpu-dev)
-        echo "activating env: heavydb nocuda"
-        export USE_ENV=heavydb-cpu-dev
-        . ~/git/Quansight/pearu-sandbox/working-envs/activate-heavydb-internal-dev.sh
-        ;;
+  case ${environment} in
+    heavydb-cpu-dev)
+      echo "activating env: heavydb nocuda"
+      export USE_ENV=heavydb-cpu-dev
+      . ~/git/Quansight/pearu-sandbox/working-envs/activate-heavydb-internal-dev.sh
+      ;;
 
-      heavydb-cuda-dev)
-        echo "activating env: heavydb cuda"
-        export CUDA_HOME=/usr/local/cuda/
-        export USE_ENV=heavydb-cuda-dev
-        . ~/git/Quansight/pearu-sandbox/working-envs/activate-heavydb-internal-dev.sh
-        ;;
+    heavydb-cuda-dev)
+      echo "activating env: heavydb cuda"
+      export CUDA_HOME=/usr/local/cuda/
+      export USE_ENV=heavydb-cuda-dev
+      . ~/git/Quansight/pearu-sandbox/working-envs/activate-heavydb-internal-dev.sh
+      ;;
 
-      *)
-        echo "activating env: ${environment}"
-        conda deactivate
-        conda activate ${environment}
+    *)
+      echo "activating env: ${environment}"
+      micromamba deactivate
+      micromamba activate ${environment}
 
-        if [[ $? -ne 0 ]]; then
-          echo "activating default env..."
-          conda activate ${CONDA_DEFAULT_ENV}
-        fi
+      if [[ $? -ne 0 ]]; then
+        echo "activating default env..."
+        micromamba activate ${CONDA_DEFAULT_ENV}
+      fi
 
-        ;;
-    esac
-  fi
+      ;;
+  esac
 }
 
 build() {
@@ -429,11 +427,11 @@ remove() {
 }
 
 create() {
-  conda deactivate
+  micromamba deactivate
   if [[ $(hostname) =~ qgpu ]]; then
-    conda activate default
+    micromamba activate default
   else
-    conda activate base
+    micromamba activate base
   fi
 
   local flag=""
@@ -455,64 +453,64 @@ create() {
   fi
 
   echo "create env: ${environment}..."
-  conda remove --name ${environment} --all -y
+  micromamba remove --name ${environment} --all -y
 
   case $environment in
     rbc)
-      mamba env create --file=${PREFIX}/rbc/environment.yml -n rbc
+      micromamba env create --file=${PREFIX}/rbc/environment.yml -n rbc -y
       ;;
 
     cython)
-      mamba env create --file=${PREFIX}/cython/environment.yml -n cython
+      micromamba env create --file=${PREFIX}/cython/environment.yml -n cython -y
       env cython
       pip install Cython==3.0.0a11
       ;;
 
     mold)
-      mamba create -n mold clang clangxx cmake make tbb -c conda-forge -y
+      micromamba create -n mold clang clangxx cmake make tbb -c conda-forge -y
       ;;
 
     numba)
-      mamba create -n numba python=3.11 llvmlite=0.40 numpy cffi pytest -c numba/label/dev
+      micromamba create -n numba python=3.11 llvmlite=0.40 numpy cffi pytest -c numba/label/dev
       ;;
 
     numpy)
-      mamba env create --file=${PREFIX}/numpy/environment.yml -n numpy
+      micromamba env create --file=${PREFIX}/numpy/environment.yml -n numpy
       ;;
 
     ibis-heavyai)
-      mamba env create --file=${PREFIX}/ibis-heavyai/environment.yaml -n ibis-heavyai
+      micromamba env create --file=${PREFIX}/ibis-heavyai/environment.yaml -n ibis-heavyai
       ;;
 
     heavyai)
-      mamba env create --file=${PREFIX}/heavyai/ci/environment_gpu.yml -n heavyai
+      micromamba env create --file=${PREFIX}/heavyai/ci/environment_gpu.yml -n heavyai
       ;;
 
     sqlalchemy-heavyai)
-      mamba env create --file=${PREFIX}/sqlalchemy-heavyai/environment.yaml -n sqlalchemy-heavyai
+      micromamba env create --file=${PREFIX}/sqlalchemy-heavyai/environment.yaml -n sqlalchemy-heavyai
       ;;
 
     llvmlite)
-      mamba create -n llvmlite
-      mamba install -n llvmlite python=3.9 compilers cmake make llvmdev=11.1.0 -c numba -c conda-forge -y
+      micromamba create -n llvmlite
+      micromamba install -n llvmlite python=3.9 compilers cmake make llvmdev=11.1.0 -c numba -c conda-forge -y
       ;;
 
     llvm)
-      mamba env create -n llvm cmake ccache compilers make -c conda-forge -y
+      micromamba env create -n llvm cmake ccache compilers make -c conda-forge -y
       ;;
 
     heavydb-cpu-dev)
-      mamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/heavydb-cpu-dev.yaml -n heavydb-cpu-dev
+      micromamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/heavydb-cpu-dev.yaml -n heavydb-cpu-dev -y
       ;;
 
     heavydb-cuda-dev)
-      mamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/heavydb-dev.yaml -n heavydb-cuda-dev
+      micromamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/heavydb-dev.yaml -n heavydb-cuda-dev -y
       ;;
 
     *)
       case "$flag" in
         -n | --name)
-          mamba create --name ${environment}
+          micromamba create --name ${environment}
           ;;
 
         *)
@@ -660,6 +658,10 @@ $ '
 
   # reset terminal
   alias reset_term="tput reset"
+
+  # alias conda
+  alias conda="micromamba"
+  alias mamba="micromamba"
 
   # goto
   [ -f ~/git/goto/goto.sh ] && source ~/git/goto/goto.sh
