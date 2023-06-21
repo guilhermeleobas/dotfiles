@@ -142,8 +142,8 @@ clone() {
 install() {
   case $1 in
     micromamba)
-      curl -Ls https://micro.micromamba.pm/api/micromamba/linux-64/latest | tar -xvj bin/micromamba
-      ./bin/micromamba shell init -s zsh -p ~/micromamba
+      curl micro.mamba.pm/install.sh | zsh
+      # ./bin/micromamba shell init -s zsh -p ~/micromamba
       ;;
 
     vim-plug)
@@ -667,7 +667,7 @@ $ '
   [ -f ~/git/goto/goto.sh ] && source ~/git/goto/goto.sh
 
   # check if dotfiles is in sync with github
-  check_require_sync
+  # check_require_sync
 
   # fzf
   [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
