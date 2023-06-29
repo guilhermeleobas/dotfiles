@@ -238,6 +238,12 @@ env() {
       . ~/git/Quansight/pearu-sandbox/working-envs/activate-heavydb-internal-dev.sh
       ;;
 
+    numba)
+      micromamba deactivate
+      micromamba activate numba
+      export NUMBA_CAPTURED_ERRORS="new_style"
+      ;;
+
     *)
       echo "activating env: ${environment}"
       micromamba deactivate
@@ -471,7 +477,7 @@ create() {
       ;;
 
     numba)
-      micromamba create -n numba python=3.10 llvmlite=0.40 pdbpp flake8 numpy cffi pytest -c numba/label/dev
+      micromamba create -n numba python=3.10 llvmlite=0.41 pdbpp flake8 numpy cffi pytest -c numba/label/dev
       ;;
 
     numba-rvsdg)
