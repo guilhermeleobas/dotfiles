@@ -88,7 +88,7 @@ reload() {
 
 clone() {
   case $1 in
-    dotfiles|rbc|rbc-feedstock|heavydb-ext-feedstock|heavyai-feedstock|numba)
+    dotfiles|rbc|rbc-feedstock|heavydb-ext-feedstock|heavyai-feedstock|numba|numba-rvsdg)
       echo "cloning $1..."
       git clone git@github.com:guilhermeleobas/$1.git ${PREFIX}/$1/
       ;;
@@ -471,7 +471,11 @@ create() {
       ;;
 
     numba)
-      micromamba create -n numba python=3.11 llvmlite=0.40 numpy cffi pytest -c numba/label/dev
+      micromamba create -n numba python=3.10 llvmlite=0.40 pdbpp flake8 numpy cffi pytest -c numba/label/dev
+      ;;
+
+    numba-rvsdg)
+      micromamba create -n numba-rvsdg python=3.11 python-graphviz pdbpp -c conda-forge
       ;;
 
     numpy)
