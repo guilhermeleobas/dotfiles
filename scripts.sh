@@ -110,7 +110,7 @@ clone() {
 
     mold)
       echo "cloning mold..."
-      git clone git@github.com:rui314/mold ${PREFIX}/mold --single-branch --branch v1.9.0
+      git clone git@github.com:rui314/mold ${PREFIX}/mold
       ;;
 
     llvmlite|numba-extras|numba-scipy)
@@ -121,6 +121,11 @@ clone() {
     numpy)
       echo "cloning numpy..."
       git clone git@github.com:numpy/numpy.git ${PREFIX}/numpy
+      ;;
+
+    pytorch)
+      echo "clonning PyTorch..."
+      git clone git@github.com:pytorch/pytorch.git ${PREFIX}/pytorch
       ;;
 
     cpython)
@@ -244,6 +249,29 @@ env() {
       export NUMBA_CAPTURED_ERRORS="new_style"
       ;;
 
+    pytorch)
+      echo "activating env: pytorch"
+      export USE_CUDA=1
+      export CUDA_HOME=/usr/local/cuda
+      # remember to create a symlink from /usr/lib/cuda to /usr/local/cuda
+      # sudo ln -s /usr/lib/cuda /usr/local/cuda
+      export USE_DISTRIBUTED=0
+      export USE_NCCL=0
+      export USE_CUDNN=0
+      export CC=cc
+      export CXX=c++
+      export CFLAGS="${CFLAGS} -L${CONDA_PREFIX}/lib"
+      export CFLAGS="${CFLAGS} ${CFLAGS_DBG}"
+      export CXXFLAGS="${CXXFLAGS} -L${CONDA_PREFIX}/lib"
+      export CXXFLAGS="${CXXFLAGS} -D__STDC_FORMAT_MACROS"
+      export CXXFLAGS="${CXXFLAGS} ${CXXFLAGS_DBG}"
+      export LDFLAGS="${LDFLAGS} -Wl,-rpath-link,${CUDA_HOME}/lib64"
+      export LDFLAGS="${LDFLAGS} -Wl,-rpath-link,${CUDA_HOME}/extras/CUPTI/lib64"
+      export LDFLAGS="${LDFLAGS} -L${CUDA_HOME}/lib64"
+      micromamba activate pytorch
+      # . ~/git/Quansight/pearu-sandbox/working-envs/activate-pytorch-dev.sh
+      ;;
+
     *)
       echo "activating env: ${environment}"
       micromamba deactivate
@@ -256,6 +284,11 @@ env() {
 
       ;;
   esac
+}
+
+pytorch-update(){
+  git submodule sync
+  git submodule update --init --recursive
 }
 
 build() {
@@ -375,6 +408,32 @@ build() {
     numpy)
       env numpy
       python setup.py build_ext --inplace -j10
+      ;;
+
+    pytorch)
+      env pytorch
+      export USE_CUDA=1
+      export CUDA_HOME=/usr/local/cuda
+      export USE_DISTRIBUTED=0
+      export USE_NCCL=0
+      export USE_CUDNN=0
+      export CC=cc
+      export CXX=c++
+      export CFLAGS="${CFLAGS} -L${CONDA_PREFIX}/lib"
+      export CFLAGS="${CFLAGS} ${CFLAGS_DBG}"
+      export CXXFLAGS="${CXXFLAGS} -L${CONDA_PREFIX}/lib"
+      export CXXFLAGS="${CXXFLAGS} -D__STDC_FORMAT_MACROS"
+      export CXXFLAGS="${CXXFLAGS} ${CXXFLAGS_DBG}"
+      export LDFLAGS="${LDFLAGS} -Wl,-rpath-link,${CUDA_HOME}/lib64"
+      export LDFLAGS="${LDFLAGS} -Wl,-rpath-link,${CUDA_HOME}/extras/CUPTI/lib64"
+      export LDFLAGS="${LDFLAGS} -L${CUDA_HOME}/lib64"
+      # export USE_MKLDNN=0
+      # export USE_FBGEMM=0
+      # export USE_NNPACK=0
+      # export USE_QNNPACK=0
+      # export USE_XNNPACK=0
+      # export MAX_JOBS=15
+      python setup.py develop
       ;;
 
     *)
@@ -515,6 +574,10 @@ create() {
 
     heavydb-cuda-dev)
       micromamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/heavydb-dev.yaml -n heavydb-cuda-dev -y
+      ;;
+
+    pytorch)
+      micromamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/pytorch-cuda-dev.yaml -n pytorch -y
       ;;
 
     *)
