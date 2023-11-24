@@ -407,7 +407,8 @@ build() {
 
     numpy)
       env numpy
-      python setup.py build_ext --inplace -j10
+      spin build
+      # python setup.py build_ext --inplace -j10
       ;;
 
     pytorch)
@@ -540,7 +541,7 @@ create() {
       ;;
 
     numba-rvsdg)
-      micromamba create -n numba-rvsdg python=3.11 python-graphviz pdbpp -c conda-forge
+      micromamba create -n numba-rvsdg python=3.11 python-graphviz mypy pre-commit pytest pdbpp -c conda-forge -y
       ;;
 
     numpy)
@@ -594,7 +595,10 @@ create() {
       ;;
   esac
 
-  env ${environment}
+  if [[ $? -eq 0 ]]; then
+    env ${environment}
+  fi
+
 }
 
 edit() {

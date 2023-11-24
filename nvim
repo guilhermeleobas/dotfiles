@@ -135,8 +135,10 @@ set tabstop=2 shiftwidth=2 softtabstop=2 expandtab smarttab
 set showmatch
 "set autoindent cindent
 set smartindent
-" set clipboard=unnamed
-set clipboard=unnamedplus
+
+" set clipboard=unnamedplus
+set clipboard=unnamed
+
 set mouse=a
 set ruler
 set backspace=indent,eol,start
