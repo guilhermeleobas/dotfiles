@@ -578,7 +578,8 @@ create() {
       ;;
 
     pytorch)
-      micromamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/pytorch-cuda-dev.yaml -n pytorch -y
+      # micromamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/pytorch-cuda-dev.yaml -n pytorch -y
+      micromamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/pytorch-dev.yaml -n pytorch -y
       ;;
 
     *)
