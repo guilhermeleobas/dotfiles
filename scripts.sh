@@ -251,12 +251,8 @@ env() {
 
     pytorch)
       echo "activating env: pytorch"
-<<<<<<< Updated upstream
-      export USE_CUDA=1
-      export CUDA_HOME=/usr/local/cuda
       # remember to create a symlink from /usr/lib/cuda to /usr/local/cuda
       # sudo ln -s /usr/lib/cuda /usr/local/cuda
-=======
       export USE_CUDA=0
       export USE_GOLD=1
       export USE_KINETO=0
@@ -272,7 +268,6 @@ env() {
       # export USE_PER_OPERATOR_HEADERS=1
 
       export CMAKE_BUILD_TYPE=RelWithDebInfo
->>>>>>> Stashed changes
       export USE_DISTRIBUTED=0
       export USE_NCCL=0
       export USE_CUDNN=0
