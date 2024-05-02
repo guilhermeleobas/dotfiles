@@ -580,7 +580,7 @@ create() {
 
     llvmlite)
       micromamba create -n llvmlite
-      micromamba install -n llvmlite python=3.9 compilers cmake make llvmdev=11.1.0 -c numba -c conda-forge -y
+      micromamba install -n llvmlite python=3.9 compilers cmake make llvmdev=14 -c numba -c conda-forge -y
       ;;
 
     llvm)
