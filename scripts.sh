@@ -269,10 +269,7 @@ env() {
       # export USE_PER_OPERATOR_HEADERS=1
 
       export CMAKE_BUILD_TYPE=RelWithDebInfo
-<<<<<<< Updated upstream
-=======
       export MAX_JOBS=18
->>>>>>> Stashed changes
       export USE_DISTRIBUTED=0
       export USE_NCCL=0
       export USE_CUDNN=0
