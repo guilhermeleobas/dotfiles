@@ -147,7 +147,8 @@ clone() {
 install() {
   case $1 in
     micromamba)
-      curl micro.mamba.pm/install.sh | zsh
+      "${SHELL}" <(curl -L micro.mamba.pm/install.sh)
+      # curl micro.mamba.pm/install.sh | zsh
       # ./bin/micromamba shell init -s zsh -p ~/micromamba
       ;;
 
@@ -268,6 +269,10 @@ env() {
       # export USE_PER_OPERATOR_HEADERS=1
 
       export CMAKE_BUILD_TYPE=RelWithDebInfo
+<<<<<<< Updated upstream
+=======
+      export MAX_JOBS=18
+>>>>>>> Stashed changes
       export USE_DISTRIBUTED=0
       export USE_NCCL=0
       export USE_CUDNN=0
@@ -426,27 +431,6 @@ build() {
 
     pytorch)
       env pytorch
-      export USE_CUDA=1
-      export CUDA_HOME=/usr/local/cuda
-      export USE_DISTRIBUTED=0
-      export USE_NCCL=0
-      export USE_CUDNN=0
-      export CC=cc
-      export CXX=c++
-      export CFLAGS="${CFLAGS} -L${CONDA_PREFIX}/lib"
-      export CFLAGS="${CFLAGS} ${CFLAGS_DBG}"
-      export CXXFLAGS="${CXXFLAGS} -L${CONDA_PREFIX}/lib"
-      export CXXFLAGS="${CXXFLAGS} -D__STDC_FORMAT_MACROS"
-      export CXXFLAGS="${CXXFLAGS} ${CXXFLAGS_DBG}"
-      export LDFLAGS="${LDFLAGS} -Wl,-rpath-link,${CUDA_HOME}/lib64"
-      export LDFLAGS="${LDFLAGS} -Wl,-rpath-link,${CUDA_HOME}/extras/CUPTI/lib64"
-      export LDFLAGS="${LDFLAGS} -L${CUDA_HOME}/lib64"
-      # export USE_MKLDNN=0
-      # export USE_FBGEMM=0
-      # export USE_NNPACK=0
-      # export USE_QNNPACK=0
-      # export USE_XNNPACK=0
-      # export MAX_JOBS=15
       python setup.py develop
       ;;
 
@@ -550,7 +534,7 @@ create() {
       ;;
 
     numba)
-      micromamba create -n numba python=3.10 llvmlite=0.41 pdbpp flake8 numpy cffi pytest -c numba/label/dev
+      micromamba create -n numba python=3.10 llvmlite=0.41 pdbpp flake8 numpy cffi pytest -c numba/label/dev -c rapidsai
       ;;
 
     numba-rvsdg)
