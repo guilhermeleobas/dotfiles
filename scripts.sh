@@ -98,6 +98,11 @@ clone() {
       git clone git@github.com:heavyai/$1.git ${PREFIX}/$1
       ;;
 
+    cudf)
+      echo "cloning $1..."
+      git clone git@github.com:rapidsai/$1.git ${PREFIX}/$1
+      ;;
+
     sqlalchemy)
       echo "cloning sqlalchemy..."
       git clone git@github.com:sqlalchemy/sqlalchemy.git --single-branch ${PREFIX}/sqlalchemy
@@ -123,9 +128,9 @@ clone() {
       git clone git@github.com:numpy/numpy.git ${PREFIX}/numpy
       ;;
 
-    pytorch)
-      echo "clonning PyTorch..."
-      git clone git@github.com:pytorch/pytorch.git ${PREFIX}/pytorch
+    pytorch|tutorials)
+      echo "clonning $1..."
+      git clone git@github.com:pytorch/$1.git ${PREFIX}/$1
       ;;
 
     cpython)
@@ -248,6 +253,12 @@ env() {
       micromamba deactivate
       micromamba activate numba
       export NUMBA_CAPTURED_ERRORS="new_style"
+      ;;
+      
+    cudf)
+      micromamba deactivate
+      export CUDA_HOME=/usr/local/cuda
+      micromamba activate cudf
       ;;
 
     pytorch)
@@ -536,6 +547,11 @@ create() {
 
     numba-rvsdg)
       micromamba create -n numba-rvsdg python=3.11 python-graphviz mypy pre-commit pytest pdbpp -c conda-forge -y
+      ;;
+
+    cudf)
+      export CUDA_HOME=/usr/local/cuda/
+      micromamba env create --file=${PREFIX}/cudf/conda/environments/all_cuda-118_arch-x86_64.yaml -n cudf
       ;;
 
     numpy)
