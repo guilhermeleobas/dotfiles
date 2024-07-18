@@ -666,7 +666,7 @@ reload_goto() {
   goto -r $d $(pwd)
 }
 
-check_require_sync() {
+sync_dotfiles() {
   # Run 'git status' command
   goto dotfiles
 
@@ -718,7 +718,7 @@ if [[ $(hostname) =~ qgpu ]]; then
   [ -f ~/git/goto/goto.sh ] && source ~/git/goto/goto.sh
 
   # check if dotfiles is in sync with github
-  check_require_sync
+  sync_dotfiles
 
   # use "default" conda env on qgpu machines
   conda activate default
@@ -764,7 +764,7 @@ $ '
   [ -f ~/git/goto/goto.sh ] && source ~/git/goto/goto.sh
 
   # check if dotfiles is in sync with github
-  # check_require_sync
+  # sync_dotfiles
 
   # fzf
   [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
