@@ -1,4 +1,5 @@
 PREFIX=${HOME}/git
+export PYTHONBREAKPOINT=pdbp.set_trace
 
 
 heavy-conda-run(){
@@ -128,7 +129,7 @@ clone() {
       git clone git@github.com:numpy/numpy.git ${PREFIX}/numpy
       ;;
 
-    pytorch|tutorials)
+    pytorch|tutorials|vision)
       echo "clonning $1..."
       git clone git@github.com:pytorch/$1.git ${PREFIX}/$1
       ;;
@@ -254,18 +255,18 @@ env() {
       micromamba activate numba
       export NUMBA_CAPTURED_ERRORS="new_style"
       ;;
-      
+
     cudf)
       micromamba deactivate
       export CUDA_HOME=/usr/local/cuda
       micromamba activate cudf
       ;;
 
-    pytorch)
-      echo "activating env: pytorch"
+    pytorch|pytorch-cuda)
+      echo "activating env: ${environment}"
       # remember to create a symlink from /usr/lib/cuda to /usr/local/cuda
       # sudo ln -s /usr/lib/cuda /usr/local/cuda
-      export USE_CUDA=0
+      export USE_CUDA=$([ "${environment}" = "pytorch-cuda" ] && echo 1 || echo 0)
       export USE_GOLD=1
       export USE_KINETO=0
       export BUILD_CAFFE2=0
@@ -294,8 +295,13 @@ env() {
       export LDFLAGS="${LDFLAGS} -Wl,-rpath-link,${CUDA_HOME}/lib64"
       export LDFLAGS="${LDFLAGS} -Wl,-rpath-link,${CUDA_HOME}/extras/CUPTI/lib64"
       export LDFLAGS="${LDFLAGS} -L${CUDA_HOME}/lib64"
-      micromamba activate pytorch
+      micromamba activate ${environment}
       # . ~/git/Quansight/pearu-sandbox/working-envs/activate-pytorch-dev.sh
+      ;;
+  
+    vision)
+      export Torch_DIR="${HOME}/git/pytorch"
+      micromamba activate pytorch
       ;;
 
     *)
@@ -437,8 +443,8 @@ build() {
       # python setup.py build_ext --inplace -j10
       ;;
 
-    pytorch)
-      env pytorch
+    pytorch|pytorch-cuda|vision)
+      env ${environment}
       python setup.py develop
       ;;
 
@@ -587,8 +593,11 @@ create() {
       micromamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/heavydb-dev.yaml -n heavydb-cuda-dev -y
       ;;
 
+    pytorch-cuda)
+      micromamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/pytorch-cuda-dev.yaml -n pytorch-cuda -y
+      ;;
+
     pytorch)
-      # micromamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/pytorch-cuda-dev.yaml -n pytorch -y
       micromamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/pytorch-dev.yaml -n pytorch -y
       ;;
 
@@ -652,7 +661,7 @@ register_goto() {
   done
 }
 
-update_goto() {
+reload_goto() {
   local d=$(basename $(pwd))
   goto -r $d $(pwd)
 }
