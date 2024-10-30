@@ -1,5 +1,4 @@
 PREFIX=${HOME}/git
-export PYTHONBREAKPOINT=pdbp.set_trace
 
 
 heavy-conda-run(){
@@ -130,8 +129,13 @@ clone() {
       ;;
 
     pytorch|tutorials|vision)
-      echo "clonning $1..."
+      echo "cloning $1..."
       git clone git@github.com:pytorch/$1.git ${PREFIX}/$1
+      ;;
+
+    pytorch311)
+      echo "cloning $1..."
+      git clone git@github.com:pytorch/pytorch.git ${PREFIX}/$1
       ;;
 
     cpython)
@@ -296,7 +300,6 @@ env() {
       export LDFLAGS="${LDFLAGS} -Wl,-rpath-link,${CUDA_HOME}/extras/CUPTI/lib64"
       export LDFLAGS="${LDFLAGS} -L${CUDA_HOME}/lib64"
       micromamba activate ${environment}
-      # . ~/git/Quansight/pearu-sandbox/working-envs/activate-pytorch-dev.sh
       ;;
   
     vision)
@@ -443,7 +446,7 @@ build() {
       # python setup.py build_ext --inplace -j10
       ;;
 
-    pytorch|pytorch-cuda|vision)
+    pytorch|pytorch311|pytorch-cuda|vision)
       env ${environment}
       python setup.py develop
       ;;
@@ -593,12 +596,8 @@ create() {
       micromamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/heavydb-dev.yaml -n heavydb-cuda-dev -y
       ;;
 
-    pytorch-cuda)
-      micromamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/pytorch-cuda-dev.yaml -n pytorch-cuda -y
-      ;;
-
-    pytorch)
-      micromamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/pytorch-dev.yaml -n pytorch -y
+    pytorch|pytorch311|pytorch-cuda)
+      micromamba env create --file=~/git/dotfiles/conda-envs/$environment-dev.yaml -n $environment -y
       ;;
 
     *)
