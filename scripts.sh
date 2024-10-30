@@ -1,5 +1,8 @@
 PREFIX=${HOME}/git
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 
 heavy-conda-run(){
   micromamba deactivate
