@@ -11,7 +11,7 @@ channels:
   - pytorch
   - defaults
 dependencies:
-  - python=3.9
+  - python=3.12
   - numpy
   - ninja
   - pyyaml
@@ -26,10 +26,7 @@ dependencies:
   - flake8
   - psutil
   - hypothesis
-  - mypy=0.770
+  - mypy
   - sympy
   - sysroot_linux-64=2.17
-  - lintrunner
-  - ghstack
-  - pdbpp
 

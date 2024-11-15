@@ -127,14 +127,14 @@ clone() {
       git clone git@github.com:numpy/numpy.git ${PREFIX}/numpy
       ;;
 
-    pytorch|tutorials|vision)
+    pytorch|tutorials|vision|audio)
       echo "cloning $1..."
       git clone git@github.com:pytorch/$1.git ${PREFIX}/$1
       ;;
 
-    pytorch311)
+    pytorch39|pytorch310|pytorch311|pytorch312)
       echo "cloning $1..."
-      git clone git@github.com:pytorch/pytorch.git ${PREFIX}/$1
+      git clone git@github.com:pytorch/pytorch.git --single-branch ${PREFIX}/$1
       ;;
 
     cpython)
@@ -265,7 +265,7 @@ env() {
       micromamba activate cudf
       ;;
 
-    pytorch|pytorch-cuda)
+    pytorch|pytorch39|pytorch310|pytorch311|pytorch312|pytorch-cuda)
       echo "activating env: ${environment}"
       # remember to create a symlink from /usr/lib/cuda to /usr/local/cuda
       # sudo ln -s /usr/lib/cuda /usr/local/cuda
@@ -301,7 +301,7 @@ env() {
       micromamba activate ${environment}
       ;;
   
-    vision)
+    vision|audio)
       export Torch_DIR="${HOME}/git/pytorch"
       micromamba activate pytorch
       ;;
@@ -412,7 +412,13 @@ build() {
 
     cython)
       env cython
-      NUMBA_DISABLE_OPENMP=1 python setup.py build_ext --inplace -j10
+      python setup.py build_ext --inplace -j10
+      ;;
+
+    cpython)
+      env cpython
+      ./configure --with-pydebug --with-openssl=$CONDA_PREFIX
+      make -s -j10
       ;;
 
     rbc)
@@ -445,7 +451,7 @@ build() {
       # python setup.py build_ext --inplace -j10
       ;;
 
-    pytorch|pytorch311|pytorch-cuda|vision)
+    pytorch|pytorch39|pytorch310|pytorch311|pytorch312|pytorch-cuda|vision|audio)
       env ${environment}
       python setup.py develop
       ;;
@@ -595,8 +601,12 @@ create() {
       micromamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/heavydb-dev.yaml -n heavydb-cuda-dev -y
       ;;
 
-    pytorch|pytorch311|pytorch-cuda)
+    pytorch|pytorch39|pytorch310|pytorch311|pytorch312|pytorch-cuda)
       micromamba env create --file=~/git/dotfiles/conda-envs/$environment-dev.yaml -n $environment -y
+      ;;
+
+    cpython)
+      micromamba env create --file=~/git/dotfiles/conda-envs/cpython.yaml -n cpython -y
       ;;
 
     *)
