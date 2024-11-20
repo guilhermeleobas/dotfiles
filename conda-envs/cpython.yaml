@@ -2,7 +2,6 @@ name: cpython
 channels:
   - conda-forge
 dependencies:
-  - gcc
   - zlib
   - zlib-ng
   - bzip2

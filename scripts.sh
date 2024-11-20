@@ -454,6 +454,7 @@ build() {
     pytorch|pytorch39|pytorch310|pytorch311|pytorch312|pytorch-cuda|vision|audio)
       env ${environment}
       python setup.py develop
+      make triton
       ;;
 
     *)
@@ -655,23 +656,13 @@ run_flake8() {
   git diff HEAD^ | flake8 --diff
 }
 
-register_goto() {
+reload_goto() {
   goto -c
-  goto -r heavydb ${PREFIX}/heavydb-internal
-  goto -r heavydb-nocuda ${PREFIX}/heavydb-nocuda
-  goto -r heavydb-cuda ${PREFIX}/heavydb-cuda
-  goto -r pearu-sandbox ${PREFIX}/Quansight/pearu-sandbox
-  goto -r llvm ${PREFIX}/llvm-project
 
   for d in ${PREFIX}/*; do
     local b=$(basename $d)
     goto -r $b $d
   done
-}
-
-reload_goto() {
-  local d=$(basename $(pwd))
-  goto -r $d $(pwd)
 }
 
 sync_dotfiles() {
