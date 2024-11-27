@@ -719,7 +719,7 @@ if [[ $(hostname) =~ qgpu ]]; then
   [ -f ~/git/goto/goto.sh ] && source ~/git/goto/goto.sh
 
   # check if dotfiles is in sync with github
-  sync_dotfiles
+  # sync_dotfiles
 
   # use "default" conda env on qgpu machines
   conda activate default
