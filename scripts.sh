@@ -454,7 +454,7 @@ build() {
     pytorch|pytorch39|pytorch310|pytorch311|pytorch312|pytorch-cuda|vision|audio)
       env ${environment}
       python setup.py develop
-      if "${environment}" = "pytorch-cuda"; then
+      if [ "${environment}" = "pytorch-cuda" ]; then
         make triton
       fi
       ;;
