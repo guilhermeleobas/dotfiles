@@ -132,7 +132,7 @@ clone() {
       git clone git@github.com:pytorch/$1.git ${PREFIX}/$1
       ;;
 
-    pytorch39|pytorch310|pytorch311|pytorch312)
+    pytorch39|pytorch310|pytorch311|pytorch312|pytorch313)
       echo "cloning $1..."
       git clone git@github.com:pytorch/pytorch.git --single-branch ${PREFIX}/$1
       ;;
@@ -265,7 +265,7 @@ env() {
       micromamba activate cudf
       ;;
 
-    pytorch|pytorch39|pytorch310|pytorch311|pytorch312|pytorch-cuda)
+    pytorch|pytorch39|pytorch310|pytorch311|pytorch312|pytorch313|pytorch-cuda)
       echo "activating env: ${environment}"
       # remember to create a symlink from /usr/lib/cuda to /usr/local/cuda
       # sudo ln -s /usr/lib/cuda /usr/local/cuda
@@ -451,7 +451,7 @@ build() {
       # python setup.py build_ext --inplace -j10
       ;;
 
-    pytorch|pytorch39|pytorch310|pytorch311|pytorch312|pytorch-cuda|vision|audio)
+    pytorch|pytorch39|pytorch310|pytorch311|pytorch312|pytorch313|pytorch-cuda|vision|audio)
       env ${environment}
       python setup.py develop
       if [ "${environment}" = "pytorch-cuda" ]; then
@@ -604,7 +604,7 @@ create() {
       micromamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/heavydb-dev.yaml -n heavydb-cuda-dev -y
       ;;
 
-    pytorch|pytorch39|pytorch310|pytorch311|pytorch312|pytorch-cuda)
+    pytorch|pytorch39|pytorch310|pytorch311|pytorch312|pytorch313|pytorch-cuda)
       micromamba env create --file=~/git/dotfiles/conda-envs/$environment-dev.yaml -n $environment -y
       ;;
 
@@ -630,6 +630,14 @@ create() {
     env ${environment}
   fi
 
+}
+
+show() {
+  if [[ $# -eq 0 ]]; then
+    unset TORCH_LOGS
+  else
+    export TORCH_LOGS="$1"
+  fi
 }
 
 edit() {

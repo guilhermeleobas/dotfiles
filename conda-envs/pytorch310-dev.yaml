@@ -1,0 +1,32 @@
+#
+# For usage, see https://github.com/Quansight/dev-notes/
+#
+# Author: Pearu Peterson
+# Created: October 2019
+#
+
+name: dev
+channels:
+  - conda-forge
+  - pytorch
+  - defaults
+dependencies:
+  - python=3.10
+  - numpy
+  - ninja
+  - pyyaml
+  - mkl
+  - mkl-include
+  - setuptools
+  - cmake
+  - cffi
+  - typing
+  - pytest
+  - compilers
+  - flake8
+  - psutil
+  - hypothesis
+  - mypy
+  - sympy
+  - sysroot_linux-64=2.17
+
