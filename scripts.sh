@@ -633,6 +633,14 @@ create() {
 
 }
 
+rebase() {
+  git rebase -i HEAD~"$1"
+}
+
+stash() {
+  git stash --keep-index
+}
+
 show() {
   if [[ $# -eq 0 ]]; then
     unset TORCH_LOGS
