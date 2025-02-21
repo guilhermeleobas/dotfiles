@@ -8,4 +8,5 @@ dependencies:
   - compilers
   - openssl
   - pdbpp
+  - libtirpc
 
