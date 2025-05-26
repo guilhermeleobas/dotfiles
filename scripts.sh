@@ -268,6 +268,11 @@ env() {
 
     pytorch|pytorch39|pytorch310|pytorch311|pytorch312|pytorch313|pytorch-cuda)
       echo "activating env: ${environment}"
+
+      if [ "${environment}" = "pytorch313" ]; then
+        export PYTHONBREAKPOINT=pdbp.set_trace
+      fi
+
       # remember to create a symlink from /usr/lib/cuda to /usr/local/cuda
       # sudo ln -s /usr/lib/cuda /usr/local/cuda
       export USE_CUDA=$([ "${environment}" = "pytorch-cuda" ] && echo 1 || echo 0)
@@ -285,7 +290,7 @@ env() {
       # export USE_PER_OPERATOR_HEADERS=1
 
       export CMAKE_BUILD_TYPE=RelWithDebInfo
-      export MAX_JOBS=18
+      export MAX_JOBS=15
       export USE_DISTRIBUTED=0
       export USE_NCCL=0
       export USE_CUDNN=0
@@ -458,6 +463,7 @@ build() {
       if [ "${environment}" = "pytorch-cuda" ]; then
         make triton
       fi
+
       ;;
 
     *)
