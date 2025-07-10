@@ -145,7 +145,7 @@ clone() {
 
     sandbox)
       echo "cloning sandbox..."
-      git clone git@github.com:Quansight/pearu-sandbox.git ${HOME}/git/Quansight/pearu-sandbox
+      git clone git@github.com:Quansight/pearu-sandbox.git ${PREFIX}/Quansight/pearu-sandbox
       ;;
 
     *)
@@ -177,7 +177,7 @@ install() {
 
     goto)
       git clone git@github.com:iridakos/goto.git ${PREFIX}/goto
-      source ~/git/goto/goto.sh
+      source ${PREFIX}/goto/goto.sh
       register_goto
       ;;
 
@@ -308,7 +308,7 @@ env() {
       ;;
   
     vision|audio)
-      export Torch_DIR="${HOME}/git/pytorch"
+      export Torch_DIR="${PREFIX}/pytorch"
       micromamba activate pytorch
       ;;
 
@@ -566,7 +566,7 @@ create() {
       ;;
 
     numba)
-      micromamba create -n numba python=3.10 llvmlite=0.41 pdbpp flake8 numpy cffi pytest -c numba/label/dev -c rapidsai
+      micromamba create -n numba python=3.11 llvmlite=0.44 pdbpp flake8 numpy cffi pytest -c numba/label/dev -c rapidsai
       ;;
 
     numba-rvsdg)
@@ -612,11 +612,11 @@ create() {
       ;;
 
     pytorch|pytorch39|pytorch310|pytorch311|pytorch312|pytorch313|pytorch-cuda)
-      micromamba env create --file=~/git/dotfiles/conda-envs/$environment-dev.yaml -n $environment -y
+      micromamba env create --file=${PREFIX}/dotfiles/conda-envs/$environment-dev.yaml -n $environment -y
       ;;
 
     cpython)
-      micromamba env create --file=~/git/dotfiles/conda-envs/cpython.yaml -n cpython -y
+      micromamba env create --file=${PREFIX}/dotfiles/conda-envs/cpython.yaml -n cpython -y
       ;;
 
     *)
@@ -739,7 +739,7 @@ if [[ $(hostname) =~ qgpu ]]; then
   [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
   # goto
-  [ -f ~/git/goto/goto.sh ] && source ~/git/goto/goto.sh
+  [ -f ${PREFIX}/goto/goto.sh ] && source ${PREFIX}/goto/goto.sh
 
   # check if dotfiles is in sync with github
   # sync_dotfiles
@@ -785,7 +785,7 @@ $ '
   alias mamba="micromamba"
 
   # goto
-  [ -f ~/git/goto/goto.sh ] && source ~/git/goto/goto.sh
+  [ -f ${PREFIX}/goto/goto.sh ] && source ${PREFIX}/goto/goto.sh
 
   # check if dotfiles is in sync with github
   # sync_dotfiles
