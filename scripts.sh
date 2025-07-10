@@ -657,9 +657,9 @@ show() {
 
 edit() {
   if [[ $# -eq 1 ]]; then
-    $1 ~/git/dotfiles/scripts.sh
+    $1 ${PREFIX}/dotfiles/scripts.sh
   else
-    code ~/git/dotfiles/scripts.sh
+    code ${PREFIX}/dotfiles/scripts.sh
   fi
 }
 
