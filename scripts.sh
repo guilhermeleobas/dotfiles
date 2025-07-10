@@ -746,7 +746,9 @@ if [[ $(hostname) =~ qgpu ]]; then
 
   # use "default" conda env on qgpu machines
   conda activate default
-else
+fi
+  
+if [[ $(hostname) =~ guilhermeleobas-server || $(hostname) =~ Guilherme-MacBook ]]; then
   source ${HOME}/.zgen/zgen.zsh
   if ! zgen saved; then
     zgen oh-my-zsh
