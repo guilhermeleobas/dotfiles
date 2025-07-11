@@ -127,6 +127,11 @@ clone() {
       git clone git@github.com:numpy/numpy.git ${PREFIX}/numpy
       ;;
 
+    flash-attention)
+      echo "cloning $1..."
+      git clone git@github.com:guilhermeleobas/$1.git ${PREFIX}/$1
+      ;;
+
     pytorch|tutorials|vision|audio)
       echo "cloning $1..."
       git clone git@github.com:pytorch/$1.git ${PREFIX}/$1
@@ -264,6 +269,30 @@ env() {
       micromamba deactivate
       export CUDA_HOME=/usr/local/cuda
       micromamba activate cudf
+      ;;
+
+    flash-attention)
+      env pytorch-cuda
+
+      # Set minimal build flags for PHI-1 reproducer
+      export FLASH_ATTENTION_DISABLE_BACKWARD=TRUE
+      export FLASH_ATTENTION_DISABLE_SPLIT=TRUE
+      export FLASH_ATTENTION_DISABLE_SOFTCAP=TRUE
+      export FLASH_ATTENTION_DISABLE_LOCAL=TRUE
+      export FLASH_ATTENTION_DISABLE_CLUSTER=TRUE
+      export FLASH_ATTENTION_DISABLE_VARLEN=TRUE
+      export FLASH_ATTENTION_DISABLE_PACKGQA=TRUE
+      export FLASH_ATTENTION_DISABLE_PAGEDKV=TRUE
+      export FLASH_ATTENTION_DISABLE_APPENDKV=TRUE
+      export FLASH_ATTENTION_DISABLE_FP8=TRUE
+      export FLASH_ATTENTION_DISABLE_FP16=FALSE
+      export FLASH_ATTENTION_DISABLE_FP32=TRUE
+      
+      # Keep only 64-dim heads for PHI-1
+      export FLASH_ATTENTION_DISABLE_HDIM96=TRUE
+      export FLASH_ATTENTION_DISABLE_HDIM128=TRUE
+      export FLASH_ATTENTION_DISABLE_HDIM192=TRUE
+      export FLASH_ATTENTION_DISABLE_HDIM256=TRUE
       ;;
 
     pytorch|pytorch39|pytorch310|pytorch311|pytorch312|pytorch313|pytorch-cuda)
@@ -455,6 +484,11 @@ build() {
       env numpy
       spin build
       # python setup.py build_ext --inplace -j10
+      ;;
+
+    flash-attention)
+      env ${environment}
+      pip install flash-attn --no-build-isolation
       ;;
 
     pytorch|pytorch39|pytorch310|pytorch311|pytorch312|pytorch313|pytorch-cuda|vision|audio)
