@@ -280,8 +280,6 @@ env() {
       ;;
 
     flash-attention)
-      env flash-attention
-
       # Set minimal build flags for PHI-1 reproducer
       export FLASH_ATTENTION_DISABLE_BACKWARD=TRUE
       export FLASH_ATTENTION_DISABLE_SPLIT=TRUE
@@ -301,6 +299,8 @@ env() {
       export FLASH_ATTENTION_DISABLE_HDIM128=TRUE
       export FLASH_ATTENTION_DISABLE_HDIM192=TRUE
       export FLASH_ATTENTION_DISABLE_HDIM256=TRUE
+      
+      micromamba activate flash-attention
       ;;
 
     pytorch|pytorch39|pytorch310|pytorch311|pytorch312|pytorch313|pytorch-cuda)
