@@ -652,6 +652,11 @@ create() {
     heavydb-cuda-dev)
       micromamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/heavydb-dev.yaml -n heavydb-cuda-dev -y
       ;;
+      
+    flash-attention)
+      micromamba env create -n flash-attention python=3.12 cuda-toolkit=3.12
+      pip install torch packaging
+      ;;
 
     pytorch|pytorch39|pytorch310|pytorch311|pytorch312|pytorch313|pytorch-cuda)
       micromamba env create --file=${PREFIX}/dotfiles/conda-envs/$environment-dev.yaml -n $environment -y
