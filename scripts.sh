@@ -280,7 +280,7 @@ env() {
       ;;
 
     flash-attention)
-      env pytorch-cuda
+      env flash-attention
 
       # Set minimal build flags for PHI-1 reproducer
       export FLASH_ATTENTION_DISABLE_BACKWARD=TRUE
@@ -495,7 +495,7 @@ build() {
       ;;
 
     flash-attention)
-      env ${environment}
+      env flash-attention
       python setup.py install
       ;;
 
