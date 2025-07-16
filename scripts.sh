@@ -174,6 +174,14 @@ install() {
     nvim-plug)
       sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
       ;;
+      
+    copy_vim)
+      cp $PREFIX/dotfiles/nvim ~/.vimrc
+      ;;
+      
+    copy_tmux)
+      cp $PREFIX/dotfiles/tmux.conf ~/.tmux.conf
+      ;;
 
     fzf)
       git clone git@github.com:junegunn/fzf.git ~/.fzf
@@ -488,7 +496,7 @@ build() {
 
     flash-attention)
       env ${environment}
-      pip install flash-attn --no-build-isolation
+      python setup.py install
       ;;
 
     pytorch|pytorch39|pytorch310|pytorch311|pytorch312|pytorch313|pytorch-cuda|vision|audio)
