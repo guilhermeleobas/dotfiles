@@ -654,8 +654,8 @@ create() {
       ;;
       
     flash-attention)
-      micromamba env create -n flash-attention python=3.12 cuda-toolkit=3.12
-      pip install torch packaging
+      micromamba env create -n flash-attention python=3.12
+      pip install torch packaging transformers accelerate
       ;;
 
     pytorch|pytorch39|pytorch310|pytorch311|pytorch312|pytorch313|pytorch-cuda)
