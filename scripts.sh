@@ -1,5 +1,28 @@
 PREFIX=${HOME}/git
 
+vast(){
+  export PREFIX="/workspace/git"
+  alias micromamba="conda"
+  mkdir /workspace/git
+  cd /workspace/git
+  
+  git clone https://github.com/guilhermeleobas/dotfiles
+  git clone https://github.com/guilhermeleobas/flash-attention
+  
+  install vim-plug
+  install copy-vim
+  install copy-tmux
+  
+  conda create -n flash-attention -y
+  conda activate flash-attention
+  conda install python=3.12 -y
+  pip install torch transformers ninja einops pytest padding accelerate dataset
+  
+  git config --global user.name "Guilherme Leobas"
+  git config --global user.email "guilhermeleobas@gmail.com"
+
+}
+
 heavy-conda-run(){
   micromamba deactivate
   micromamba activate heavydb-env
