@@ -350,7 +350,7 @@ env() {
       # export USE_PER_OPERATOR_HEADERS=1
 
       export CMAKE_BUILD_TYPE=RelWithDebInfo
-      export MAX_JOBS=15
+      export MAX_JOBS=20
       export USE_DISTRIBUTED=0
       export USE_NCCL=0
       export USE_CUDNN=0
@@ -366,7 +366,7 @@ env() {
       export LDFLAGS="${LDFLAGS} -L${CUDA_HOME}/lib64"
       micromamba activate ${environment}
       ;;
-  
+
     vision|audio)
       export Torch_DIR="${PREFIX}/pytorch"
       micromamba activate pytorch
@@ -483,7 +483,7 @@ build() {
 
     cpython)
       env cpython
-      ./configure --with-pydebug --with-openssl=$CONDA_PREFIX
+      ./configure --with-pydebug --with-openssl=$CONDA_PREFIX --with-ensurepip=install
       make -s -j10
       ;;
 

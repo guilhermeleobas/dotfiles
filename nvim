@@ -35,13 +35,6 @@ Plug 'jordwalke/flatlandia'
 Plug 'mhartington/oceanic-next'
 Plug 'rakr/vim-one'
 
-" Elixir
-Plug 'elixir-lang/vim-elixir'
-Plug 'slashmili/alchemist.vim'
-
-" Python
-" Plug 'davidhalter/jedi-vim'
-
 call plug#end()
 
 let mapleader = ","
