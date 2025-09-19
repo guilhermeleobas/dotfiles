@@ -1,5 +1,7 @@
 PREFIX=${HOME}/git
 
+[[ -n $CONDA_EXE ]] || CONDA_EXE=micromamba
+
 reload() {
   # if [[ $(hostname) =~ "qgpu" ]]; then
   #   source ${HOME}/.bashrc
@@ -11,32 +13,12 @@ reload() {
 
 clone() {
   case $1 in
-    dotfiles|rbc|rbc-feedstock|numba|numba-rvsdg)
+    dotfiles|numba|numba-rvsdg)
       echo "cloning $1..."
       git clone git@github.com:guilhermeleobas/$1.git ${PREFIX}/$1/
       ;;
 
-    cudf)
-      echo "cloning $1..."
-      git clone git@github.com:rapidsai/$1.git ${PREFIX}/$1
-      ;;
-
-    sqlalchemy)
-      echo "cloning sqlalchemy..."
-      git clone git@github.com:sqlalchemy/sqlalchemy.git --single-branch ${PREFIX}/sqlalchemy
-      ;;
-
-    ibis)
-      echo "cloning ibis..."
-      git clone git@github.com:ibis-project/ibis.git ${PREFIX}/ibis
-      ;;
-
-    mold)
-      echo "cloning mold..."
-      git clone git@github.com:rui314/mold ${PREFIX}/mold
-      ;;
-
-    llvmlite|numba-extras|numba-scipy)
+    llvmlite)
       echo "cloning $1..."
       git clone git@github.com:numba/$1.git ${PREFIX}/$1
       ;;
@@ -122,11 +104,11 @@ install() {
       ;;
 
     ag)
-      micromamba install -c conda-forge the_silver_searcher
+      $CONDA_EXE install -c conda-forge the_silver_searcher
       ;;
 
     gh)
-      micromamba install -c conda-forge gh
+      $CONDA_EXE install -c conda-forge gh
       ;;
 
     theme)
@@ -168,15 +150,9 @@ env() {
 
   case ${environment} in
     numba)
-      micromamba deactivate
-      micromamba activate numba
+      $CONDA_EXE deactivate
+      $CONDA_EXE activate numba
       export NUMBA_CAPTURED_ERRORS="new_style"
-      ;;
-
-    cudf)
-      micromamba deactivate
-      export CUDA_HOME=/usr/local/cuda
-      micromamba activate cudf
       ;;
 
     flash-attention)
@@ -200,7 +176,7 @@ env() {
       export FLASH_ATTENTION_DISABLE_HDIM192=TRUE
       export FLASH_ATTENTION_DISABLE_HDIM256=TRUE
 
-      micromamba activate flash-attention
+      $CONDA_EXE activate flash-attention
       ;;
 
     pytorch|pytorch39|pytorch310|pytorch311|pytorch312|pytorch313|pytorch-cuda)
@@ -241,22 +217,22 @@ env() {
       export LDFLAGS="${LDFLAGS} -Wl,-rpath-link,${CUDA_HOME}/lib64"
       export LDFLAGS="${LDFLAGS} -Wl,-rpath-link,${CUDA_HOME}/extras/CUPTI/lib64"
       export LDFLAGS="${LDFLAGS} -L${CUDA_HOME}/lib64"
-      micromamba activate ${environment}
+      $CONDA_EXE activate ${environment}
       ;;
 
     vision|audio)
       export Torch_DIR="${PREFIX}/pytorch"
-      micromamba activate pytorch
+      $CONDA_EXE activate pytorch
       ;;
 
     *)
       echo "activating env: ${environment}"
-      micromamba deactivate
-      micromamba activate ${environment}
+      $CONDA_EXE deactivate
+      $CONDA_EXE activate ${environment}
 
       if [[ $? -ne 0 ]]; then
         echo "activating default env..."
-        micromamba activate ${CONDA_DEFAULT_ENV}
+        $CONDA_EXE activate ${CONDA_DEFAULT_ENV}
       fi
 
       ;;
@@ -298,25 +274,10 @@ build() {
         -DHAVE_LIBEDIT=OFF
       ;;
 
-    cython)
-      env cython
-      python setup.py build_ext --inplace -j10
-      ;;
-
     cpython)
       env cpython
       ./configure --with-pydebug --with-openssl=$CONDA_PREFIX --with-ensurepip=install
       make -s -j10
-      ;;
-
-    rbc)
-      env rbc
-      python setup.py develop
-      ;;
-
-    mold)
-      env mold
-      cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=. ${PREFIX}/mold
       ;;
 
     numba)
@@ -382,11 +343,11 @@ remove() {
 }
 
 create() {
-  micromamba deactivate
+  $CONDA_EXE deactivate
   if [[ $(hostname) =~ qgpu ]]; then
-    micromamba activate default
+    $CONDA_EXE activate default
   else
-    micromamba activate base
+    $CONDA_EXE activate base
   fi
 
   local flag=""
@@ -408,66 +369,43 @@ create() {
   fi
 
   echo "create env: ${environment}..."
-  micromamba remove --name ${environment} --all -y
+  $CONDA_EXE remove --name ${environment} --all -y
 
   case $environment in
-    rbc)
-      micromamba env create --file=${PREFIX}/rbc/environment.yml -n rbc -y
-      ;;
-
-    cython)
-      micromamba env create --file=${PREFIX}/cython/environment.yml -n cython -y
-      env cython
-      pip install Cython==3.0.0a11
-      ;;
-
-    mold)
-      micromamba create -n mold clang clangxx cmake make tbb -c conda-forge -y
-      ;;
-
     numba)
-      micromamba create -n numba python=3.11 llvmlite=0.44 pdbpp flake8 numpy cffi pytest -c numba/label/dev -c rapidsai
-      ;;
-
-    numba-rvsdg)
-      micromamba create -n numba-rvsdg python=3.11 python-graphviz mypy pre-commit pytest pdbpp -c conda-forge -y
-      ;;
-
-    cudf)
-      export CUDA_HOME=/usr/local/cuda/
-      micromamba env create --file=${PREFIX}/cudf/conda/environments/all_cuda-118_arch-x86_64.yaml -n cudf
+      $CONDA_EXE create -n numba python=3.11 llvmlite=0.44 pdbpp flake8 numpy cffi pytest -c numba/label/dev -c rapidsai
       ;;
 
     numpy)
-      micromamba env create --file=${PREFIX}/numpy/environment.yml -n numpy
+      $CONDA_EXE env create --file=${PREFIX}/numpy/environment.yml -n numpy
       ;;
 
     llvmlite)
-      micromamba create -n llvmlite
-      micromamba install -n llvmlite python=3.9 compilers cmake make llvmdev=14 -c numba -c conda-forge -y
+      $CONDA_EXE create -n llvmlite
+      $CONDA_EXE install -n llvmlite python=3.9 compilers cmake make llvmdev=14 -c numba -c conda-forge -y
       ;;
 
     llvm)
-      micromamba env create -n llvm cmake ccache compilers make -c conda-forge -y
+      $CONDA_EXE env create -n llvm cmake ccache compilers make -c conda-forge -y
       ;;
 
     flash-attention)
-      micromamba env create -n flash-attention python=3.12
+      $CONDA_EXE env create -n flash-attention python=3.12
       pip install torch packaging transformers accelerate
       ;;
 
     pytorch|pytorch39|pytorch310|pytorch311|pytorch312|pytorch313|pytorch-cuda)
-      micromamba env create --file=${PREFIX}/dotfiles/conda-envs/$environment-dev.yaml -n $environment -y
+      $CONDA_EXE env create --file=${PREFIX}/dotfiles/conda-envs/$environment-dev.yaml -n $environment -y
       ;;
 
     cpython)
-      micromamba env create --file=${PREFIX}/dotfiles/conda-envs/cpython.yaml -n cpython -y
+      $CONDA_EXE env create --file=${PREFIX}/dotfiles/conda-envs/cpython.yaml -n cpython -y
       ;;
 
     *)
       case "$flag" in
         -n | --name)
-          micromamba create --name ${environment}
+          $CONDA_EXE create --name ${environment}
           ;;
 
         *)
@@ -596,7 +534,7 @@ if [[ $(hostname) =~ qgpu ]]; then
   # use "default" conda env on qgpu machines
   conda activate default
 fi
-  
+
 if [[ $(hostname) =~ guilhermeleobas-server || $(hostname) =~ Guilherme-MacBook ]]; then
   source ${HOME}/.zgen/zgen.zsh
   if ! zgen saved; then
