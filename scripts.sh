@@ -1,104 +1,5 @@
 PREFIX=${HOME}/git
 
-vast(){
-  export PREFIX="/workspace/git"
-  alias micromamba="conda"
-  mkdir /workspace/git
-  cd /workspace/git
-  
-  git clone https://github.com/guilhermeleobas/dotfiles
-  git clone https://github.com/guilhermeleobas/flash-attention
-  
-  install vim-plug
-  install copy-vim
-  install copy-tmux
-  
-  conda create -n flash-attention -y
-  conda activate flash-attention
-  conda install python=3.12 -y
-  pip install torch transformers ninja einops pytest padding accelerate dataset
-  
-  git config --global user.name "Guilherme Leobas"
-  git config --global user.email "guilhermeleobas@gmail.com"
-
-}
-
-heavy-conda-run(){
-  micromamba deactivate
-  micromamba activate heavydb-env
-  echo "running heavydb..."
-  rm -rf storage
-  mkdir storage
-  micromamba run -n heavydb-env initheavy storage -f
-  version=$(micromamba run -n heavydb-env heavydb --version)
-  echo ${version}
-  micromamba run -n heavydb-env heavydb --enable-runtime-udf --enable-table-functions --enable-dev-table-functions --enable-udf-registration-for-all-users  --enable-debug-timer --log-channels PTX,IR --log-severity-clog=WARNING --log-severity=DEBUG4
-}
-
-heavy-conda-install(){
-  if [[ $# -eq 2 ]]; then
-    echo $0 $1 $2
-    micromamba deactivate
-    micromamba activate base
-    micromamba remove --name heavydb-env --all -y
-    micromamba create -n heavydb-env "heavydb=$1*=*_$2" -c conda-forge -y
-  else
-    echo 'usage: heavy-conda-install version cpu|cuda'
-  fi
-}
-
-omnisci-conda-run(){
-  micromamba deactivate
-  micromamba activate omniscidb-env
-  echo "running omniscidb..."
-  rm -rf data
-  mkdir data
-  micromamba run -n omniscidb-env omnisci_initdb data -f
-  version=$(micromamba run -n omniscidb-env omnisci_server --version)
-  echo ${version}
-  EXTRA_FLAGS=""
-  if [[ ${version} =~ "5.10" ]]; then
-    EXTRA_FLAGS="--enable-dev-table-functions"
-  fi
-  micromamba run -n omniscidb-env omnisci_server --enable-runtime-udf --enable-table-functions ${EXTRA_FLAGS}
-}
-
-omnisci-conda-install(){
-  if [[ $# -eq 2 ]]; then
-    echo $0 $1 $2
-    micromamba deactivate
-    micromamba activate base
-    micromamba remove --name omniscidb-env --all -y
-    micromamba env create -n omniscidb-env "omniscidb=$1*=*_$2" -c conda-forge -y
-  else
-    echo 'usage: omnisci-conda-install version cpu|cuda'
-  fi
-}
-
-heavydb-conda-run(){
-  conda deactivate
-  conda activate heavydb-env
-  echo "running heavydb..."
-  rm -rf storage
-  mkdir storage
-  micromamba run -n heavydb-env initheavy storage -f
-  version=$(micromamba run -n heavydb-env heavydb --version)
-  echo ${version}
-  micromamba run -n omniscidb-env heavydb --enable-runtime-udf --enable-table-functions --enable-dev-table-functions
-}
-
-heavydb-conda-install(){
-  if [[ $# -eq 2 ]]; then
-    echo $0 $1 $2
-    micromamba deactivate
-    micromamba activate base
-    micromamba remove --name heavydb-env --all -y
-    micromamba env create -n heavydb-env "heavydb=$1*=*_$2" -c conda-forge -y
-  else
-    echo 'usage: heavydb-conda-install version cpu|cuda'
-  fi
-}
-
 reload() {
   # if [[ $(hostname) =~ "qgpu" ]]; then
   #   source ${HOME}/.bashrc
@@ -110,14 +11,9 @@ reload() {
 
 clone() {
   case $1 in
-    dotfiles|rbc|rbc-feedstock|heavydb-ext-feedstock|heavyai-feedstock|numba|numba-rvsdg)
+    dotfiles|rbc|rbc-feedstock|numba|numba-rvsdg)
       echo "cloning $1..."
       git clone git@github.com:guilhermeleobas/$1.git ${PREFIX}/$1/
-      ;;
-
-    ibis-heavyai|heavyai|heavydb|heavydb-internal|sqlalchemy-heavyai)
-      echo "cloning $1..."
-      git clone git@github.com:heavyai/$1.git ${PREFIX}/$1
       ;;
 
     cudf)
@@ -168,7 +64,7 @@ clone() {
 
     cpython)
       echo "cloning cpython..."
-      git clone git@github.com:python/cpython.git --single-branch ${PREFIX}/cpython
+      git clone git@github.com:guilhermeleobas/cpython.git ${PREFIX}/cpython
       ;;
 
     sandbox)
@@ -197,11 +93,11 @@ install() {
     nvim-plug)
       sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
       ;;
-      
+
     copy_vim)
       cp $PREFIX/dotfiles/nvim ~/.vimrc
       ;;
-      
+
     copy_tmux)
       cp $PREFIX/dotfiles/tmux.conf ~/.tmux.conf
       ;;
@@ -255,12 +151,6 @@ find_env() {
     llvm-project)
       environment=llvm
       ;;
-    heavydb-nocuda)
-      environment=heavydb-cpu-dev
-      ;;
-    heavydb-cuda)
-      environment=heavydb-cuda-dev
-      ;;
     *)
       # use the folder name as conda environment name
       environment=$d
@@ -277,19 +167,6 @@ env() {
   fi
 
   case ${environment} in
-    heavydb-cpu-dev)
-      echo "activating env: heavydb nocuda"
-      export USE_ENV=heavydb-cpu-dev
-      . ~/git/Quansight/pearu-sandbox/working-envs/activate-heavydb-internal-dev.sh
-      ;;
-
-    heavydb-cuda-dev)
-      echo "activating env: heavydb cuda"
-      export CUDA_HOME=/usr/local/cuda/
-      export USE_ENV=heavydb-cuda-dev
-      . ~/git/Quansight/pearu-sandbox/working-envs/activate-heavydb-internal-dev.sh
-      ;;
-
     numba)
       micromamba deactivate
       micromamba activate numba
@@ -316,13 +193,13 @@ env() {
       export FLASH_ATTENTION_DISABLE_FP8=TRUE
       export FLASH_ATTENTION_DISABLE_FP16=FALSE
       export FLASH_ATTENTION_DISABLE_FP32=TRUE
-      
+
       # Keep only 64-dim heads for PHI-1
       export FLASH_ATTENTION_DISABLE_HDIM96=TRUE
       export FLASH_ATTENTION_DISABLE_HDIM128=TRUE
       export FLASH_ATTENTION_DISABLE_HDIM192=TRUE
       export FLASH_ATTENTION_DISABLE_HDIM256=TRUE
-      
+
       micromamba activate flash-attention
       ;;
 
@@ -400,61 +277,6 @@ build() {
   fi
 
   case $environment in
-    heavydb-cpu-dev)
-      env heavydb-cpu-dev
-      cmake -Wno-dev $CMAKE_OPTIONS_NOCUDA \
-        -GNinja \
-        -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-        -DENABLE_WARNINGS_AS_ERRORS=off \
-        -DENABLE_CUDA=off \
-        -DENABLE_FOLLY=off \
-        -DENABLE_AWS_S3=off \
-        -DENABLE_GEOS=off \
-        -DENABLE_JAVA_REMOTE_DEBUG=off \
-        -DENABLE_PROFILER=off \
-        -DBENCHMARK_ENABLE_EXCEPTIONS=off \
-        -DBENCHMARK_ENABLE_GTEST_TESTS=off \
-        -DENABLE_FSI_ODBC=off \
-        -DENABLE_RENDERING=off \
-        -DENABLE_SYSTEM_TFS=off \
-        -DENABLE_ML_ONEDAL_TFS=off \
-        -DENABLE_ML_MLPACK_TFS=off \
-        -DENABLE_POINT_CLOUD_TFS=off \
-        -DENABLE_PDAL=off \
-        -DENABLE_RF_PROP_TFS=off \
-        -DENABLE_TESTS=off \
-        -DENABLE_ASAN=off \
-        -DUSE_ALTERNATE_LINKER=lld \
-        ${PREFIX}/heavydb-internal/
-      ;;
-
-    heavydb-cuda-dev)
-      env heavydb-cuda-dev
-      cmake -Wno-dev $CMAKE_OPTIONS_CUDA \
-        -GNinja \
-        -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-        -DENABLE_WARNINGS_AS_ERRORS=off \
-        -DENABLE_FOLLY=off \
-        -DENABLE_AWS_S3=off \
-        -DENABLE_GEOS=off \
-        -DENABLE_JAVA_REMOTE_DEBUG=off \
-        -DENABLE_PROFILER=off \
-        -DBENCHMARK_ENABLE_EXCEPTIONS=off \
-        -DBENCHMARK_ENABLE_GTEST_TESTS=off \
-        -DENABLE_FSI_ODBC=off \
-        -DENABLE_RENDERING=off \
-        -DENABLE_SYSTEM_TFS=off \
-        -DENABLE_ML_ONEDAL_TFS=off \
-        -DENABLE_ML_MLPACK_TFS=off \
-        -DENABLE_POINT_CLOUD_TFS=off \
-        -DENABLE_PDAL=off \
-        -DENABLE_RF_PROP_TFS=off \
-        -DENABLE_TESTS=off \
-        -DENABLE_ASAN=off \
-        -DUSE_ALTERNATE_LINKER=lld \
-        ${PREFIX}/heavydb-internal/
-      ;;
-
     llvm)
       env llvm
       cd ${PREFIX}/llvm-project/build
@@ -537,19 +359,6 @@ build() {
   esac
 }
 
-query() {
-  if [[ "${CONDA_DEFAULT_ENV}" =~ "heavydb-cuda-dev" ]]; then
-    ${PREFIX}/heavydb-cuda/bin/heavysql --passwd HyperInteractive < ${PREFIX}/query.sql
-  else
-    ${PREFIX}/heavydb-nocuda/bin/heavysql --passwd HyperInteractive < ${PREFIX}/query.sql
-  fi
-}
-
-sql() {
-  env
-  bin/heavysql --passwd HyperInteractive
-}
-
 run() {
 
   if [[ $# -eq 0 ]]; then
@@ -559,20 +368,6 @@ run() {
   fi
 
   case $environment in
-    heavydb-cpu-dev)
-      echo "running heavydb..."
-      echo "bin/heavydb --enable-dev-table-functions --enable-udf-registration-for-all-users --enable-runtime-udfs --enable-table-functions --enable-debug-timer --log-channels PTX,IR --log-severity-clog=WARNING"
-      env heavydb-cpu-dev
-      bin/heavydb --enable-dev-table-functions --enable-udf-registration-for-all-users --enable-runtime-udfs --enable-table-functions --enable-debug-timer --log-channels PTX,IR --log-severity-clog=WARNING
-      ;;
-
-    heavydb-cuda-dev)
-      echo "running heavydb..."
-      echo "bin/heavydb --enable-dev-table-functions --enable-udf-registration-for-all-users --enable-runtime-udfs --enable-table-functions --enable-debug-timer --log-channels PTX,IR --log-severity-clog=WARNING --log-severity=DEBUG4"
-      env heavydb-cuda-dev
-      bin/heavydb --enable-dev-table-functions --enable-udf-registration-for-all-users --enable-runtime-udfs --enable-table-functions --enable-debug-timer --log-channels PTX,IR --log-severity-clog=WARNING --log-severity=DEBUG4
-      ;;
-
     *)
       echo -n "run: unknown $environment"
       ;;
@@ -647,18 +442,6 @@ create() {
       micromamba env create --file=${PREFIX}/numpy/environment.yml -n numpy
       ;;
 
-    ibis-heavyai)
-      micromamba env create --file=${PREFIX}/ibis-heavyai/environment.yaml -n ibis-heavyai
-      ;;
-
-    heavyai)
-      micromamba env create --file=${PREFIX}/heavyai/ci/environment_gpu.yml -n heavyai
-      ;;
-
-    sqlalchemy-heavyai)
-      micromamba env create --file=${PREFIX}/sqlalchemy-heavyai/environment.yaml -n sqlalchemy-heavyai
-      ;;
-
     llvmlite)
       micromamba create -n llvmlite
       micromamba install -n llvmlite python=3.9 compilers cmake make llvmdev=14 -c numba -c conda-forge -y
@@ -668,14 +451,6 @@ create() {
       micromamba env create -n llvm cmake ccache compilers make -c conda-forge -y
       ;;
 
-    heavydb-cpu-dev)
-      micromamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/heavydb-cpu-dev.yaml -n heavydb-cpu-dev -y
-      ;;
-
-    heavydb-cuda-dev)
-      micromamba env create --file=~/git/Quansight/pearu-sandbox/conda-envs/heavydb-dev.yaml -n heavydb-cuda-dev -y
-      ;;
-      
     flash-attention)
       micromamba env create -n flash-attention python=3.12
       pip install torch packaging transformers accelerate
@@ -758,6 +533,10 @@ reload_goto() {
     local b=$(basename $d)
     goto -r $b $d
   done
+}
+
+git_https() {
+  git config --global url."https://github.com/".insteadOf git@github.com:
 }
 
 sync_dotfiles() {

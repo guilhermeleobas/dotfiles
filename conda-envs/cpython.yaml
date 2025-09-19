@@ -5,8 +5,11 @@ dependencies:
   - zlib
   - zlib-ng
   - bzip2
-  - compilers
+  # - compilers
   - openssl
   - pdbpp
-  - libtirpc
+  # - libtirpc
+  - python-build
+  - cmake
+  - pkg-config
 
