@@ -1,6 +1,7 @@
 PREFIX=${HOME}/git
 
 [[ -n $CONDA_EXE ]] || CONDA_EXE=micromamba
+[[ -n $VAST_CONTAINERLABEL ]] || PREFIX=/workspace/git
 
 reload() {
   # if [[ $(hostname) =~ "qgpu" ]]; then
