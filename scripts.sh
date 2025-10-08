@@ -1,7 +1,7 @@
 PREFIX=${HOME}/git
 
 [[ -n $CONDA_EXE ]] || CONDA_EXE=micromamba
-[[ -n $VAST_CONTAINERLABEL ]] || PREFIX=/workspace/git
+[[ -n $VAST_CONTAINERLABEL ]] && PREFIX=/workspace/git
 
 reload() {
   # if [[ $(hostname) =~ "qgpu" ]]; then
@@ -374,7 +374,7 @@ create() {
 
   case $environment in
     numba)
-      $CONDA_EXE create -n numba python=3.11 llvmlite=0.44 pdbpp flake8 numpy cffi pytest -c numba/label/dev -c rapidsai
+      $CONDA_EXE create -n numba python=3.11 llvmlite=0.46 pdbpp flake8 numpy cffi pytest -c numba/label/dev -c rapidsai
       ;;
 
     numpy)
