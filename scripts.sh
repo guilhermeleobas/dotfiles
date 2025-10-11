@@ -4,12 +4,15 @@ PREFIX=${HOME}/git
 [[ -n $VAST_CONTAINERLABEL ]] && PREFIX=/workspace/git
 
 reload() {
-  # if [[ $(hostname) =~ "qgpu" ]]; then
-  #   source ${HOME}/.bashrc
-  # else
-  #   source ${HOME}/.zshrc
-  # fi
   exec ${SHELL}
+}
+
+vast() {
+  echo "source /workspace/git/dotfiles/scripts.sh" >> ~/.bashrc
+  clone flash-attention
+  install vim-plug
+  cp $PREFIX/dotfiles/nvim ~/.vimrc
+  cp $PREFIX/dotfiles/tmux.conf ~/.tmux.conf
 }
 
 clone() {
@@ -65,8 +68,6 @@ install() {
   case $1 in
     micromamba)
       "${SHELL}" <(curl -L micro.mamba.pm/install.sh)
-      # curl micro.mamba.pm/install.sh | zsh
-      # ./bin/micromamba shell init -s zsh -p ~/micromamba
       ;;
 
     vim-plug)
@@ -75,14 +76,6 @@ install() {
 
     nvim-plug)
       sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
-      ;;
-
-    copy_vim)
-      cp $PREFIX/dotfiles/nvim ~/.vimrc
-      ;;
-
-    copy_tmux)
-      cp $PREFIX/dotfiles/tmux.conf ~/.tmux.conf
       ;;
 
     fzf)
