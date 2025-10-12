@@ -1,0 +1,42 @@
+[workspace]
+authors = ["Guilherme Leobas <guilhermeleobas@gmail.com>"]
+channels = ["conda-forge"]
+name = "pytorch"
+platforms = ["osx-arm64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+
+[feature.pytorch-cuda-dev]
+channels = ["conda-forge", "pytorch", "main", "r", "msys2"]
+
+[feature.pytorch-cuda-dev.dependencies]
+python = "3.13.*"
+numpy = "*"
+ninja = "*"
+pyyaml = "*"
+mkl = "*"
+mkl-include = "*"
+setuptools = "*"
+cmake = "*"
+cffi = "*"
+typing = "*"
+pytest = "*"
+gcc = "11.*"
+gxx = "11.*"
+flake8 = "*"
+psutil = "*"
+hypothesis = "*"
+cudnn = "*"
+nccl = "*"
+nvcc_linux-64 = "11.8.*"
+magma-cuda118 = "*"
+mypy = "*"
+cudatoolkit = "*"
+sympy = "*"
+clang-tools = "*"
+
+[environments]
+pytorch-cuda-dev = { features = ["pytorch-cuda-dev"], no-default-feature = true }

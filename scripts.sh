@@ -9,10 +9,11 @@ reload() {
 
 vast() {
   echo "source /workspace/git/dotfiles/scripts.sh" >> ~/.bashrc
-  clone flash-attention
   install vim-plug
   cp $PREFIX/dotfiles/nvim ~/.vimrc
   cp $PREFIX/dotfiles/tmux.conf ~/.tmux.conf
+  git config --global user.name "Guilherme Leobas"
+  git config --global user.email "guilhermeleobas@gmail.com"
 }
 
 clone() {
