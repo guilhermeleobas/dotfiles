@@ -248,7 +248,7 @@ env() {
       export FLASH_ATTENTION_DISABLE_HDIM128=TRUE
       export FLASH_ATTENTION_DISABLE_HDIM192=TRUE
       export FLASH_ATTENTION_DISABLE_HDIM256=TRUE
-      export CUDA_HOME=/usr/local/cuda
+      # export CUDA_HOME=/usr/local/cuda
 
       $CONDA_EXE activate flash-attention
       ;;
@@ -450,6 +450,7 @@ create() {
 
     flash-attention)
       $CONDA_EXE env create -n flash-attention python=3.12
+      conda activate flash-attention
       pip install torch packaging transformers accelerate
       ;;
 
