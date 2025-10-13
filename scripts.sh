@@ -449,8 +449,8 @@ create() {
       ;;
 
     flash-attention)
-      $CONDA_EXE env create -n flash-attention python=3.12
-      conda activate flash-attention
+      $CONDA_EXE env create -n flash-attention python=3.12 -c conda-forge -y
+      env flash-attention
       pip install torch packaging transformers accelerate
       ;;
 
