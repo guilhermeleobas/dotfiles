@@ -36,6 +36,7 @@ clone() {
     flash-attention)
       echo "cloning $1..."
       git clone git@github.com:guilhermeleobas/$1.git ${PREFIX}/$1
+      env --chdir={PREFIX}/$1 git remote add upstream git@github.com:Dao-AILab/flash-attention.git
       ;;
 
     pytorch|tutorials|vision|audio)
@@ -98,6 +99,10 @@ install() {
       git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
       ;;
 
+    pixi)
+      $CONDA_EXE install -c conda-forge pixi
+      ;;
+
     ag)
       $CONDA_EXE install -c conda-forge the_silver_searcher
       ;;
@@ -135,6 +140,82 @@ find_env() {
   esac
 }
 
+pixi_env() {
+  if [[ $# -eq 0 ]]; then
+    find_env
+  else
+    environment=$1
+  fi
+
+  echo "pixi activating env ${environment}..."
+
+  case ${environment} in
+    cpython|flash-attention|numba|pytorch)
+      pixi shell --manifest-path $PREFIX/dotfiles/pixi/${environment}
+      ;;
+  esac
+}
+
+pixi_create() {
+  if [[ $# -eq 0 ]]; then
+    find_env
+  else
+    environment=$1
+  fi
+
+  case ${environment} in
+    cpython|flash-attention|numba|pytorch)
+      pixi_remove ${environment}
+      pixi_env ${environment}
+      ;;
+  esac
+}
+
+pixi_remove() {
+  if [[ $# -eq 0 ]]; then
+    find_env
+  else
+    environment=$1
+  fi
+
+  case ${environment} in
+    cpython|flash-attention|numba|pytorch)
+      echo "pixi clean --manifest-path $PREFIX/dotfiles/pixi/${environment}"
+      pixi clean --manifest-path $PREFIX/dotfiles/pixi/${environment}
+      ;;
+  esac
+}
+
+pixi_build() {
+  if [[ $# -eq 0 ]]; then
+    find_env
+  else
+    environment=$1
+  fi
+
+  case ${environment} in
+    cpython)
+      pixi run --manifest-path $PREFIX/dotfiles/pixi/cpython -- ./configure --with-pydebug --with-ensurepip=install
+      pixi run --manifest-path $PREFIX/dotfiles/pixi/cpython -- make -s -j10
+      ;;
+
+    flash-attention)
+      ;;
+
+    numba)
+      pixi run --manifest-path $PREFIX/dotfiles/pixi/numba -- python setup.py build_ext --inplace -j10
+      ;;
+
+    pytorch)
+      pixi run --manifest-path $PREFIX/dotfiles/pixi/pytorch -- python setup.py develop
+      pixi run --manifest-path $PREFIX/dotfiles/pixi/pytorch -- make triton
+      ;;
+  esac
+
+  pixi_env ${environment}
+
+}
+
 env() {
 
   if [[ $# -eq 0 ]]; then
@@ -151,7 +232,6 @@ env() {
       ;;
 
     flash-attention)
-      # Set minimal build flags for PHI-1 reproducer
       export FLASH_ATTENTION_DISABLE_BACKWARD=TRUE
       export FLASH_ATTENTION_DISABLE_SPLIT=TRUE
       export FLASH_ATTENTION_DISABLE_SOFTCAP=TRUE
@@ -164,12 +244,11 @@ env() {
       export FLASH_ATTENTION_DISABLE_FP8=TRUE
       export FLASH_ATTENTION_DISABLE_FP16=FALSE
       export FLASH_ATTENTION_DISABLE_FP32=TRUE
-
-      # Keep only 64-dim heads for PHI-1
       export FLASH_ATTENTION_DISABLE_HDIM96=TRUE
       export FLASH_ATTENTION_DISABLE_HDIM128=TRUE
       export FLASH_ATTENTION_DISABLE_HDIM192=TRUE
       export FLASH_ATTENTION_DISABLE_HDIM256=TRUE
+      export CUDA_HOME=/usr/local/cuda
 
       $CONDA_EXE activate flash-attention
       ;;
@@ -315,21 +394,6 @@ build() {
   esac
 }
 
-run() {
-
-  if [[ $# -eq 0 ]]; then
-    find_env
-  else
-    environment=$1
-  fi
-
-  case $environment in
-    *)
-      echo -n "run: unknown $environment"
-      ;;
-  esac
-}
-
 remove() {
   conda deactivate
   conda activate base
@@ -421,10 +485,6 @@ rebase() {
   git rebase -i HEAD~"$1"
 }
 
-stash() {
-  git stash --keep-index
-}
-
 show() {
   if [[ $# -eq 0 ]]; then
     unset TORCH_LOGS
@@ -455,10 +515,6 @@ push_dotfiles() {
   cd -
 }
 
-run_flake8() {
-  git diff HEAD^ | flake8 --diff
-}
-
 reload_goto() {
   goto -c
 
@@ -466,10 +522,6 @@ reload_goto() {
     local b=$(basename $d)
     goto -r $b $d
   done
-}
-
-git_https() {
-  git config --global url."https://github.com/".insteadOf git@github.com:
 }
 
 sync_dotfiles() {
@@ -570,9 +622,6 @@ $ '
 
   # goto
   [ -f ${PREFIX}/goto/goto.sh ] && source ${PREFIX}/goto/goto.sh
-
-  # check if dotfiles is in sync with github
-  # sync_dotfiles
 
   # fzf
   [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
