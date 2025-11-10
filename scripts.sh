@@ -437,7 +437,7 @@ create() {
       ;;
 
     numpy)
-      $CONDA_EXE env create --file=${PREFIX}/numpy/environment.yml -n numpy
+      $CONDA_EXE create --file=${PREFIX}/numpy/environment.yml -n numpy
       ;;
 
     llvmlite)
@@ -446,21 +446,21 @@ create() {
       ;;
 
     llvm)
-      $CONDA_EXE env create -n llvm cmake ccache compilers make -c conda-forge -y
+      $CONDA_EXE create -n llvm cmake ccache compilers make -c conda-forge -y
       ;;
 
     flash-attention)
-      $CONDA_EXE env create -n flash-attention python=3.12 -c conda-forge -y
+      $CONDA_EXE create -n flash-attention python=3.12 -c conda-forge -y
       env flash-attention
       pip install torch packaging transformers accelerate
       ;;
 
     pytorch|pytorch39|pytorch310|pytorch311|pytorch312|pytorch313|pytorch-cuda)
-      $CONDA_EXE env create --file=${PREFIX}/dotfiles/conda-envs/$environment-dev.yaml -n $environment -y
+      $CONDA_EXE create --file=${PREFIX}/dotfiles/conda-envs/$environment-dev.yaml -n $environment -y
       ;;
 
     cpython)
-      $CONDA_EXE env create --file=${PREFIX}/dotfiles/conda-envs/cpython.yaml -n cpython -y
+      $CONDA_EXE create --file=${PREFIX}/dotfiles/conda-envs/cpython.yaml -n cpython -y
       ;;
 
     *)
@@ -584,7 +584,7 @@ if [[ $(hostname) =~ qgpu ]]; then
   conda activate default
 fi
 
-if [[ $(hostname) =~ guilhermeleobas-server || $(hostname) =~ Guilherme-MacBook ]]; then
+if [[ $(hostname) =~ guilhermeleobas-server || $(hostname) =~ Guilherme-MacBook || $(hostname) =~ MacBookPro.lan ]]; then
   source ${HOME}/.zgen/zgen.zsh
   if ! zgen saved; then
     zgen oh-my-zsh
