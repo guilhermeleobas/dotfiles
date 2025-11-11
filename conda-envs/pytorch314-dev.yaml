@@ -9,9 +9,8 @@ name: dev
 channels:
   - conda-forge
   - pytorch
-  - defaults
 dependencies:
-  - python=3.9
+  - python=3.14
   - numpy
   - ninja
   - pyyaml
@@ -29,7 +28,4 @@ dependencies:
   - mypy
   - sympy
   - sysroot_linux-64=2.17
-  - expecttest
-  - ghstack
-  - pdbpp
 

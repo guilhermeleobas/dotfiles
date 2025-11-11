@@ -10,7 +10,7 @@ channels:
   - conda-forge
   - pytorch
 dependencies:
-  - python=3.13
+  - python-freethreading=3.14
   - numpy
   - ninja
   - pyyaml
@@ -25,7 +25,6 @@ dependencies:
   - flake8
   - psutil
   - hypothesis
-  - mypy
   - sympy
   - sysroot_linux-64=2.17
 

@@ -45,7 +45,7 @@ clone() {
       env --chdir=${PREFIX}/$1 git remote add upstream git@github.com:pytorch/$1.git
       ;;
 
-    pytorch39|pytorch310|pytorch311|pytorch312|pytorch313)
+    pytorch310|pytorch311|pytorch312|pytorch313|pytorch314|pytorch314t)
       echo "cloning $1..."
       git clone git@github.com:pytorch/pytorch.git --single-branch ${PREFIX}/$1
       ;;
@@ -253,12 +253,10 @@ env() {
       $CONDA_EXE activate flash-attention
       ;;
 
-    pytorch|pytorch39|pytorch310|pytorch311|pytorch312|pytorch313|pytorch-cuda)
+    pytorch|pytorch310|pytorch311|pytorch312|pytorch313|pytorch314|pytorch314t|pytorch-cuda)
       echo "activating env: ${environment}"
 
-      if [ "${environment}" = "pytorch313" ]; then
-        export PYTHONBREAKPOINT=pdbp.set_trace
-      fi
+      export PYTHONBREAKPOINT=pdbp.set_trace
 
       # remember to create a symlink from /usr/lib/cuda to /usr/local/cuda
       # sudo ln -s /usr/lib/cuda /usr/local/cuda
@@ -270,7 +268,7 @@ env() {
       export USE_QNNPACK=0
       export USE_MIOPEN=0
       export USE_NNPACK=0
-      export BUILD_TESTS=0
+      export BUILD_TEST=0
       export BUILD_CAFFE2_OPS=0
       export USE_GOLD_LINKER=1
       export CUDA_HOME=/usr/local/cuda
@@ -279,7 +277,7 @@ env() {
 
       export CMAKE_BUILD_TYPE=RelWithDebInfo
       export MAX_JOBS=20
-      export USE_DISTRIBUTED=0
+      export USE_DISTRIBUTED=1
       export USE_NCCL=0
       export USE_CUDNN=0
       export CC=cc
@@ -380,7 +378,7 @@ build() {
       python setup.py install
       ;;
 
-    pytorch|pytorch39|pytorch310|pytorch311|pytorch312|pytorch313|pytorch-cuda|vision|audio)
+    pytorch|pytorch310|pytorch311|pytorch312|pytorch313|pytorch314|pytorch314t|pytorch-cuda|vision|audio)
       env ${environment}
       python setup.py develop
       if [ "${environment}" = "pytorch-cuda" ]; then
@@ -455,8 +453,8 @@ create() {
       pip install torch packaging transformers accelerate
       ;;
 
-    pytorch|pytorch39|pytorch310|pytorch311|pytorch312|pytorch313|pytorch-cuda)
-      $CONDA_EXE create --file=${PREFIX}/dotfiles/conda-envs/$environment-dev.yaml -n $environment -y
+    pytorch|pytorch310|pytorch311|pytorch312|pytorch313|pytorch314|pytorch314t|pytorch-cuda)
+      $CONDA_EXE env create --file=${PREFIX}/dotfiles/conda-envs/$environment-dev.yaml -n $environment -y
       ;;
 
     cpython)
@@ -577,11 +575,10 @@ if [[ $(hostname) =~ qgpu ]]; then
   # goto
   [ -f ${PREFIX}/goto/goto.sh ] && source ${PREFIX}/goto/goto.sh
 
-  # check if dotfiles is in sync with github
-  # sync_dotfiles
-
+  CONDA_EXE=micromamba
+  # CONDA_EXE=~/.local/bin/micromamba
   # use "default" conda env on qgpu machines
-  conda activate default
+  # $CONDA_EXE activate default
 fi
 
 if [[ $(hostname) =~ guilhermeleobas-server || $(hostname) =~ Guilherme-MacBook || $(hostname) =~ MacBookPro.lan ]]; then

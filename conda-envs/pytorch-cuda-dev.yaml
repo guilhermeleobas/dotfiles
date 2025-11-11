@@ -22,6 +22,7 @@ dependencies:
   - cffi
   - typing
   - pytest
+  - ccache
   # - compilers
   - gcc=11
   - gxx=11
@@ -34,10 +35,10 @@ dependencies:
   # latest support cuda version in conda nvcc package:
   - cudnn
   - nccl
-  - nvcc_linux-64=11.8
-  - magma-cuda118
+  - nvcc_linux-64
+  # - magma-cuda118
   - mypy
-  - cudatoolkit
+    #- cudatoolkit
   - sympy
   # provides clang-format
   - clang-tools
