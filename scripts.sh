@@ -12,6 +12,7 @@ vast() {
   install vim-plug
   cp $PREFIX/dotfiles/nvim ~/.vimrc
   cp $PREFIX/dotfiles/tmux.conf ~/.tmux.conf
+  vim +PlugInstall +qa
   git config --global user.name "Guilherme Leobas"
   git config --global user.email "guilhermeleobas@gmail.com"
 }
@@ -88,7 +89,7 @@ install() {
     goto)
       git clone git@github.com:iridakos/goto.git ${PREFIX}/goto
       source ${PREFIX}/goto/goto.sh
-      register_goto
+      reload_goto
       ;;
 
     miniconda)
