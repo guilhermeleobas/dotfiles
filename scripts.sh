@@ -403,6 +403,11 @@ create() {
 
 }
 
+abort() {
+  git rebase --abort
+  git log -1 --oneline
+}
+
 rebase() {
   git rebase -i HEAD~"$1"
 }
@@ -417,7 +422,15 @@ show() {
 
 edit() {
   if [[ $# -eq 1 ]]; then
-    $1 ${PREFIX}/dotfiles/scripts.sh
+    local input="$1"
+    case $input in
+      ([0-9])
+        GIT_SEQUENCE_EDITOR="sed -i '1s/^pick/edit/'" git rebase -i HEAD~"${input}"
+        ;;
+      *)
+        $1 ${PREFIX}/dotfiles/scripts.sh
+        ;;
+    esac
   else
     code ${PREFIX}/dotfiles/scripts.sh
   fi
@@ -486,10 +499,10 @@ sync_dotfiles() {
 if [[ $(hostname) =~ qgpu ]]; then
 
   # Use 'guilhermeleobas/prompt' which is symlinked to '~/.prompt'.
-  . ~/.prompt/prompt.bash
+  # . ~/.prompt/prompt.bash
 
   # Add git completion to the prompt (comes from 'skeswa/prompt').
-  . ~/.prompt/git-completion.bash
+  # . ~/.prompt/git-completion.bash
 
   # fzf
   [ -f ~/.fzf.bash ] && source ~/.fzf.bash
