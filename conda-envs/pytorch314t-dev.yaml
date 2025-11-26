@@ -27,4 +27,10 @@ dependencies:
   - hypothesis
   - sympy
   - sysroot_linux-64=2.17
-
+  # check out here
+  # https://anaconda.org/conda-forge/nvcc_linux-64/files what is the
+  # latest support cuda version in conda nvcc package:
+  - cudnn
+  - nccl
+  - nvcc_linux-64
+  - ccache

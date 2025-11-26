@@ -14,8 +14,6 @@ dependencies:
   - numpy
   - ninja
   - pyyaml
-  - mkl
-  - mkl-include
   - setuptools
   - cmake
   - cffi
@@ -25,7 +23,7 @@ dependencies:
   - flake8
   - psutil
   - hypothesis
-  - mypy
   - sympy
   - sysroot_linux-64=2.17
+  - ccache
 

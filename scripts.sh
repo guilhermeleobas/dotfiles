@@ -141,82 +141,6 @@ find_env() {
   esac
 }
 
-pixi_env() {
-  if [[ $# -eq 0 ]]; then
-    find_env
-  else
-    environment=$1
-  fi
-
-  echo "pixi activating env ${environment}..."
-
-  case ${environment} in
-    cpython|flash-attention|numba|pytorch)
-      pixi shell --manifest-path $PREFIX/dotfiles/pixi/${environment}
-      ;;
-  esac
-}
-
-pixi_create() {
-  if [[ $# -eq 0 ]]; then
-    find_env
-  else
-    environment=$1
-  fi
-
-  case ${environment} in
-    cpython|flash-attention|numba|pytorch)
-      pixi_remove ${environment}
-      pixi_env ${environment}
-      ;;
-  esac
-}
-
-pixi_remove() {
-  if [[ $# -eq 0 ]]; then
-    find_env
-  else
-    environment=$1
-  fi
-
-  case ${environment} in
-    cpython|flash-attention|numba|pytorch)
-      echo "pixi clean --manifest-path $PREFIX/dotfiles/pixi/${environment}"
-      pixi clean --manifest-path $PREFIX/dotfiles/pixi/${environment}
-      ;;
-  esac
-}
-
-pixi_build() {
-  if [[ $# -eq 0 ]]; then
-    find_env
-  else
-    environment=$1
-  fi
-
-  case ${environment} in
-    cpython)
-      pixi run --manifest-path $PREFIX/dotfiles/pixi/cpython -- ./configure --with-pydebug --with-ensurepip=install
-      pixi run --manifest-path $PREFIX/dotfiles/pixi/cpython -- make -s -j10
-      ;;
-
-    flash-attention)
-      ;;
-
-    numba)
-      pixi run --manifest-path $PREFIX/dotfiles/pixi/numba -- python setup.py build_ext --inplace -j10
-      ;;
-
-    pytorch)
-      pixi run --manifest-path $PREFIX/dotfiles/pixi/pytorch -- python setup.py develop
-      pixi run --manifest-path $PREFIX/dotfiles/pixi/pytorch -- make triton
-      ;;
-  esac
-
-  pixi_env ${environment}
-
-}
-
 env() {
 
   if [[ $# -eq 0 ]]; then
@@ -269,13 +193,10 @@ env() {
       export USE_QNNPACK=0
       export USE_MIOPEN=0
       export USE_NNPACK=0
+      export USE_MKLDNN=0
       export BUILD_TEST=0
       export BUILD_CAFFE2_OPS=0
-      export USE_GOLD_LINKER=1
       export CUDA_HOME=/usr/local/cuda
-      # export USE_PRECOMPILED_HEADERS=1
-      # export USE_PER_OPERATOR_HEADERS=1
-
       export CMAKE_BUILD_TYPE=RelWithDebInfo
       export MAX_JOBS=20
       export USE_DISTRIBUTED=1
@@ -350,7 +271,7 @@ build() {
 
     cpython)
       env cpython
-      ./configure --with-pydebug --with-openssl=$CONDA_PREFIX --with-ensurepip=install
+      ./configure --with-pydebug --with-openssl=$CONDA_PREFIX --with-ensurepip=install --prefix=$CONDA_PREFIX
       make -s -j10
       ;;
 
