@@ -1,4 +1,5 @@
 PREFIX=${HOME}/git
+__AUTO_ACTIVATE_ENV=1
 
 [[ -n $CONDA_EXE ]] || CONDA_EXE=micromamba
 [[ -n $VAST_CONTAINERLABEL ]] && PREFIX=/workspace/git
@@ -142,6 +143,39 @@ find_env() {
 }
 
 env() {
+  if [[ $# -eq 0 ]]; then
+    find_env
+  else
+    environment=$1
+  fi
+
+  if [[ "${__AUTO_ACTIVATE_ENV}" == "1" ]]; then
+    echo "activating env: ${environment}"
+    $CONDA_EXE deactivate
+    $CONDA_EXE activate ${environment}
+
+    env_vars ${environment}
+
+    if [[ $? -ne 0 ]]; then
+      echo "failing activate env $1"
+      # echo "activating default env..."
+      # $CONDA_EXE activate ${CONDA_DEFAULT_ENV}
+    fi
+  fi
+}
+
+# run_only() {
+#   (
+#     echo "disabling auto activate env..."
+#     __AUTO_ACTIVATE_ENV=0
+#     echo "running command '$1 $2'"
+#     $1 $2
+#     __AUTO_ACTIVATE_ENV=1
+#     echo "Done!"
+#   )
+# }
+
+env_vars() {
 
   if [[ $# -eq 0 ]]; then
     find_env
@@ -151,8 +185,6 @@ env() {
 
   case ${environment} in
     numba)
-      $CONDA_EXE deactivate
-      $CONDA_EXE activate numba
       export NUMBA_CAPTURED_ERRORS="new_style"
       ;;
 
@@ -174,8 +206,6 @@ env() {
       export FLASH_ATTENTION_DISABLE_HDIM192=FALSE
       export FLASH_ATTENTION_DISABLE_HDIM256=FALSE
       # export CUDA_HOME=/usr/local/cuda
-
-      $CONDA_EXE activate flash-attention
       ;;
 
     pytorch|pytorch310|pytorch311|pytorch312|pytorch313|pytorch314|pytorch314t|pytorch-cuda)
@@ -212,24 +242,14 @@ env() {
       export LDFLAGS="${LDFLAGS} -Wl,-rpath-link,${CUDA_HOME}/lib64"
       export LDFLAGS="${LDFLAGS} -Wl,-rpath-link,${CUDA_HOME}/extras/CUPTI/lib64"
       export LDFLAGS="${LDFLAGS} -L${CUDA_HOME}/lib64"
-      $CONDA_EXE activate ${environment}
       ;;
 
     vision|audio)
       export Torch_DIR="${PREFIX}/pytorch"
-      $CONDA_EXE activate pytorch
       ;;
 
     *)
-      echo "activating env: ${environment}"
-      $CONDA_EXE deactivate
-      $CONDA_EXE activate ${environment}
-
-      if [[ $? -ne 0 ]]; then
-        echo "activating default env..."
-        $CONDA_EXE activate ${CONDA_DEFAULT_ENV}
-      fi
-
+      echo "No env_vars rule for '${environment}'"
       ;;
   esac
 }
@@ -249,7 +269,7 @@ build() {
 
   case $environment in
     llvm)
-      env llvm
+      env_vars llvm
       cd ${PREFIX}/llvm-project/build
       cmake ../llvm/ \
         -DCMAKE_INSTALL_PREFIX="${CONDA_PREFIX}" \
@@ -270,13 +290,13 @@ build() {
       ;;
 
     cpython)
-      env cpython
+      env_vars cpython
       ./configure --with-pydebug --with-openssl=$CONDA_PREFIX --with-ensurepip=install --prefix=$CONDA_PREFIX
       make -s -j10
       ;;
 
     numba)
-      env numba
+      env_vars numba
       echo "python setup.py build_ext --inplace -j10"
       if [[ $(uname -s) =~ "Darwin" ]]; then
         export NUMBA_DISABLE_OPENMP=1
@@ -285,23 +305,23 @@ build() {
       ;;
 
     llvmlite)
-      env llvmlite
+      env_vars llvmlite
       python setup.py build
       ;;
 
     numpy)
-      env numpy
+      env_vars numpy
       spin build
       # python setup.py build_ext --inplace -j10
       ;;
 
     flash-attention)
-      env flash-attention
+      env_vars flash-attention
       python setup.py install
       ;;
 
     pytorch|pytorch310|pytorch311|pytorch312|pytorch313|pytorch314|pytorch314t|pytorch-cuda|vision|audio)
-      env ${environment}
+      env_vars ${environment}
       python setup.py develop
       if [ "${environment}" = "pytorch-cuda" ]; then
         make triton
