@@ -335,10 +335,9 @@ build() {
 }
 
 remove() {
-  conda deactivate
-  conda activate base
+  $CONDA_EXE deactivate
   find_env
-  conda remove --name ${environment} --all -y
+  $CONDA_EXE remove --name ${environment} --all -y
 }
 
 create() {
@@ -516,13 +515,6 @@ sync_dotfiles() {
 }
 
 if [[ $(hostname) =~ qgpu ]]; then
-
-  # Use 'guilhermeleobas/prompt' which is symlinked to '~/.prompt'.
-  # . ~/.prompt/prompt.bash
-
-  # Add git completion to the prompt (comes from 'skeswa/prompt').
-  # . ~/.prompt/git-completion.bash
-
   # fzf
   [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 

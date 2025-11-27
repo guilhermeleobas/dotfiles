@@ -7,7 +7,6 @@ dependencies:
   - bzip2
   # - compilers
   - openssl
-  - pdbp
   # - libtirpc
   - python-build
   - cmake
