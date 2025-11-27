@@ -209,8 +209,6 @@ env_vars() {
       ;;
 
     pytorch|pytorch310|pytorch311|pytorch312|pytorch313|pytorch314|pytorch314t|pytorch-cuda)
-      echo "activating env: ${environment}"
-
       export PYTHONBREAKPOINT=pdbp.set_trace
 
       # remember to create a symlink from /usr/lib/cuda to /usr/local/cuda
@@ -292,7 +290,8 @@ build() {
     cpython)
       env_vars cpython
       ./configure --with-pydebug --with-openssl=$CONDA_PREFIX --with-ensurepip=install --prefix=$CONDA_PREFIX
-      make -s -j10
+      make -s -j20
+      make install
       ;;
 
     numba)
