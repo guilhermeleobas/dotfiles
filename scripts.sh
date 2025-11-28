@@ -183,6 +183,8 @@ env_vars() {
     environment=$1
   fi
 
+  echo "Setting env vars for '${environment}'"
+
   case ${environment} in
     numba)
       export NUMBA_CAPTURED_ERRORS="new_style"
@@ -213,23 +215,32 @@ env_vars() {
 
       # remember to create a symlink from /usr/lib/cuda to /usr/local/cuda
       # sudo ln -s /usr/lib/cuda /usr/local/cuda
-      export USE_CUDA=$([ "${environment}" = "pytorch-cuda" ] && echo 1 || echo 0)
+      # export USE_CUDA=$([ "${environment}" = "pytorch-cuda" ] && echo 1 || echo 0)
+      [[ -n $USE_CUDA ]] || export USE_CUDA=0
+
+      export BUILD_CAFFE2=0
+      export BUILD_CAFFE2_OPS=0
+      export BUILD_TEST=0
+      export USE_DISTRIBUTED=1
+      export USE_CUDNN=0
+      export USE_FBGEMM=0
+      export USE_FLASH_ATTENTION=0
       export USE_GOLD=1
       export USE_KINETO=0
-      export BUILD_CAFFE2=0
-      export USE_XNNPACK=0
-      export USE_QNNPACK=0
+      export USE_MEM_EFF_ATTENTION=0
       export USE_MIOPEN=0
-      export USE_NNPACK=0
       export USE_MKLDNN=0
-      export BUILD_TEST=0
-      export BUILD_CAFFE2_OPS=0
+      export USE_MPI=0
+      export USE_NCCL=0
+      export USE_NNPACK=0
+      export USE_OPENMP=0
+      export USE_QNNPACK=0
+      export USE_XNNPACK=0
+
       export CUDA_HOME=/usr/local/cuda
       export CMAKE_BUILD_TYPE=RelWithDebInfo
       export MAX_JOBS=20
-      export USE_DISTRIBUTED=1
-      export USE_NCCL=0
-      export USE_CUDNN=0
+
       export CC=cc
       export CXX=c++
       export CFLAGS="${CFLAGS} -L${CONDA_PREFIX}/lib"
@@ -240,6 +251,18 @@ env_vars() {
       export LDFLAGS="${LDFLAGS} -Wl,-rpath-link,${CUDA_HOME}/lib64"
       export LDFLAGS="${LDFLAGS} -Wl,-rpath-link,${CUDA_HOME}/extras/CUPTI/lib64"
       export LDFLAGS="${LDFLAGS} -L${CUDA_HOME}/lib64"
+      ;;
+
+    cpython)
+      # Needed for ssl
+      export CFLAGS="${CFLAGS} -L${CONDA_PREFIX}/lib"
+      export CXXFLAGS="${CXXFLAGS} -L${CONDA_PREFIX}/lib"
+      export CPPFLAGS="-I$CONDA_PREFIX/include"
+      export LDFLAGS="-L$CONDA_PREFIX/lib -Wl,-rpath,$CONDA_PREFIX/lib"
+      export LIBRARY_PATH="$CONDA_PREFIX/lib"
+      export LD_LIBRARY_PATH="$CONDA_PREFIX/lib"
+      export CMAKE_C_LINKER=lld
+      export CMAKE_CXX_LINKER=lld
       ;;
 
     vision|audio)
@@ -289,9 +312,11 @@ build() {
 
     cpython)
       env_vars cpython
+      make distclean
+      make clean
       ./configure --with-pydebug --with-openssl=$CONDA_PREFIX --with-ensurepip=install --prefix=$CONDA_PREFIX
       make -s -j20
-      make install
+      # install setuptools, pyyaml, typing_extensions, packaging
       ;;
 
     numba)
@@ -319,9 +344,17 @@ build() {
       python setup.py install
       ;;
 
+    pytorch-cpython)
+      env cpython
+      env_vars cpython
+      env_vars pytorch314
+      python3 -m pip install setuptools pyyaml typing_extensions packaging
+      python3 setup.py develop
+      ;;
+
     pytorch|pytorch310|pytorch311|pytorch312|pytorch313|pytorch314|pytorch314t|pytorch-cuda|vision|audio)
       env_vars ${environment}
-      python setup.py develop
+      python3 setup.py develop
       if [ "${environment}" = "pytorch-cuda" ]; then
         make triton
       fi
