@@ -236,6 +236,7 @@ env_vars() {
       export USE_OPENMP=0
       export USE_QNNPACK=0
       export USE_XNNPACK=0
+      export USE_CCACHE=1
 
       export CUDA_HOME=/usr/local/cuda
       export CMAKE_BUILD_TYPE=RelWithDebInfo
