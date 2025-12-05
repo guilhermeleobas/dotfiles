@@ -13,6 +13,7 @@ channels:
 dependencies:
   - python=3.11
   - numpy
+  - ccache
   - ninja
   - pyyaml
   - mkl
