@@ -8,8 +8,7 @@ dependencies:
   # - compilers
   - openssl
   # - libtirpc
-  - python-build
-  - cmake
+  # - python-build
   - pkg-config
   - libffi
   - ccache

@@ -255,12 +255,15 @@ env_vars() {
 
     cpython)
       # Needed for ssl
-      export CFLAGS="${CFLAGS} -L${CONDA_PREFIX}/lib"
-      export CXXFLAGS="${CXXFLAGS} -L${CONDA_PREFIX}/lib"
+      # export CFLAGS="${CFLAGS} -L${CONDA_PREFIX}/lib"
+      # export CXXFLAGS="${CXXFLAGS} -L${CONDA_PREFIX}/lib"
+      # export CFLAGS="${CFLAGS} -Werror"
+      export CC="ccache $CC"
       export CPPFLAGS="-I$CONDA_PREFIX/include"
       export LDFLAGS="-L$CONDA_PREFIX/lib -Wl,-rpath,$CONDA_PREFIX/lib"
       export LIBRARY_PATH="$CONDA_PREFIX/lib"
       export LD_LIBRARY_PATH="$CONDA_PREFIX/lib"
+      export DYLD_LIBRARY_PATH="$CONDA_PREFIX/lib"
       export CMAKE_C_LINKER=lld
       export CMAKE_CXX_LINKER=lld
       ;;
