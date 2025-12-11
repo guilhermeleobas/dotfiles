@@ -258,7 +258,7 @@ env_vars() {
       # export CFLAGS="${CFLAGS} -L${CONDA_PREFIX}/lib"
       # export CXXFLAGS="${CXXFLAGS} -L${CONDA_PREFIX}/lib"
       # export CFLAGS="${CFLAGS} -Werror"
-      export CC="ccache $CC"
+      export CC="ccache clang"
       export CPPFLAGS="-I$CONDA_PREFIX/include"
       export LDFLAGS="-L$CONDA_PREFIX/lib -Wl,-rpath,$CONDA_PREFIX/lib"
       export LIBRARY_PATH="$CONDA_PREFIX/lib"
@@ -320,6 +320,11 @@ build() {
       ./configure --with-pydebug --with-openssl=$CONDA_PREFIX --with-ensurepip=install --prefix=$CONDA_PREFIX
       make -s -j20
       # install setuptools, pyyaml, typing_extensions, packaging
+      ;;
+
+    hook)
+      env_vars cpython
+      CFLAGS="-O0 -g" make -C ../cpython/ -j10 && ../cpython/python.exe -m pip install -e .
       ;;
 
     numba)
@@ -407,7 +412,8 @@ create() {
 
   case $environment in
     numba)
-      $CONDA_EXE create -n numba python=3.11 llvmlite=0.46 pdbpp flake8 numpy cffi pytest -c numba/label/dev -c rapidsai
+      # $CONDA_EXE create -n numba python=3.13 llvmlite=0.46 flake8 numpy cffi pytest -c numba/label/dev -c rapidsai
+      $CONDA_EXE create --file=${PREFIX}/dotfiles/conda-envs/numba.yaml -n numba
       ;;
 
     numpy)
@@ -598,8 +604,8 @@ $ '
   alias reset_term="tput reset"
 
   # alias conda
-  alias conda="micromamba"
-  alias mamba="micromamba"
+  #alias conda="micromamba"
+  #alias mamba="micromamba"
 
   # goto
   [ -f ${PREFIX}/goto/goto.sh ] && source ${PREFIX}/goto/goto.sh

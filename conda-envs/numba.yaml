@@ -1,0 +1,14 @@
+name: cpython
+channels:
+  - numba/label/dev
+  - rapidsai
+  - conda-forge
+dependencies:
+  - python=3.13
+  - llvmlite=0.46
+  - flake8
+  - numpy
+  - cffi
+  - pytest
+  - ipython
+
