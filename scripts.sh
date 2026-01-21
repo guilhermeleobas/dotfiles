@@ -258,7 +258,9 @@ env_vars() {
       # export CFLAGS="${CFLAGS} -L${CONDA_PREFIX}/lib"
       # export CXXFLAGS="${CXXFLAGS} -L${CONDA_PREFIX}/lib"
       # export CFLAGS="${CFLAGS} -Werror"
-      export CC="ccache clang"
+      alias run='python3 test/dynamo/test_misc.py -k test_simple_hook'
+      alias compile='cmake --build build --target install --config RelWithDebInfo -j 20'
+      export CC="ccache gcc"
       export CPPFLAGS="-I$CONDA_PREFIX/include"
       export LDFLAGS="-L$CONDA_PREFIX/lib -Wl,-rpath,$CONDA_PREFIX/lib"
       export LIBRARY_PATH="$CONDA_PREFIX/lib"
@@ -317,8 +319,10 @@ build() {
       env_vars cpython
       make distclean
       make clean
-      ./configure --with-pydebug --with-openssl=$CONDA_PREFIX --with-ensurepip=install --prefix=$CONDA_PREFIX
+      ./configure --with-pydebug --enable-loadable-sqlite-extensions --with-openssl=$CONDA_PREFIX --with-ensurepip=install --prefix=$CONDA_PREFIX
       make -s -j20
+      ./python -m ensurepip
+      ./python -m pip install setuptools pyyaml typing_extensions packaging
       # install setuptools, pyyaml, typing_extensions, packaging
       ;;
 
