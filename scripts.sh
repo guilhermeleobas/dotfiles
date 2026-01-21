@@ -20,7 +20,7 @@ vast() {
 
 clone() {
   case $1 in
-    dotfiles|numba|numba-rvsdg)
+    dotfiles|numba|numba-rvsdg|einops)
       echo "cloning $1..."
       git clone git@github.com:guilhermeleobas/$1.git ${PREFIX}/$1/
       ;;
@@ -414,6 +414,13 @@ create() {
     numba)
       # $CONDA_EXE create -n numba python=3.13 llvmlite=0.46 flake8 numpy cffi pytest -c numba/label/dev -c rapidsai
       $CONDA_EXE create --file=${PREFIX}/dotfiles/conda-envs/numba.yaml -n numba
+      ;;
+      
+    einops)
+      $CONDA_EXE create --name einops
+      $CONDA_EXE install -n einops python=3.12 numpy pytest nbformat nbconvert -y
+      env einops
+      pip install torch
       ;;
 
     numpy)
