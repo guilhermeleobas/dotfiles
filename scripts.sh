@@ -164,17 +164,6 @@ env() {
   fi
 }
 
-# run_only() {
-#   (
-#     echo "disabling auto activate env..."
-#     __AUTO_ACTIVATE_ENV=0
-#     echo "running command '$1 $2'"
-#     $1 $2
-#     __AUTO_ACTIVATE_ENV=1
-#     echo "Done!"
-#   )
-# }
-
 env_vars() {
 
   if [[ $# -eq 0 ]]; then
@@ -253,13 +242,13 @@ env_vars() {
       export LDFLAGS="${LDFLAGS} -L${CUDA_HOME}/lib64"
       ;;
 
-    cpython)
+    cpython|py314)
       # Needed for ssl
       # export CFLAGS="${CFLAGS} -L${CONDA_PREFIX}/lib"
       # export CXXFLAGS="${CXXFLAGS} -L${CONDA_PREFIX}/lib"
       # export CFLAGS="${CFLAGS} -Werror"
-      alias run='python3 test/dynamo/test_misc.py -k test_simple_hook'
       alias compile='cmake --build build --target install --config RelWithDebInfo -j 20'
+      alias python='python3'
       export CC="ccache gcc"
       export CPPFLAGS="-I$CONDA_PREFIX/include"
       export LDFLAGS="-L$CONDA_PREFIX/lib -Wl,-rpath,$CONDA_PREFIX/lib"
@@ -319,16 +308,11 @@ build() {
       env_vars cpython
       make distclean
       make clean
-      ./configure --with-pydebug --enable-loadable-sqlite-extensions --with-openssl=$CONDA_PREFIX --with-ensurepip=install --prefix=$CONDA_PREFIX
+      ./configure --with-pydebug --without-mimalloc --enable-loadable-sqlite-extensions --with-openssl=$CONDA_PREFIX --with-ensurepip=install --prefix=$CONDA_PREFIX
       make -s -j20
       ./python -m ensurepip
       ./python -m pip install setuptools pyyaml typing_extensions packaging
       # install setuptools, pyyaml, typing_extensions, packaging
-      ;;
-
-    hook)
-      env_vars cpython
-      CFLAGS="-O0 -g" make -C ../cpython/ -j10 && ../cpython/python.exe -m pip install -e .
       ;;
 
     numba)
@@ -424,7 +408,7 @@ create() {
       $CONDA_EXE create --name einops
       $CONDA_EXE install -n einops python=3.12 numpy pytest nbformat nbconvert -y
       env einops
-      pip install torch
+      pip install torch --index-url https://download.pytorch.org/whl/cpu
       ;;
 
     numpy)
@@ -489,6 +473,11 @@ show() {
   else
     export TORCH_LOGS="$1"
   fi
+}
+
+reword() {
+  local input="$1"
+  GIT_SEQUENCE_EDITOR="sed -i '1s/^pick/reword/'" git rebase -i HEAD~"${input}"
 }
 
 edit() {

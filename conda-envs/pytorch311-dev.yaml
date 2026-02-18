@@ -12,6 +12,7 @@ channels:
   - defaults
 dependencies:
   - python=3.11
+  - ccache
   - numpy
   - ninja
   - pyyaml
