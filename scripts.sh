@@ -43,7 +43,7 @@ clone() {
 
     pytorch|tutorials|vision|audio)
       echo "cloning $1..."
-      git clone git@github.com:pytorch/$1.git ${PREFIX}/$1
+      git clone git@github.com:pytorch/$1.git --single-branch ${PREFIX}/$1
       env --chdir=${PREFIX}/$1 git remote add upstream git@github.com:pytorch/$1.git
       ;;
 
