@@ -41,19 +41,6 @@ call plug#end()
 let mapleader = ","
 " ================ Plugins ==============
 
-" ctrlP
-let g:ctrlp_prompt_mappings = {
-      \ 'AcceptSelection("e")': ['<c-t>'],
-      \ 'AcceptSelection("t")': ['<cr>', '<2-LeftMouse>'],
-      \ }
-" Change the working directory to the directory of the current file
-" c => the directory of the current file.
-" a => the directory of the current file, unless it is a subdirectory of the cwd
-" got it from https://github.com/ctrlpvim/ctrlp.vim
-let g:ctrlp_working_path_mode = 'a'
-
-
-
 " Turn on/off indentLine
 map <leader>i :IndentLinesToggle<cr>
 
@@ -64,6 +51,8 @@ let g:accelerated_jk_acceleration_limit=100
 
 " vim repeat
 silent! call repeat#set("\<Plug>MyWonderfulMap", v:count)
+
+noremap <C-p> :FZF<CR>
 
 
 
@@ -176,8 +165,6 @@ set cursorline          " highlights the current line
 
 " highlight current line
 " hi CursorLine term=bold cterm=bold guibg=Grey40
-
-
 
 " ================ netwr ==============
 map <Leader>e :NERDTreeToggle<CR>
