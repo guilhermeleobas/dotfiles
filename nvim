@@ -8,16 +8,18 @@ call plug#begin('~/.config/nvim/plugged')
 " General purpose plugins
 Plug 'jiangmiao/auto-pairs'
 Plug 'Yggdroot/indentLine'
-Plug 'tomtom/tcomment_vim'
 Plug 'junegunn/vim-easy-align'
 Plug 'rhysd/accelerated-jk'
-Plug 'rhysd/vim-llvm'
+" Plug 'rhysd/vim-llvm'
 Plug 'scrooloose/nerdtree'
 " Plug 'cjrh/vim-conda'
 
 " Fuzzy finder
-Plug 'ctrlpvim/ctrlp.vim'
+" Plug 'ctrlpvim/ctrlp.vim'
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'
 
+  
 " Linter
 " Plug 'rhysd/vim-clang-format'
 
@@ -50,13 +52,6 @@ let g:ctrlp_prompt_mappings = {
 " got it from https://github.com/ctrlpvim/ctrlp.vim
 let g:ctrlp_working_path_mode = 'a'
 
-" replace ack by ag
-if executable('ag')
-  " in ctrlp
-  let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
-  " in ack.vim
-  let g:ackprg = 'ag --vimgrep'
-endif
 
 
 " Turn on/off indentLine
@@ -71,10 +66,6 @@ let g:accelerated_jk_acceleration_limit=100
 silent! call repeat#set("\<Plug>MyWonderfulMap", v:count)
 
 
-" Jedi
-" let g:jedi#use_tabs_not_buffers = 1
-" let g:jedi#use_splits_not_buffers = "left"
-" autocmd FileType python setlocal completeopt-=preview
 
 "" ================ Remap keys ==============
 
