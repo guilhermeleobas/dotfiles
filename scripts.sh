@@ -1,10 +1,94 @@
+#!/bin/bash
+
 PREFIX=${HOME}/git
 __AUTO_ACTIVATE_ENV=1
 
 [[ -n $CONDA_EXE ]] || CONDA_EXE=micromamba
 
-reload() {
-  exec ${SHELL}
+
+
+build() {
+
+  if [[ $# -eq 0 ]]; then
+    find_env
+  else
+    environment=$1
+  fi
+
+  case $environment in
+    llvm)
+      env_vars llvm
+      cd ${PREFIX}/llvm-project/build
+      cmake ../llvm/ \
+        -DCMAKE_INSTALL_PREFIX="${CONDA_PREFIX}" \
+        -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra;compiler-rt" \
+        -DLLVM_TARGETS_TO_BUILD="X86" \
+        -DLLVM_USE_LINKER=lld \
+        -DLLVM_CCACHE_BUILD=ON \
+        -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+        -DLLVM_ENABLE_RTTI=ON \
+        -DLLVM_INCLUDE_TESTS=OFF \
+        -DLLVM_INCLUDE_GO_TESTS=OFF \
+        -DLLVM_INCLUDE_UTILS=OFF \
+        -DLLVM_INSTALL_UTILS=OFF \
+        -DLLVM_UTILS_INSTALL_DIR=libexec/llvm \
+        -DLLVM_INCLUDE_DOCS=OFF \
+        -DLLVM_INCLUDE_EXAMPLES=OFF \
+        -DHAVE_LIBEDIT=OFF
+      ;;
+
+    cpython)
+      env_vars cpython
+      make distclean
+      make clean
+      ./configure --with-pydebug --without-mimalloc --enable-loadable-sqlite-extensions --with-openssl=$CONDA_PREFIX --with-ensurepip=install --prefix=$CONDA_PREFIX
+      make -s -j20
+      ./python -m ensurepip
+      ./python -m pip install setuptools pyyaml typing_extensions packaging
+      # install setuptools, pyyaml, typing_extensions, packaging
+      ;;
+
+    numba)
+      env_vars numba
+      echo "python setup.py build_ext --inplace -j10"
+      if [[ $(uname -s) =~ "Darwin" ]]; then
+        export NUMBA_DISABLE_OPENMP=1
+      fi
+      python setup.py build_ext --inplace -j10
+      ;;
+
+    llvmlite)
+      env_vars llvmlite
+      python setup.py build
+      ;;
+
+    numpy)
+      env_vars numpy
+      spin build
+      # python setup.py build_ext --inplace -j10
+      ;;
+
+    pytorch-cpython)
+      env cpython
+      env_vars cpython
+      env_vars pytorch314
+      python3 -m pip install setuptools pyyaml typing_extensions packaging
+      python3 setup.py develop
+      ;;
+
+    pytorch|pytorch310|pytorch311|pytorch312|pytorch313|pytorch314|pytorch314t|pytorch-cuda|vision|audio)
+      env_vars ${environment}
+      python3 setup.py develop
+      if [ "${environment}" = "pytorch-cuda" ]; then
+        make triton
+      fi
+
+      ;;
+
+    *)
+      echo -n "build: unknown $1"
+      ;;
+  esac
 }
 
 clone() {
@@ -51,78 +135,82 @@ clone() {
   esac
 }
 
-install() {
-  case $1 in
-    micromamba)
-      "${SHELL}" <(curl -L micro.mamba.pm/install.sh)
+create() {
+  if [[ $# -eq 0 ]]; then
+    find_env
+  else
+    case "$1" in
+      --name | -n)
+        flag=$1
+        environment=$2
+        ;;
+
+      *)
+        environment=$1
+        ;;
+
+    esac
+  fi
+
+  # case $environment in
+  #   cpython|numba)
+  #     if [[ -z $PIXI_PROJECT_NAME ]]; then
+  #       exit
+  #     fi
+  #     ;;
+
+  #   *)
+  #     $CONDA_EXE deactivate
+  #     if [[ $(hostname) =~ qgpu ]]; then
+  #       $CONDA_EXE activate default
+  #     else
+  #       $CONDA_EXE activate base
+  #     fi
+
+  #     ;;
+  # esac
+
+  local flag=""
+
+  echo "create env: ${environment}..."
+  remove "${environment}"
+
+  case "${environment}" in
+    cpython|numba)
+      (cd ${PREFIX}/dotfiles/pixi/${environment} && pixi install && pixi workspace register --force)
       ;;
 
-    vim-plug)
-      curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+    numpy)
+      $CONDA_EXE create --file=${PREFIX}/numpy/environment.yml -n numpy
       ;;
 
-    nvim-plug)
-      sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+    llvmlite)
+      $CONDA_EXE create -n llvmlite
+      $CONDA_EXE install -n llvmlite python=3.9 compilers cmake make llvmdev=14 -c numba -c conda-forge -y
       ;;
 
-    fzf)
-      git clone git@github.com:junegunn/fzf.git ~/.fzf
-      ~/.fzf/install
+    llvm)
+      $CONDA_EXE create -n llvm cmake ccache compilers make -c conda-forge -y
       ;;
 
-    goto)
-      git clone git@github.com:iridakos/goto.git ${PREFIX}/goto
-      source ${PREFIX}/goto/goto.sh
-      reload_goto
-      ;;
-
-    miniconda)
-      bash <(curl -L conda.sh)
-      ;;
-
-    tpm)
-      git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
-      ;;
-
-    pixi)
-      $CONDA_EXE install -c conda-forge pixi
-      ;;
-
-    ag)
-      $CONDA_EXE install -c conda-forge the_silver_searcher
-      ;;
-
-    gh)
-      $CONDA_EXE install -c conda-forge gh
-      ;;
-
-    theme)
-      git clone git@github.com:guilhermeleobas/prompt.git ${PREFIX}/prompt
-      make -C ${PREFIX}/prompt install
-      ;;
-
-    zgen)
-      git clone https://github.com/tarjoilija/zgen.git "${HOME}/.zgen"
+    pytorch|pytorch310|pytorch311|pytorch312|pytorch313|pytorch314|pytorch314t|pytorch-cuda)
+      $CONDA_EXE env create --file=${PREFIX}/dotfiles/conda-envs/$environment-dev.yaml -n $environment -y
       ;;
 
     *)
-      echo -n "install: unknown $1"
-      ;;
-  esac
-}
+      case "$flag" in
+        -n | --name)
+          $CONDA_EXE create --name ${environment}
+          ;;
 
-find_env() {
-  environment=""
-  local d=$(basename $(pwd))
-  case ${d} in
-    llvm-project)
-      environment=llvm
-      ;;
-    *)
-      # use the folder name as conda environment name
-      environment=$d
+        *)
+          echo -n "env: unknown ${environment}"
+          ;;
+      esac
+
       ;;
   esac
+
 }
 
 env() {
@@ -133,16 +221,24 @@ env() {
   fi
 
   if [[ "${__AUTO_ACTIVATE_ENV}" == "1" ]]; then
-    echo "activating env: ${environment}"
-    $CONDA_EXE deactivate
-    $CONDA_EXE activate ${environment}
+    case ${environment} in
+      cpython|numba)
+        if [[ "$SHLVL" -gt 1 ]]; then
+          echo "Deactivating previous env..."
+          exit
+        fi
+        pixi shell --workspace ${environment}
+        ;;
+      *)
+        $CONDA_EXE deactivate
+        $CONDA_EXE activate ${environment}
+        ;;
+    esac
 
     env_vars ${environment}
 
     if [[ $? -ne 0 ]]; then
       echo "failing activate env $1"
-      # echo "activating default env..."
-      # $CONDA_EXE activate ${CONDA_DEFAULT_ENV}
     fi
   fi
 }
@@ -232,176 +328,108 @@ env_vars() {
   esac
 }
 
+find_env() {
+  environment=""
+  local d=$(basename $(pwd))
+  case ${d} in
+    llvm-project)
+      environment=llvm
+      ;;
+    *)
+      # use the folder name as conda environment name
+      environment=$d
+      ;;
+  esac
+}
+
+install() {
+  case $1 in
+    micromamba)
+      "${SHELL}" <(curl -L micro.mamba.pm/install.sh)
+      ;;
+
+    vim-plug)
+      curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+      ;;
+
+    nvim-plug)
+      sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+      ;;
+
+    fzf)
+      git clone git@github.com:junegunn/fzf.git ~/.fzf
+      ~/.fzf/install
+      ;;
+
+    goto)
+      git clone git@github.com:iridakos/goto.git ${PREFIX}/goto
+      source ${PREFIX}/goto/goto.sh
+      reload_goto
+      ;;
+
+    miniconda)
+      bash <(curl -L conda.sh)
+      ;;
+
+    tpm)
+      git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+      ;;
+
+    pixi)
+      $CONDA_EXE install -c conda-forge pixi
+      ;;
+
+    ag)
+      $CONDA_EXE install -c conda-forge the_silver_searcher
+      ;;
+
+    gh)
+      $CONDA_EXE install -c conda-forge gh
+      ;;
+
+    theme)
+      git clone git@github.com:guilhermeleobas/prompt.git ${PREFIX}/prompt
+      make -C ${PREFIX}/prompt install
+      ;;
+
+    zgen)
+      git clone https://github.com/tarjoilija/zgen.git "${HOME}/.zgen"
+      ;;
+
+    *)
+      echo -n "install: unknown $1"
+      ;;
+  esac
+}
+
 pytorch-update(){
   git submodule sync
   git submodule update --init --recursive
 }
 
-build() {
-
+remove() {
   if [[ $# -eq 0 ]]; then
     find_env
   else
     environment=$1
   fi
 
-  case $environment in
-    llvm)
-      env_vars llvm
-      cd ${PREFIX}/llvm-project/build
-      cmake ../llvm/ \
-        -DCMAKE_INSTALL_PREFIX="${CONDA_PREFIX}" \
-        -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra;compiler-rt" \
-        -DLLVM_TARGETS_TO_BUILD="X86" \
-        -DLLVM_USE_LINKER=lld \
-        -DLLVM_CCACHE_BUILD=ON \
-        -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-        -DLLVM_ENABLE_RTTI=ON \
-        -DLLVM_INCLUDE_TESTS=OFF \
-        -DLLVM_INCLUDE_GO_TESTS=OFF \
-        -DLLVM_INCLUDE_UTILS=OFF \
-        -DLLVM_INSTALL_UTILS=OFF \
-        -DLLVM_UTILS_INSTALL_DIR=libexec/llvm \
-        -DLLVM_INCLUDE_DOCS=OFF \
-        -DLLVM_INCLUDE_EXAMPLES=OFF \
-        -DHAVE_LIBEDIT=OFF
+  case ${environment} in
+    cpython|numba)
+      pixi clean --workspace ${environment}
       ;;
-
-    cpython)
-      env_vars cpython
-      make distclean
-      make clean
-      ./configure --with-pydebug --without-mimalloc --enable-loadable-sqlite-extensions --with-openssl=$CONDA_PREFIX --with-ensurepip=install --prefix=$CONDA_PREFIX
-      make -s -j20
-      ./python -m ensurepip
-      ./python -m pip install setuptools pyyaml typing_extensions packaging
-      # install setuptools, pyyaml, typing_extensions, packaging
-      ;;
-
-    numba)
-      env_vars numba
-      echo "python setup.py build_ext --inplace -j10"
-      if [[ $(uname -s) =~ "Darwin" ]]; then
-        export NUMBA_DISABLE_OPENMP=1
-      fi
-      python setup.py build_ext --inplace -j10
-      ;;
-
-    llvmlite)
-      env_vars llvmlite
-      python setup.py build
-      ;;
-
-    numpy)
-      env_vars numpy
-      spin build
-      # python setup.py build_ext --inplace -j10
-      ;;
-
-    pytorch-cpython)
-      env cpython
-      env_vars cpython
-      env_vars pytorch314
-      python3 -m pip install setuptools pyyaml typing_extensions packaging
-      python3 setup.py develop
-      ;;
-
-    pytorch|pytorch310|pytorch311|pytorch312|pytorch313|pytorch314|pytorch314t|pytorch-cuda|vision|audio)
-      env_vars ${environment}
-      python3 setup.py develop
-      if [ "${environment}" = "pytorch-cuda" ]; then
-        make triton
-      fi
-
-      ;;
-
     *)
-      echo -n "build: unknown $1"
+      $CONDA_EXE deactivate
+      $CONDA_EXE remove --name ${environment} --all -y
       ;;
-  esac
-}
-
-remove() {
-  $CONDA_EXE deactivate
-  find_env
-  $CONDA_EXE remove --name ${environment} --all -y
-}
-
-create() {
-  $CONDA_EXE deactivate
-  if [[ $(hostname) =~ qgpu ]]; then
-    $CONDA_EXE activate default
-  else
-    $CONDA_EXE activate base
-  fi
-
-  local flag=""
-
-  if [[ $# -eq 0 ]]; then
-    find_env
-  else
-    case "$1" in
-      --name | -n)
-        flag=$1
-        environment=$2
-        ;;
-
-      *)
-        environment=$1
-        ;;
-
     esac
-  fi
-
-  echo "create env: ${environment}..."
-  $CONDA_EXE remove --name ${environment} --all -y
-
-  case $environment in
-    numba)
-      # $CONDA_EXE create -n numba python=3.13 llvmlite=0.46 flake8 numpy cffi pytest -c numba/label/dev -c rapidsai
-      $CONDA_EXE create --file=${PREFIX}/dotfiles/conda-envs/numba.yaml -n numba
-      ;;
-      
-    numpy)
-      $CONDA_EXE create --file=${PREFIX}/numpy/environment.yml -n numpy
-      ;;
-
-    llvmlite)
-      $CONDA_EXE create -n llvmlite
-      $CONDA_EXE install -n llvmlite python=3.9 compilers cmake make llvmdev=14 -c numba -c conda-forge -y
-      ;;
-
-    llvm)
-      $CONDA_EXE create -n llvm cmake ccache compilers make -c conda-forge -y
-      ;;
-
-    pytorch|pytorch310|pytorch311|pytorch312|pytorch313|pytorch314|pytorch314t|pytorch-cuda)
-      $CONDA_EXE env create --file=${PREFIX}/dotfiles/conda-envs/$environment-dev.yaml -n $environment -y
-      ;;
-
-    cpython)
-      $CONDA_EXE create --file=${PREFIX}/dotfiles/conda-envs/cpython.yaml -n cpython -y
-      ;;
-
-    *)
-      case "$flag" in
-        -n | --name)
-          $CONDA_EXE create --name ${environment}
-          ;;
-
-        *)
-          echo -n "env: unknown ${environment}"
-          ;;
-      esac
-
-      ;;
-  esac
-
-  if [[ $? -eq 0 ]]; then
-    env ${environment}
-  fi
-
 }
+
+reload() {
+  exec ${SHELL}
+}
+
+### git operations
 
 abort() {
   git rebase --abort
