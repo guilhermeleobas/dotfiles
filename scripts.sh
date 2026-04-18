@@ -9,7 +9,7 @@ reload() {
 
 clone() {
   case $1 in
-    dotfiles|numba|numba-rvsdg|einops)
+    dotfiles|numba)
       echo "cloning $1..."
       git clone git@github.com:guilhermeleobas/$1.git ${PREFIX}/$1/
       ;;
@@ -362,13 +362,6 @@ create() {
       $CONDA_EXE create --file=${PREFIX}/dotfiles/conda-envs/numba.yaml -n numba
       ;;
       
-    einops)
-      $CONDA_EXE create --name einops
-      $CONDA_EXE install -n einops python=3.12 numpy pytest nbformat nbconvert -y
-      env einops
-      pip install torch --index-url https://download.pytorch.org/whl/cpu
-      ;;
-
     numpy)
       $CONDA_EXE create --file=${PREFIX}/numpy/environment.yml -n numpy
       ;;
