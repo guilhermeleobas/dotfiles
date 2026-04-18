@@ -152,24 +152,6 @@ create() {
     esac
   fi
 
-  # case $environment in
-  #   cpython|numba)
-  #     if [[ -z $PIXI_PROJECT_NAME ]]; then
-  #       exit
-  #     fi
-  #     ;;
-
-  #   *)
-  #     $CONDA_EXE deactivate
-  #     if [[ $(hostname) =~ qgpu ]]; then
-  #       $CONDA_EXE activate default
-  #     else
-  #       $CONDA_EXE activate base
-  #     fi
-
-  #     ;;
-  # esac
-
   local flag=""
 
   echo "create env: ${environment}..."
@@ -178,6 +160,10 @@ create() {
   case "${environment}" in
     cpython|numba)
       (cd ${PREFIX}/dotfiles/pixi/${environment} && pixi install && pixi workspace register --force)
+      ;;
+
+    pytorch|pytorch310|pytorch311|pytorch312|pytorch313|pytorch314|pytorch314t|pytorch-cuda)
+      (cd ${PREFIX}/dotfiles/pixi/pytorch && pixi install -e ${environment} && pixi workspace register --force)
       ;;
 
     numpy)
@@ -191,10 +177,6 @@ create() {
 
     llvm)
       $CONDA_EXE create -n llvm cmake ccache compilers make -c conda-forge -y
-      ;;
-
-    pytorch|pytorch310|pytorch311|pytorch312|pytorch313|pytorch314|pytorch314t|pytorch-cuda)
-      $CONDA_EXE env create --file=${PREFIX}/dotfiles/conda-envs/$environment-dev.yaml -n $environment -y
       ;;
 
     *)
@@ -223,18 +205,20 @@ env() {
   if [[ "${__AUTO_ACTIVATE_ENV}" == "1" ]]; then
     case ${environment} in
       cpython|numba)
-        if [[ "$SHLVL" -gt 1 ]]; then
-          echo "Deactivating previous env..."
-          exit
-        fi
-        pixi shell --workspace ${environment}
+        exec pixi shell --workspace ${environment}
         ;;
+
+      pytorch|pytorch310|pytorch311|pytorch312|pytorch313|pytorch314)
+        exec pixi shell --workspace pytorch -e ${environment}
+        ;;
+
       *)
         $CONDA_EXE deactivate
         $CONDA_EXE activate ${environment}
         ;;
     esac
 
+    echo "activated env ${environment}"
     env_vars ${environment}
 
     if [[ $? -ne 0 ]]; then
@@ -299,6 +283,7 @@ env_vars() {
       export LDFLAGS="${LDFLAGS} -Wl,-rpath-link,${CUDA_HOME}/lib64"
       export LDFLAGS="${LDFLAGS} -Wl,-rpath-link,${CUDA_HOME}/extras/CUPTI/lib64"
       export LDFLAGS="${LDFLAGS} -L${CUDA_HOME}/lib64"
+      export CMAKE_CXX_STANDARD=20
       ;;
 
     cpython|py314)
@@ -415,7 +400,7 @@ remove() {
   fi
 
   case ${environment} in
-    cpython|numba)
+    cpython|numba|pytorch|pytorch310|pytorch311|pytorch312|pytorch313|pytorch314|pytorch-cuda)
       pixi clean --workspace ${environment}
       ;;
     *)

@@ -1,42 +1,75 @@
 [workspace]
 authors = ["Guilherme Leobas <guilhermeleobas@gmail.com>"]
-channels = ["conda-forge"]
+channels = ["conda-forge", "pytorch"]
 name = "pytorch"
-platforms = ["osx-arm64"]
+platforms = ["linux-64"]
 version = "0.1.0"
 
 [tasks]
 
 [dependencies]
 
-[feature.pytorch-cuda-dev]
-channels = ["conda-forge", "pytorch", "main", "r", "msys2"]
-
-[feature.pytorch-cuda-dev.dependencies]
-python = "3.13.*"
-numpy = "*"
-ninja = "*"
-pyyaml = "*"
-mkl = "*"
-mkl-include = "*"
-setuptools = "*"
-cmake = "*"
+# Shared dependencies common to both environments
+[feature.base.dependencies]
+ccache = "*"
 cffi = "*"
-typing = "*"
-pytest = "*"
-gcc = "11.*"
-gxx = "11.*"
+clang-tools = "*"
+cmake = "*"
+compilers = "*"
 flake8 = "*"
-psutil = "*"
+ghstack = "*"
 hypothesis = "*"
+lintrunner = "*"
+ninja = "*"
+numpy = "*"
+psutil = "*"
+pytest = "*"
+pyyaml = "*"
+setuptools = "*"
+sympy = "*"
+typing = "*"
+
+[feature.base.pypi-dependencies]
+pdbp = "*"
+pip = "*"
+expecttest = "*"
+
+[feature.py310.dependencies]
+python = "3.10.*"
+
+[feature.py311.dependencies]
+python = "3.11.*"
+
+[feature.py312.dependencies]
+python = "3.12.*"
+
+[feature.py313.dependencies]
+python = "3.13.*"
+
+[feature.py314.dependencies]
+python = "3.14.*"
+
+[feature.pytorch-cuda.dependencies]
+cudatoolkit = "*"
 cudnn = "*"
+# gcc = "11.*"
+# gxx = "11.*"
+magma-cuda118 = "*"
 nccl = "*"
 nvcc_linux-64 = "11.8.*"
-magma-cuda118 = "*"
-mypy = "*"
-cudatoolkit = "*"
-sympy = "*"
-clang-tools = "*"
+python = "3.13.*"
+
+[feature.pytorch]
+channels = ["conda-forge", "pytorch"]
+
+[feature.pytorch.target.linux-64.dependencies]
+sysroot_linux-64 = "2.17.*"
 
 [environments]
-pytorch-cuda-dev = { features = ["pytorch-cuda-dev"], no-default-feature = true }
+pytorch = { features = ["base", "pytorch", "py313"], no-default-feature = true }
+pytorch310 = { features = ["base", "pytorch", "py310"], no-default-feature = true }
+pytorch311 = { features = ["base", "pytorch", "py311"], no-default-feature = true }
+pytorch312 = { features = ["base", "pytorch", "py312"], no-default-feature = true }
+pytorch313 = { features = ["base", "pytorch", "py313"], no-default-feature = true }
+pytorch314 = { features = ["base", "pytorch", "py314"], no-default-feature = true }
+pytorch-cuda = { features = ["base", "pytorch-cuda"], no-default-feature = true }
