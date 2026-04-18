@@ -480,8 +480,8 @@ sync_dotfiles() {
 
   # fetch origin and compare local/remote commit
   git fetch origin
-  local local_commit=$(git rev-parse master)
-  local remote_commit=$(git rev-parse origin/master)
+  local local_commit=$(git rev-parse main)
+  local remote_commit=$(git rev-parse origin/main)
 
   # Check if there are files to be committed
   if [[ -n "$status_output" || "${local_commit}" != "${remote_commit}" ]]; then
