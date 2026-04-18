@@ -2,20 +2,9 @@ PREFIX=${HOME}/git
 __AUTO_ACTIVATE_ENV=1
 
 [[ -n $CONDA_EXE ]] || CONDA_EXE=micromamba
-[[ -n $VAST_CONTAINERLABEL ]] && PREFIX=/workspace/git
 
 reload() {
   exec ${SHELL}
-}
-
-vast() {
-  echo "source /workspace/git/dotfiles/scripts.sh" >> ~/.bashrc
-  install vim-plug
-  cp $PREFIX/dotfiles/nvim ~/.vimrc
-  cp $PREFIX/dotfiles/tmux.conf ~/.tmux.conf
-  vim +PlugInstall +qa
-  git config --global user.name "Guilherme Leobas"
-  git config --global user.email "guilhermeleobas@gmail.com"
 }
 
 clone() {
@@ -33,12 +22,6 @@ clone() {
     numpy)
       echo "cloning numpy..."
       git clone git@github.com:numpy/numpy.git ${PREFIX}/numpy
-      ;;
-
-    flash-attention)
-      echo "cloning $1..."
-      git clone git@github.com:guilhermeleobas/$1.git ${PREFIX}/$1
-      env --chdir={PREFIX}/$1 git remote add upstream git@github.com:Dao-AILab/flash-attention.git
       ;;
 
     pytorch|tutorials|vision|audio)
@@ -179,26 +162,6 @@ env_vars() {
       export NUMBA_CAPTURED_ERRORS="new_style"
       ;;
 
-    flash-attention)
-      export FLASH_ATTENTION_DISABLE_BACKWARD=FALSE
-      export FLASH_ATTENTION_DISABLE_SPLIT=TRUE
-      export FLASH_ATTENTION_DISABLE_SOFTCAP=TRUE
-      export FLASH_ATTENTION_DISABLE_LOCAL=TRUE
-      export FLASH_ATTENTION_DISABLE_CLUSTER=TRUE
-      export FLASH_ATTENTION_DISABLE_VARLEN=TRUE
-      export FLASH_ATTENTION_DISABLE_PACKGQA=TRUE
-      export FLASH_ATTENTION_DISABLE_PAGEDKV=TRUE
-      export FLASH_ATTENTION_DISABLE_APPENDKV=TRUE
-      export FLASH_ATTENTION_DISABLE_FP8=TRUE
-      export FLASH_ATTENTION_DISABLE_FP16=FALSE
-      export FLASH_ATTENTION_DISABLE_FP32=TRUE
-      export FLASH_ATTENTION_DISABLE_HDIM96=FALSE
-      export FLASH_ATTENTION_DISABLE_HDIM128=FALSE
-      export FLASH_ATTENTION_DISABLE_HDIM192=FALSE
-      export FLASH_ATTENTION_DISABLE_HDIM256=FALSE
-      # export CUDA_HOME=/usr/local/cuda
-      ;;
-
     pytorch|pytorch310|pytorch311|pytorch312|pytorch313|pytorch314|pytorch314t|pytorch-cuda)
       export PYTHONBREAKPOINT=pdbp.set_trace
 
@@ -335,11 +298,6 @@ build() {
       # python setup.py build_ext --inplace -j10
       ;;
 
-    flash-attention)
-      env_vars flash-attention
-      python setup.py install
-      ;;
-
     pytorch-cpython)
       env cpython
       env_vars cpython
@@ -422,12 +380,6 @@ create() {
 
     llvm)
       $CONDA_EXE create -n llvm cmake ccache compilers make -c conda-forge -y
-      ;;
-
-    flash-attention)
-      $CONDA_EXE create -n flash-attention python=3.12 -c conda-forge -y
-      env flash-attention
-      pip install torch packaging transformers accelerate
       ;;
 
     pytorch|pytorch310|pytorch311|pytorch312|pytorch313|pytorch314|pytorch314t|pytorch-cuda)
