@@ -76,7 +76,7 @@ build() {
       python3 setup.py develop
       ;;
 
-    pytorch|pytorch310|pytorch311|pytorch312|pytorch313|pytorch314|pytorch314t|pytorch-cuda|vision|audio)
+    pytorch|pytorch310|pytorch311|pytorch312|pytorch313|pytorch313-copy|pytorch314|pytorch-cuda|vision|audio)
       env_vars ${environment}
       python3 setup.py develop
       if [ "${environment}" = "pytorch-cuda" ]; then
@@ -114,7 +114,7 @@ clone() {
       env --chdir=${PREFIX}/$1 git remote add upstream git@github.com:pytorch/$1.git
       ;;
 
-    pytorch310|pytorch311|pytorch312|pytorch313|pytorch314|pytorch314t)
+    pytorch310|pytorch311|pytorch312|pytorch313|pytorch313-copy|pytorch314)
       echo "cloning $1..."
       git clone git@github.com:pytorch/pytorch.git --single-branch ${PREFIX}/$1
       ;;
@@ -162,7 +162,7 @@ create() {
       (cd ${PREFIX}/dotfiles/pixi/${environment} && pixi install && pixi workspace register --force)
       ;;
 
-    pytorch|pytorch310|pytorch311|pytorch312|pytorch313|pytorch314|pytorch314t|pytorch-cuda)
+    pytorch|pytorch310|pytorch311|pytorch312|pytorch313|pytorch313-copy|pytorch314|pytorch-cuda)
       (cd ${PREFIX}/dotfiles/pixi/pytorch && pixi install -e ${environment} && pixi workspace register --force)
       ;;
 
@@ -208,7 +208,7 @@ env() {
         exec pixi shell --workspace ${environment}
         ;;
 
-      pytorch|pytorch310|pytorch311|pytorch312|pytorch313|pytorch314)
+      pytorch|pytorch310|pytorch311|pytorch312|pytorch313|pytorch313-copy|pytorch314)
         exec pixi shell --workspace pytorch -e ${environment}
         ;;
 
@@ -242,36 +242,13 @@ env_vars() {
       export NUMBA_CAPTURED_ERRORS="new_style"
       ;;
 
-    pytorch|pytorch310|pytorch311|pytorch312|pytorch313|pytorch314|pytorch314t|pytorch-cuda)
-      export PYTHONBREAKPOINT=pdbp.set_trace
-
+    pytorch|pytorch310|pytorch311|pytorch312|pytorch313|pytorch313-copy|pytorch314|pytorch-cuda)
       # remember to create a symlink from /usr/lib/cuda to /usr/local/cuda
       # sudo ln -s /usr/lib/cuda /usr/local/cuda
       # export USE_CUDA=$([ "${environment}" = "pytorch-cuda" ] && echo 1 || echo 0)
       [[ -n $USE_CUDA ]] || export USE_CUDA=0
 
-      export BUILD_CAFFE2=0
-      export BUILD_CAFFE2_OPS=0
-      export BUILD_TEST=0
-      export USE_DISTRIBUTED=1
-      export USE_CUDNN=0
-      export USE_FBGEMM=0
-      export USE_FLASH_ATTENTION=0
-      export USE_GOLD=1
-      export USE_KINETO=0
-      export USE_MEM_EFF_ATTENTION=0
-      export USE_MIOPEN=0
-      export USE_MKLDNN=0
-      export USE_MPI=0
-      export USE_NCCL=0
-      export USE_NNPACK=0
-      export USE_OPENMP=0
-      export USE_QNNPACK=0
-      export USE_XNNPACK=0
-
       export CUDA_HOME=/usr/local/cuda
-      export CMAKE_BUILD_TYPE=RelWithDebInfo
-      export MAX_JOBS=20
 
       export CC=cc
       export CXX=c++
@@ -283,10 +260,9 @@ env_vars() {
       export LDFLAGS="${LDFLAGS} -Wl,-rpath-link,${CUDA_HOME}/lib64"
       export LDFLAGS="${LDFLAGS} -Wl,-rpath-link,${CUDA_HOME}/extras/CUPTI/lib64"
       export LDFLAGS="${LDFLAGS} -L${CUDA_HOME}/lib64"
-      export CMAKE_CXX_STANDARD=20
       ;;
 
-    cpython|py314)
+    cpython)
       # Needed for ssl
       # export CFLAGS="${CFLAGS} -L${CONDA_PREFIX}/lib"
       # export CXXFLAGS="${CXXFLAGS} -L${CONDA_PREFIX}/lib"
@@ -400,8 +376,11 @@ remove() {
   fi
 
   case ${environment} in
-    cpython|numba|pytorch|pytorch310|pytorch311|pytorch312|pytorch313|pytorch314|pytorch-cuda)
+    cpython|numba)
       pixi clean --workspace ${environment}
+      ;;
+    cpython|numba|pytorch|pytorch310|pytorch311|pytorch312|pytorch313|pytorch313-copy|pytorch314|pytorch-cuda)
+      pixi clean --workspace pytorch --environment ${environment}
       ;;
     *)
       $CONDA_EXE deactivate

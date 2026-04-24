@@ -29,10 +29,17 @@ setuptools = "*"
 sympy = "*"
 typing = "*"
 
+[feature.base.tasks]
+cpython = { args = [ "test" ], cmd = "cd $INIT_CWD && python test/dynamo/cpython/3_13/{{ test }}.py", env = { PYTORCH_TEST_WITH_DYNAMO = "1" }}
+test-all = { cmd = "cd $INIT_CWD && python -m pytest test/dynamo/cpython/3_13/test_*.py", env = { PYTORCH_TEST_WITH_DYNAMO = "1" }}
+list = { cmd = "cd $INIT_CWD && ls test/dynamo/cpython/3_13/test_*.py" }
+
 [feature.base.pypi-dependencies]
 pdbp = "*"
 pip = "*"
 expecttest = "*"
+uv = "*"
+ipython = "*"
 
 [feature.py310.dependencies]
 python = "3.10.*"
@@ -45,6 +52,31 @@ python = "3.12.*"
 
 [feature.py313.dependencies]
 python = "3.13.*"
+
+[feature.base.activation.env]
+PYTHONBREAKPOINT="pdbp.set_trace"
+BUILD_CAFFE2="0"
+BUILD_CAFFE2_OPS="0"
+BUILD_TEST="0"
+USE_DISTRIBUTED="1"
+USE_CUDNN="0"
+USE_FBGEMM="0"
+USE_FLASH_ATTENTION="0"
+USE_GOLD="1"
+USE_KINETO="0"
+USE_MEM_EFF_ATTENTION="0"
+USE_MIOPEN="0"
+USE_MKLDNN="0"
+USE_MPI="0"
+USE_NCCL="0"
+USE_NNPACK="0"
+USE_OPENMP="0"
+USE_QNNPACK="0"
+USE_XNNPACK="0"
+CMAKE_BUILD_TYPE="RelWithDebInfo"
+MAX_JOBS="20"
+CMAKE_CXX_STANDARD="20"
+USE_CUDA="0"
 
 [feature.py314.dependencies]
 python = "3.14.*"
@@ -59,9 +91,6 @@ nccl = "*"
 nvcc_linux-64 = "11.8.*"
 python = "3.13.*"
 
-[feature.pytorch]
-channels = ["conda-forge", "pytorch"]
-
 [feature.pytorch.target.linux-64.dependencies]
 sysroot_linux-64 = "2.17.*"
 
@@ -71,5 +100,6 @@ pytorch310 = { features = ["base", "pytorch", "py310"], no-default-feature = tru
 pytorch311 = { features = ["base", "pytorch", "py311"], no-default-feature = true }
 pytorch312 = { features = ["base", "pytorch", "py312"], no-default-feature = true }
 pytorch313 = { features = ["base", "pytorch", "py313"], no-default-feature = true }
+pytorch313-copy = { features = ["base", "pytorch", "py313"], no-default-feature = true }
 pytorch314 = { features = ["base", "pytorch", "py314"], no-default-feature = true }
 pytorch-cuda = { features = ["base", "pytorch-cuda"], no-default-feature = true }
