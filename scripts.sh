@@ -6,7 +6,6 @@ __AUTO_ACTIVATE_ENV=1
 [[ -n $CONDA_EXE ]] || CONDA_EXE=micromamba
 
 
-
 build() {
 
   if [[ $# -eq 0 ]]; then
