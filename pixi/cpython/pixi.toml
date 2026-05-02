@@ -5,6 +5,11 @@ name = "cpython"
 platforms = ["osx-arm64", "linux-64"]
 version = "0.1.0"
 
+[tasks]
+configure = "./configure --with-pydebug --without-mimalloc --enable-loadable-sqlite-extensions --with-openssl=$CONDA_PREFIX --with-ensurepip=install --prefix=$CONDA_PREFIX"
+clean = { cmd = "make distclean && make clean"}
+build = { cmd = ""}
+
 [dependencies]
 zlib = ">=1.3.1,<2"
 zlib-ng = ">=2.2.5,<3"
@@ -13,3 +18,4 @@ pdbpp = ">=0.11.7,<0.12"
 python-build = ">=1.3.0,<2"
 cmake = ">=4.1.2,<5"
 pkg-config = ">=0.29.2,<0.30"
+compilers = ">=1.11.0,<2"

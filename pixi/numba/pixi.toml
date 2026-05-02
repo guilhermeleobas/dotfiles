@@ -1,6 +1,6 @@
 [workspace]
 authors = ["Guilherme Leobas <guilhermeleobas@gmail.com>"]
-channels = ["conda-forge"]
+channels = ["conda-forge", "numba/label/dev"]
 name = "numba"
 platforms = ["osx-arm64", "linux-64"]
 version = "0.1.0"
@@ -8,11 +8,19 @@ version = "0.1.0"
 [tasks]
 
 [dependencies]
-python = "3.13.*"
-llvmlite = "0.47.*"
+python = "3.14.*"
+llvmlite = "0.48.*"
 flake8 = ">=7.3.0,<8"
 numpy = ">=2.4.3,<3"
 cffi = ">=2.0.0,<3"
 pytest = ">=9.0.3,<10"
 ipython = ">=9.12.0,<10"
 setuptools = ">=82.0.1,<83"
+gh = ">=2.92.0,<3"
+ty = ">=0.0.33,<0.0.34"
+mypy = ">=1.20.2,<2"
+scipy-stubs = ">=1.17.1.4,<2"
+types-psutil = ">=7.2.2.20260402,<8"
+types-pygments = ">=2.20.0.20260408,<3"
+types-pyyaml = ">=6.0.12.20260408,<7"
+types-setuptools = ">=82.0.0.20260408,<83"
