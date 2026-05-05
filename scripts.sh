@@ -40,7 +40,8 @@ build() {
       env_vars cpython
       make distclean
       make clean
-      ./configure --with-pydebug --without-mimalloc --enable-loadable-sqlite-extensions --with-openssl=$CONDA_PREFIX --with-ensurepip=install --prefix=$CONDA_PREFIX
+      ./configure --with-pydebug --without-mimalloc --enable-loadable-sqlite-extensions --with-ensurepip=install
+      # ./configure --with-pydebug --without-mimalloc --enable-loadable-sqlite-extensions --with-openssl=$CONDA_PREFIX --with-ensurepip=install --prefix=$CONDA_PREFIX
       make -s -j20
       ./python -m ensurepip
       ./python -m pip install setuptools pyyaml typing_extensions packaging
