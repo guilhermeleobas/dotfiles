@@ -33,6 +33,7 @@ typing = "*"
 cpython = { args = [ "test" ], cmd = "cd $INIT_CWD && python test/dynamo/cpython/3_13/{{ test }}.py", env = { PYTORCH_TEST_WITH_DYNAMO = "1" }}
 test-all = { cmd = "cd $INIT_CWD && python -m pytest test/dynamo/cpython/3_13/test_*.py", env = { PYTORCH_TEST_WITH_DYNAMO = "1" }}
 list = { cmd = "cd $INIT_CWD && ls test/dynamo/cpython/3_13/test_*.py" }
+python = { cmd = "cd $INIT_CWD && python" }
 
 [feature.base.pypi-dependencies]
 pdbp = "*"

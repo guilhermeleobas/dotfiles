@@ -368,6 +368,27 @@ pytorch-update(){
   git submodule update --init --recursive
 }
 
+pytorch-test-download(){
+  echo $0 $1
+  filename=$1
+  # Copy original file to /tmp
+  cp "test/dynamo/cpython/3_13/${filename}.py" /tmp
+
+  # Download latest version from CPython repo
+  wget -O "test/dynamo/cpython/3_13/${filename}.py" "https://raw.githubusercontent.com/python/cpython/refs/tags/v3.13.5/Lib/test/${filename}.py"
+
+  # Stage the updated file
+  git add "test/dynamo/cpython/3_13/${filename}.py"
+
+  cp "/tmp/${filename}.py" "test/dynamo/cpython/3_13/${filename}.py"
+
+  # Create a diff between original and updated versions
+  git diff "test/dynamo/cpython/3_13/${filename}.py" > "test/dynamo/cpython/3_13/${filename}.diff"
+
+  git add "test/dynamo/cpython/3_13/${filename}.py"
+  git add "test/dynamo/cpython/3_13/${filename}.diff"
+}
+
 remove() {
   if [[ $# -eq 0 ]]; then
     find_env
