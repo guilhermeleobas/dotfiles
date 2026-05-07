@@ -40,7 +40,7 @@ build() {
       env_vars cpython
       make distclean
       make clean
-      ./configure --with-pydebug --without-mimalloc --enable-loadable-sqlite-extensions --with-ensurepip=install
+      ./configure --with-pydebug --without-mimalloc --enable-loadable-sqlite-extensions --with-ensurepip=install --prefix=$CONDA_PREFIX
       # ./configure --with-pydebug --without-mimalloc --enable-loadable-sqlite-extensions --with-openssl=$CONDA_PREFIX --with-ensurepip=install --prefix=$CONDA_PREFIX
       make -s -j20
       ./python -m ensurepip
@@ -387,6 +387,14 @@ pytorch-test-download(){
 
   git add "test/dynamo/cpython/3_13/${filename}.py"
   git add "test/dynamo/cpython/3_13/${filename}.diff"
+}
+
+pytorch-test-remove(){
+  PYTORCH_TEST_WITH_DYNAMO=1 python test/dynamo/cpython/3_13/$1.py |& grep "ERROR: test" | sed -E 's/.*__main__\.(.*)\)/\1/' | xargs -I{} rm -f test/dynamo_expected_failures/CPython313-$1-{}
+}
+
+pytorch-test-add(){
+  PYTORCH_TEST_WITH_DYNAMO=1 python test/dynamo/cpython/3_13/$1.py |& grep "ERROR: test" | sed -E 's/.*__main__\.(.*)\)/\1/' | xargs -I{} touch test/dynamo_expected_failures/CPython313-$1-{}
 }
 
 remove() {

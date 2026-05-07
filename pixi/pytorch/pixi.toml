@@ -8,6 +8,7 @@ version = "0.1.0"
 [tasks]
 
 [dependencies]
+gh = ">=2.92.0,<3"
 
 # Shared dependencies common to both environments
 [feature.base.dependencies]
