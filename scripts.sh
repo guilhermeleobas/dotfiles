@@ -372,29 +372,35 @@ pytorch-test-download(){
   echo $0 $1
   filename=$1
   # Copy original file to /tmp
-  cp "test/dynamo/cpython/3_13/${filename}.py" /tmp
+  cp "test/cpython/v3_13/${filename}.py" /tmp
 
   # Download latest version from CPython repo
-  wget -O "test/dynamo/cpython/3_13/${filename}.py" "https://raw.githubusercontent.com/python/cpython/refs/tags/v3.13.5/Lib/test/${filename}.py"
+  wget -O "test/cpython/v3_13/${filename}.py" "https://raw.githubusercontent.com/python/cpython/refs/tags/v3.13.5/Lib/test/${filename}.py"
 
   # Stage the updated file
-  git add "test/dynamo/cpython/3_13/${filename}.py"
+  git add "test/cpython/v3_13/${filename}.py"
 
-  cp "/tmp/${filename}.py" "test/dynamo/cpython/3_13/${filename}.py"
+  cp "/tmp/${filename}.py" "test/cpython/v3_13/${filename}.py"
 
   # Create a diff between original and updated versions
-  git diff "test/dynamo/cpython/3_13/${filename}.py" > "test/dynamo/cpython/3_13/${filename}.diff"
+  git diff "test/cpython/v3_13/${filename}.py" > "test/cpython/v3_13/${filename}.diff"
 
-  git add "test/dynamo/cpython/3_13/${filename}.py"
-  git add "test/dynamo/cpython/3_13/${filename}.diff"
+  git add "test/cpython/v3_13/${filename}.py"
+  git add "test/cpython/v3_13/${filename}.diff"
 }
 
 pytorch-test-remove(){
-  PYTORCH_TEST_WITH_DYNAMO=1 python test/dynamo/cpython/3_13/$1.py |& grep "ERROR: test" | sed -E 's/.*__main__\.(.*)\)/\1/' | xargs -I{} rm -f test/dynamo_expected_failures/CPython313-$1-{}
+  PYTORCH_TEST_WITH_DYNAMO=1 python test/cpython/v3_13/$1.py |& grep "ERROR: test" | sed -E 's/.*__main__\.(.*)\)/\1/' | xargs -I{} rm -f test/dynamo_expected_failures/CPython313-$1-{}
 }
 
 pytorch-test-add(){
-  PYTORCH_TEST_WITH_DYNAMO=1 python test/dynamo/cpython/3_13/$1.py |& grep "ERROR: test" | sed -E 's/.*__main__\.(.*)\)/\1/' | xargs -I{} touch test/dynamo_expected_failures/CPython313-$1-{}
+  PYTORCH_TEST_WITH_DYNAMO=1 python test/cpython/v3_13/$1.py |& grep "ERROR: test" | sed -E 's/.*__main__\.(.*)\)/\1/' | xargs -I{} touch test/dynamo_expected_failures/CPython313-$1-{}
+}
+
+pytorch-test-all(){
+  for f in $(ls test/cpython/v3_13/test_*.py); do
+    PYTORCH_TEST_WITH_DYNAMO=1 python $f
+  done;
 }
 
 remove() {
