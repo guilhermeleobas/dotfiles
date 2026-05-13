@@ -455,16 +455,15 @@ reword() {
 edit() {
   if [[ $# -eq 1 ]]; then
     local input="$1"
-    case $input in
-      ([0-9])
-        GIT_SEQUENCE_EDITOR="sed -i '1s/^pick/edit/'" git rebase -i HEAD~"${input}"
-        ;;
-      *)
-        $1 ${PREFIX}/dotfiles/scripts.sh
-        ;;
-    esac
+
+    if [[ "$input" =~ ^[0-9]+$ ]]; then
+      GIT_SEQUENCE_EDITOR="sed -i '1s/^pick/edit/'" \
+        git rebase -i HEAD~"$input"
+    else
+      "$input" "${PREFIX}/dotfiles/scripts.sh"
+    fi
   else
-    code ${PREFIX}/dotfiles/scripts.sh
+    code "${PREFIX}/dotfiles/scripts.sh"
   fi
 }
 
