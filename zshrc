@@ -59,3 +59,6 @@ export PATH="$HOME/.local/bin:$PATH"
 
 # goto - directory bookmarks (iridakos/goto)
 source ~/git/goto/goto.sh
+
+test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+
