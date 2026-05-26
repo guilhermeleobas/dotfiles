@@ -1,0 +1,19 @@
+[workspace]
+authors = ["Guilherme Leobas <guilhermeleobas@gmail.com>"]
+channels = ["conda-forge"]
+name = "mergedog"
+platforms = ["osx-arm64", "linux-64"]
+version = "0.1.0"
+
+[tasks]
+mergedog = { cmd = "mergedog", cwd = "." }
+mux = { cmd = "python -m mergedog.mux", cwd = "." }
+chat = { cmd = "python -m mergedog.chat", cwd = "." }
+
+[dependencies]
+python = ">=3.11,<3.14"
+gh = ">=2.92.0,<3"
+pip = ">=24"
+
+[pypi-dependencies]
+mergedog = { path = "/Users/guilhermeleobas/git/mergedog", editable = true }

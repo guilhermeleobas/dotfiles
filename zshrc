@@ -52,3 +52,6 @@ fi
 unset __conda_setup
 # <<< conda initialize <<<
 
+
+export PATH="/Users/guilhermeleobas/.pixi/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"

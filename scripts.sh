@@ -3,9 +3,6 @@
 PREFIX=${HOME}/git
 __AUTO_ACTIVATE_ENV=1
 
-[[ -n $CONDA_EXE ]] || CONDA_EXE=micromamba
-
-
 build() {
 
   if [[ $# -eq 0 ]]; then
@@ -166,30 +163,8 @@ create() {
       (cd ${PREFIX}/dotfiles/pixi/pytorch && pixi install -e ${environment} && pixi workspace register --force)
       ;;
 
-    numpy)
-      $CONDA_EXE create --file=${PREFIX}/numpy/environment.yml -n numpy
-      ;;
-
-    llvmlite)
-      $CONDA_EXE create -n llvmlite
-      $CONDA_EXE install -n llvmlite python=3.9 compilers cmake make llvmdev=14 -c numba -c conda-forge -y
-      ;;
-
-    llvm)
-      $CONDA_EXE create -n llvm cmake ccache compilers make -c conda-forge -y
-      ;;
-
     *)
-      case "$flag" in
-        -n | --name)
-          $CONDA_EXE create --name ${environment}
-          ;;
-
-        *)
-          echo -n "env: unknown ${environment}"
-          ;;
-      esac
-
+      echo -n "env: unknown ${environment}"
       ;;
   esac
 
@@ -213,8 +188,7 @@ env() {
         ;;
 
       *)
-        $CONDA_EXE deactivate
-        $CONDA_EXE activate ${environment}
+        echo -n "env: unknown ${environment}"
         ;;
     esac
 
@@ -305,10 +279,6 @@ find_env() {
 
 install() {
   case $1 in
-    micromamba)
-      "${SHELL}" <(curl -L micro.mamba.pm/install.sh)
-      ;;
-
     vim-plug)
       curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
       ;;
@@ -328,24 +298,20 @@ install() {
       reload_goto
       ;;
 
-    miniconda)
-      bash <(curl -L conda.sh)
-      ;;
-
     tpm)
       git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
       ;;
 
     pixi)
-      $CONDA_EXE install -c conda-forge pixi
+      curl -fsSL https://pixi.sh/install.sh | sh
       ;;
 
-    ag)
-      $CONDA_EXE install -c conda-forge the_silver_searcher
+    rg)
+      pixi g install ripgrep
       ;;
 
     gh)
-      $CONDA_EXE install -c conda-forge gh
+      pixi g install gh
       ;;
 
     theme)
@@ -395,6 +361,7 @@ pytorch-test-remove(){
 
 pytorch-test-add(){
   PYTORCH_TEST_WITH_DYNAMO=1 python test/cpython/v3_13/$1.py |& grep "ERROR: test" | sed -E 's/.*__main__\.(.*)\)/\1/' | xargs -I{} touch test/dynamo_expected_failures/CPython313-$1-{}
+  git add test/dynamo_expected_failures/*
 }
 
 pytorch-test-all(){
@@ -414,12 +381,11 @@ remove() {
     cpython|numba)
       pixi clean --workspace ${environment}
       ;;
-    cpython|numba|pytorch|pytorch310|pytorch311|pytorch312|pytorch313|pytorch313-copy|pytorch314|pytorch-cuda)
+    pytorch|pytorch310|pytorch311|pytorch312|pytorch313|pytorch313-copy|pytorch314|pytorch-cuda)
       pixi clean --workspace pytorch --environment ${environment}
       ;;
     *)
-      $CONDA_EXE deactivate
-      $CONDA_EXE remove --name ${environment} --all -y
+      echo "remove: unknown ${environment}"
       ;;
     esac
 }
@@ -451,6 +417,9 @@ reword() {
   local input="$1"
   GIT_SEQUENCE_EDITOR="sed -i '1s/^pick/reword/'" git rebase -i HEAD~"${input}"
 }
+
+alias amend="git commit --amend --no-edit"
+alias continue="git rebase --continue"
 
 edit() {
   if [[ $# -eq 1 ]]; then
@@ -534,10 +503,6 @@ if [[ $(hostname) =~ qgpu ]]; then
   # goto
   [ -f ${PREFIX}/goto/goto.sh ] && source ${PREFIX}/goto/goto.sh
 
-  CONDA_EXE=micromamba
-  # CONDA_EXE=~/.local/bin/micromamba
-  # use "default" conda env on qgpu machines
-  # $CONDA_EXE activate default
 fi
 
 if [[ $(hostname) =~ guilhermeleobas-server || $(hostname) =~ Guilherme-MacBook || $(hostname) =~ MacBookPro.lan ]]; then
@@ -573,10 +538,6 @@ $ '
 
   # reset terminal
   alias reset_term="tput reset"
-
-  # alias conda
-  #alias conda="micromamba"
-  #alias mamba="micromamba"
 
   # goto
   [ -f ${PREFIX}/goto/goto.sh ] && source ${PREFIX}/goto/goto.sh
