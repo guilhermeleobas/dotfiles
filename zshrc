@@ -55,3 +55,7 @@ unset __conda_setup
 
 export PATH="/Users/guilhermeleobas/.pixi/bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
+
+
+# goto - directory bookmarks (iridakos/goto)
+source ~/git/goto/goto.sh

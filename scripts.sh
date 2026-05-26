@@ -164,7 +164,12 @@ create() {
       ;;
 
     *)
-      echo -n "env: unknown ${environment}"
+      local env_dir="${PREFIX}/dotfiles/pixi/${environment}"
+      if [[ ! -d "${env_dir}" ]]; then
+        mkdir -p "${env_dir}"
+        (cd "${env_dir}" && pixi init .)
+      fi
+      (cd "${env_dir}" && pixi install && pixi workspace register --force)
       ;;
   esac
 
