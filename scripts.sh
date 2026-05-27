@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/zsh
 
 PREFIX=${HOME}/git
 __AUTO_ACTIVATE_ENV=1
@@ -361,11 +361,11 @@ pytorch-test-download(){
 }
 
 pytorch-test-remove(){
-  PYTORCH_TEST_WITH_DYNAMO=1 python test/cpython/v3_13/$1.py |& grep "ERROR: test" | sed -E 's/.*__main__\.(.*)\)/\1/' | xargs -I{} rm -f test/dynamo_expected_failures/CPython313-$1-{}
+  PYTORCH_TEST_WITH_DYNAMO=1 python test/cpython/v3_13/$1.py 2>&1 | grep "ERROR: test" | sed -E 's/.*__main__\.(.*)\)/\1/' | xargs -I{} rm -f test/dynamo_expected_failures/CPython313-$1-{}
 }
 
 pytorch-test-add(){
-  PYTORCH_TEST_WITH_DYNAMO=1 python test/cpython/v3_13/$1.py |& grep "ERROR: test" | sed -E 's/.*__main__\.(.*)\)/\1/' | xargs -I{} touch test/dynamo_expected_failures/CPython313-$1-{}
+  PYTORCH_TEST_WITH_DYNAMO=1 python test/cpython/v3_13/$1.py 2>&1 | grep "ERROR: test" | sed -E 's/.*__main__\.(.*)\)/\1/' | xargs -I{} touch test/dynamo_expected_failures/CPython313-$1-{}
   git add test/dynamo_expected_failures/*
 }
 
@@ -406,6 +406,10 @@ abort() {
   git log -1 --oneline
 }
 
+undo() {
+  git reset --soft HEAD~1
+}
+
 rebase() {
   git rebase -i HEAD~"$1"
 }
@@ -420,7 +424,7 @@ show() {
 
 reword() {
   local input="$1"
-  GIT_SEQUENCE_EDITOR="sed -i '1s/^pick/reword/'" git rebase -i HEAD~"${input}"
+  GIT_SEQUENCE_EDITOR="perl -0pi -e 's/^pick/reword/'" git rebase -i HEAD~"${input}"
 }
 
 alias amend="git commit --amend --no-edit"
@@ -431,7 +435,7 @@ edit() {
     local input="$1"
 
     if [[ "$input" =~ ^[0-9]+$ ]]; then
-      GIT_SEQUENCE_EDITOR="sed -i '1s/^pick/edit/'" \
+      GIT_SEQUENCE_EDITOR="perl -0pi -e 's/^pick/edit/'" \
         git rebase -i HEAD~"$input"
     else
       "$input" "${PREFIX}/dotfiles/scripts.sh"
