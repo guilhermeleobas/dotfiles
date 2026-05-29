@@ -375,6 +375,30 @@ pytorch-test-all(){
   done;
 }
 
+pytorch-check-merge(){
+  git fetch upstream
+  local target="${1:-upstream/main}"
+  local remote="${target%%/*}" branch="${target#*/}"
+  local start
+  start="$(git rev-parse --abbrev-ref HEAD)"
+  [ "$start" = "HEAD" ] && start="$(git rev-parse HEAD)"
+
+  git fetch "$remote" "$branch" || return 2
+  git checkout --quiet -b __mergeable_test__ "$start" || return 2
+
+  local rc
+  if git rebase "$target"; then
+      echo "MERGEABLE"; rc=0
+  else
+      git rebase --abort >/dev/null 2>&1
+      echo "CONFLICT"; rc=1
+  fi
+
+  git checkout --quiet "$start"
+  git branch -D __mergeable_test__ >/dev/null 2>&1
+  return $rc
+}
+
 remove() {
   if [[ $# -eq 0 ]]; then
     find_env
