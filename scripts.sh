@@ -491,7 +491,7 @@ pytorch-fix-remote() {
   fi
 
   local ws
-  ws=$(cmux new-workspace --name "$pr" --window window:1 | awk '{print $2}')
+  ws=$(cmux new-workspace --name "claude-$pr" --window window:1 | awk '{print $2}')
   cmux send --workspace "$ws" "ssh qgpu3\n"
   cmux send --workspace "$ws" "pytorch-fix-local $input\n"
 }
