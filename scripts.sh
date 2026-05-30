@@ -474,10 +474,8 @@ pytorch-fix-local() {
 
   # checkout the ghstack PR branch in the shared copy
   cd "${HOME}/git/pytorch313-cp"
-  env pytorch313-cp
-  pixi shell --workspace pytorch -e pytorch313-cp
   ghstack checkout "$input"
-  claude "please look at the CI for PR $input and fix the issues. After fixing, run 'lintrunner -a' and 'ghstack' to push the changes"
+  claude "please look at the CI for PR $input and fix the issues. After fixing, run 'lintrunner -a' and 'ghstack' to push the changes. To run any test, use pixi with workspace 'pytorch' and environment 'pytorch313-cp'"
 }
 
 pytorch-fix-remote() {
