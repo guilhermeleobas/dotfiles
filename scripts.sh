@@ -73,7 +73,7 @@ build() {
       python3 setup.py develop
       ;;
 
-    pytorch|pytorch310|pytorch311|pytorch312|pytorch313|pytorch313-copy|pytorch314|pytorch-cuda|vision|audio)
+    pytorch|pytorch310|pytorch311|pytorch312|pytorch313|pytorch313-cp|pytorch314|pytorch-cuda|vision|audio)
       env_vars ${environment}
       python3 setup.py develop
       if [ "${environment}" = "pytorch-cuda" ]; then
@@ -111,7 +111,7 @@ clone() {
       env --chdir=${PREFIX}/$1 git remote add upstream git@github.com:pytorch/$1.git
       ;;
 
-    pytorch310|pytorch311|pytorch312|pytorch313|pytorch313-copy|pytorch314)
+    pytorch310|pytorch311|pytorch312|pytorch313|pytorch313-cp|pytorch314)
       echo "cloning $1..."
       git clone git@github.com:pytorch/pytorch.git --single-branch ${PREFIX}/$1
       ;;
@@ -159,7 +159,7 @@ create() {
       (cd ${PREFIX}/dotfiles/pixi/${environment} && pixi install && pixi workspace register --force)
       ;;
 
-    pytorch|pytorch310|pytorch311|pytorch312|pytorch313|pytorch313-copy|pytorch314|pytorch-cuda)
+    pytorch|pytorch310|pytorch311|pytorch312|pytorch313|pytorch313-cp|pytorch314|pytorch-cuda)
       (cd ${PREFIX}/dotfiles/pixi/pytorch && pixi install -e ${environment} && pixi workspace register --force)
       ;;
 
@@ -188,7 +188,7 @@ env() {
         exec pixi shell --workspace ${environment}
         ;;
 
-      pytorch|pytorch310|pytorch311|pytorch312|pytorch313|pytorch313-copy|pytorch314)
+      pytorch|pytorch310|pytorch311|pytorch312|pytorch313|pytorch313-cp|pytorch314)
         exec pixi shell --workspace pytorch -e ${environment}
         ;;
 
@@ -221,7 +221,7 @@ env_vars() {
       export NUMBA_CAPTURED_ERRORS="new_style"
       ;;
 
-    pytorch|pytorch310|pytorch311|pytorch312|pytorch313|pytorch313-copy|pytorch314|pytorch-cuda)
+    pytorch|pytorch310|pytorch311|pytorch312|pytorch313|pytorch313-cp|pytorch314|pytorch-cuda)
       # remember to create a symlink from /usr/lib/cuda to /usr/local/cuda
       # sudo ln -s /usr/lib/cuda /usr/local/cuda
       # export USE_CUDA=$([ "${environment}" = "pytorch-cuda" ] && echo 1 || echo 0)
@@ -410,7 +410,7 @@ remove() {
     cpython|numba)
       pixi clean --workspace ${environment}
       ;;
-    pytorch|pytorch310|pytorch311|pytorch312|pytorch313|pytorch313-copy|pytorch314|pytorch-cuda)
+    pytorch|pytorch310|pytorch311|pytorch312|pytorch313|pytorch313-cp|pytorch314|pytorch-cuda)
       pixi clean --workspace pytorch --environment ${environment}
       ;;
     *)
@@ -470,41 +470,14 @@ edit() {
 }
 
 pytorch-fix-local() {
-  local input="${1:?Usage: pytorch-fix-local <pr_url> [pytorch_dir]}"
-  local pytorch_dir="${2:-${HOME}/git/pytorch}"
-  local src_env
-  src_env=$(basename "$pytorch_dir")
-  local pr
-  pr=$(echo "$input" | grep -oE '[0-9]+$')
-  if [[ -z "$pr" ]]; then
-    echo "pytorch-fix-local: could not extract PR number from: $input" >&2
-    return 1
-  fi
+  local input="${1:?Usage: pytorch-fix-local <pr_url>}"
+  local pytorch_dir="${HOME}/git/pytorch313-cp"
 
-  local worktree="${HOME}/git/worktrees/pytorch/${pr}"
-  local pixi_toml="${HOME}/git/worktrees/pixi.toml"
-
-  # init shared pixi.toml if not present
-  if [[ ! -f "$pixi_toml" ]]; then
-    cp "${HOME}/git/dotfiles/pixi/pytorch/pixi.toml" "$pixi_toml"
-  fi
-
-  # create worktree if needed
-  mkdir -p "${HOME}/git/worktrees/pytorch"
-  if [[ ! -d "$worktree" ]]; then
-    git -C "$pytorch_dir" worktree prune
-    git -C "$pytorch_dir" worktree add "$worktree" -B "fix/${pr}"
-  fi
-
-  # checkout the ghstack PR branch
-  (cd "$worktree" && ghstack checkout "$input")
-
-  # clone pixi env if needed
-  pixi-clone-env "$src_env" "pytorch-${pr}" "$pixi_toml"
-
-  # activate env only when running interactively
-  cd "$worktree"
-  pixi shell --manifest-path "$pixi_toml" -e "pytorch-${pr}"
+  # checkout the ghstack PR branch in the shared copy
+  cd "${HOME}/git/pytorch313-cp"
+  env pytorch313-cp
+  ghstack checkout "$input"
+  claude "please look at the CI for PR $input and fix the issues. After fixing, run 'lintrunner -a' and 'ghstack' to push the changes"
 }
 
 pytorch-fix-remote() {
@@ -517,17 +490,10 @@ pytorch-fix-remote() {
     return 1
   fi
 
-  echo "pytorch-fix-remote: setting up PR ${pr} on qgpu3..."
-  ssh qgpu3 "$(declare -f pixi-clone-env); $(declare -f pytorch-fix-local); pytorch-fix-local '$input' '$pytorch_dir'"
-  if [[ $? -ne 0 ]]; then
-    echo "pytorch-fix-remote: remote setup failed" >&2
-    return 1
-  fi
-
   local ws
   ws=$(cmux new-workspace --name "$pr" --window window:1 | awk '{print $2}')
   cmux send --workspace "$ws" "ssh qgpu3\n"
-  cmux send --workspace "$ws" "pytorch-fix-local $input"
+  cmux send --workspace "$ws" "pytorch-fix-local $input\n"
 }
 
 pixi-clone-env() {
