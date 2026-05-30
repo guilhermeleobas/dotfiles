@@ -73,7 +73,7 @@ build() {
       python3 setup.py develop
       ;;
 
-    pytorch|pytorch310|pytorch311|pytorch312|pytorch313|pytorch313-cp|pytorch314|pytorch-cuda|vision|audio)
+    pytorch*)
       env_vars ${environment}
       python3 setup.py develop
       if [ "${environment}" = "pytorch-cuda" ]; then
@@ -111,7 +111,7 @@ clone() {
       env --chdir=${PREFIX}/$1 git remote add upstream git@github.com:pytorch/$1.git
       ;;
 
-    pytorch310|pytorch311|pytorch312|pytorch313|pytorch313-cp|pytorch314)
+    pytorch*)
       echo "cloning $1..."
       git clone git@github.com:pytorch/pytorch.git --single-branch ${PREFIX}/$1
       ;;
@@ -159,7 +159,7 @@ create() {
       (cd ${PREFIX}/dotfiles/pixi/${environment} && pixi install && pixi workspace register --force)
       ;;
 
-    pytorch|pytorch310|pytorch311|pytorch312|pytorch313|pytorch313-cp|pytorch314|pytorch-cuda)
+    pytorch*)
       (cd ${PREFIX}/dotfiles/pixi/pytorch && pixi install -e ${environment} && pixi workspace register --force)
       ;;
 
@@ -188,7 +188,7 @@ env() {
         exec pixi shell --workspace ${environment}
         ;;
 
-      pytorch|pytorch310|pytorch311|pytorch312|pytorch313|pytorch313-cp|pytorch314)
+      pytorch*)
         exec pixi shell --workspace pytorch -e ${environment}
         ;;
 
@@ -221,7 +221,7 @@ env_vars() {
       export NUMBA_CAPTURED_ERRORS="new_style"
       ;;
 
-    pytorch|pytorch310|pytorch311|pytorch312|pytorch313|pytorch313-cp|pytorch314|pytorch-cuda)
+    pytorch*)
       # remember to create a symlink from /usr/lib/cuda to /usr/local/cuda
       # sudo ln -s /usr/lib/cuda /usr/local/cuda
       # export USE_CUDA=$([ "${environment}" = "pytorch-cuda" ] && echo 1 || echo 0)
@@ -410,7 +410,7 @@ remove() {
     cpython|numba)
       pixi clean --workspace ${environment}
       ;;
-    pytorch|pytorch310|pytorch311|pytorch312|pytorch313|pytorch313-cp|pytorch314|pytorch-cuda)
+    pytorch*)
       pixi clean --workspace pytorch --environment ${environment}
       ;;
     *)
@@ -471,11 +471,11 @@ edit() {
 
 pytorch-fix-local() {
   local input="${1:?Usage: pytorch-fix-local <pr_url>}"
-  local pytorch_dir="${HOME}/git/pytorch313-cp"
 
   # checkout the ghstack PR branch in the shared copy
   cd "${HOME}/git/pytorch313-cp"
   env pytorch313-cp
+  pixi shell --workspace pytorch -e pytorch313-cp
   ghstack checkout "$input"
   claude "please look at the CI for PR $input and fix the issues. After fixing, run 'lintrunner -a' and 'ghstack' to push the changes"
 }
@@ -494,50 +494,6 @@ pytorch-fix-remote() {
   ws=$(cmux new-workspace --name "claude-$pr" --window window:1 | awk '{print $2}')
   cmux send --workspace "$ws" "ssh qgpu3\n"
   cmux send --workspace "$ws" "pytorch-fix-local $input\n"
-}
-
-pixi-clone-env() {
-  local src="${1:?Usage: pixi-clone-env <source-env> <new-env> [pixi.toml]}"
-  local dst="${2:?Usage: pixi-clone-env <source-env> <new-env> [pixi.toml]}"
-  local toml="${3:-$(pixi info 2>/dev/null | grep 'Manifest file:' | awk '{print $NF}')}"
-
-  if [[ -z "$toml" || ! -f "$toml" ]]; then
-    echo "pixi-clone-env: could not find pixi.toml (pass it as 3rd arg)" >&2
-    return 1
-  fi
-
-  # extract the source env line
-  local src_line
-  src_line=$(grep -E "^${src}\s*=" "$toml")
-  if [[ -z "$src_line" ]]; then
-    echo "pixi-clone-env: environment '${src}' not found in ${toml}" >&2
-    return 1
-  fi
-
-  # check dst doesn't already exist
-  if grep -qE "^${dst}\s*=" "$toml"; then
-    echo "pixi-clone-env: environment '${dst}' already exists in ${toml}, skipping"
-    return 0
-  fi
-
-  # build new line by replacing env name
-  local dst_line="${dst} = ${src_line#*= }"
-
-  # use python for portable in-place toml append (avoids BSD/GNU sed differences)
-  python3 - "$toml" "$src" "$dst_line" <<'EOF'
-import sys
-path, src, dst_line = sys.argv[1], sys.argv[2], sys.argv[3]
-lines = open(path).readlines()
-out = []
-for line in lines:
-    out.append(line)
-    if line.startswith(src + " =") or line.startswith(src + "="):
-        out.append(dst_line + "\n")
-open(path, "w").writelines(out)
-EOF
-
-  echo "pixi-clone-env: cloned '${src}' → '${dst}' in ${toml}"
-  pixi install --manifest-path "$toml" -e "$dst"
 }
 
 pull_dotfiles() {
