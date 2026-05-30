@@ -489,8 +489,8 @@ pixi-clone-env() {
 
   # check dst doesn't already exist
   if grep -qE "^${dst}\s*=" "$toml"; then
-    echo "pixi-clone-env: environment '${dst}' already exists in ${toml}" >&2
-    return 1
+    echo "pixi-clone-env: environment '${dst}' already exists in ${toml}, skipping"
+    return 0
   fi
 
   # build new line by replacing env name
