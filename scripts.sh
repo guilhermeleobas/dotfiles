@@ -514,10 +514,11 @@ pytorch-fix() {
   local ws
   ws=$(cmux new-workspace --name "$pr" --window window:1 | awk '{print $2}')
   cmux send --workspace "$ws" "ssh qgpu3\n"
+  sleep 5
   # setup pixi.toml in ~/git/worktrees if not present
-  cmux send --workspace "$ws" 'cp ~/git/dotfiles/pixi/pytorch/pixi.toml ~/git/worktrees/pixi.toml\n'
+  cmux send --workspace "$ws" '[[ ! -f ~/git/worktrees/pixi.toml ]] && cp ~/git/dotfiles/pixi/pytorch/pixi.toml ~/git/worktrees/pixi.toml\n'
   # create worktree and clone env in one chain so cd only runs on success
-  cmux send --workspace "$ws" "mkdir -p ~/git/worktrees/pytorch && cd ~/git/pytorch313 && git worktree add ~/git/worktrees/pytorch/$pr -B 'fix/$pr' && pixi-clone-env pytorch313 pytorch-$pr ~/git/worktrees/pixi.toml && cd ~/git/worktrees/pytorch/$pr\n"
+  cmux send --workspace "$ws" "mkdir -p ~/git/worktrees/pytorch && cd ~/git/pytorch313 && git worktree prune && git worktree add ~/git/worktrees/pytorch/$pr -B 'fix/$pr' && pixi-clone-env pytorch313 pytorch-$pr ~/git/worktrees/pixi.toml && cd ~/git/worktrees/pytorch/$pr\n"
   cmux send --workspace "$ws" "pixi shell --manifest-path ~/git/worktrees/pixi.toml -e pytorch-$pr\n"
 }
 
