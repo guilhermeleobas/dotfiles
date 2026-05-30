@@ -469,6 +469,67 @@ edit() {
   fi
 }
 
+pytorch-fix-local() {
+  local input="${1:?Usage: pytorch-fix-local <pr_url> [pytorch_dir]}"
+  local pytorch_dir="${2:-${HOME}/git/pytorch}"
+  local src_env
+  src_env=$(basename "$pytorch_dir")
+  local pr
+  pr=$(echo "$input" | grep -oE '[0-9]+$')
+  if [[ -z "$pr" ]]; then
+    echo "pytorch-fix-local: could not extract PR number from: $input" >&2
+    return 1
+  fi
+
+  local worktree="${HOME}/git/worktrees/pytorch/${pr}"
+  local pixi_toml="${HOME}/git/worktrees/pixi.toml"
+
+  # init shared pixi.toml if not present
+  if [[ ! -f "$pixi_toml" ]]; then
+    cp "${HOME}/git/dotfiles/pixi/pytorch/pixi.toml" "$pixi_toml"
+  fi
+
+  # create worktree if needed
+  mkdir -p "${HOME}/git/worktrees/pytorch"
+  if [[ ! -d "$worktree" ]]; then
+    git -C "$pytorch_dir" worktree prune
+    git -C "$pytorch_dir" worktree add "$worktree" -B "fix/${pr}"
+  fi
+
+  # checkout the ghstack PR branch
+  (cd "$worktree" && ghstack checkout "$input")
+
+  # clone pixi env if needed
+  pixi-clone-env "$src_env" "pytorch-${pr}" "$pixi_toml"
+
+  # activate env only when running interactively
+  cd "$worktree"
+  pixi shell --manifest-path "$pixi_toml" -e "pytorch-${pr}"
+}
+
+pytorch-fix-remote() {
+  local input="${1:?Usage: pytorch-fix-remote <pr_url> [pytorch_dir]}"
+  local pytorch_dir="${2:-${HOME}/git/pytorch313}"
+  local pr
+  pr=$(echo "$input" | grep -oE '[0-9]+$')
+  if [[ -z "$pr" ]]; then
+    echo "pytorch-fix-remote: could not extract PR number from: $input" >&2
+    return 1
+  fi
+
+  echo "pytorch-fix-remote: setting up PR ${pr} on qgpu3..."
+  ssh qgpu3 "$(declare -f pixi-clone-env); $(declare -f pytorch-fix-local); pytorch-fix-local '$input' '$pytorch_dir'"
+  if [[ $? -ne 0 ]]; then
+    echo "pytorch-fix-remote: remote setup failed" >&2
+    return 1
+  fi
+
+  local ws
+  ws=$(cmux new-workspace --name "$pr" --window window:1 | awk '{print $2}')
+  cmux send --workspace "$ws" "ssh qgpu3\n"
+  cmux send --workspace "$ws" "pytorch-fix-local $input"
+}
+
 pixi-clone-env() {
   local src="${1:?Usage: pixi-clone-env <source-env> <new-env> [pixi.toml]}"
   local dst="${2:?Usage: pixi-clone-env <source-env> <new-env> [pixi.toml]}"
@@ -496,32 +557,22 @@ pixi-clone-env() {
   # build new line by replacing env name
   local dst_line="${dst} = ${src_line#*= }"
 
-  # append after [environments] block (after last env line)
-  sed -i "/^${src}\s*=/a ${dst_line}" "$toml"
+  # use python for portable in-place toml append (avoids BSD/GNU sed differences)
+  python3 - "$toml" "$src" "$dst_line" <<'EOF'
+import sys
+path, src, dst_line = sys.argv[1], sys.argv[2], sys.argv[3]
+lines = open(path).readlines()
+out = []
+for line in lines:
+    out.append(line)
+    if line.startswith(src + " =") or line.startswith(src + "="):
+        out.append(dst_line + "\n")
+open(path, "w").writelines(out)
+EOF
 
   echo "pixi-clone-env: cloned '${src}' → '${dst}' in ${toml}"
   pixi install --manifest-path "$toml" -e "$dst"
 }
-
-pytorch-fix() {
-  local input="${1:?Usage: pytorch-fix <pr_number_or_url>}"
-  local pr
-  pr=$(echo "$input" | grep -oE '[0-9]+$')
-  if [[ -z "$pr" ]]; then
-    echo "pytorch-fix: could not extract PR number from: $input" >&2
-    return 1
-  fi
-  local ws
-  ws=$(cmux new-workspace --name "$pr" --window window:1 | awk '{print $2}')
-  cmux send --workspace "$ws" "ssh qgpu3\n"
-  sleep 5
-  # setup pixi.toml in ~/git/worktrees if not present
-  cmux send --workspace "$ws" '[[ ! -f ~/git/worktrees/pixi.toml ]] && cp ~/git/dotfiles/pixi/pytorch/pixi.toml ~/git/worktrees/pixi.toml\n'
-  # create worktree and clone env in one chain so cd only runs on success
-  cmux send --workspace "$ws" "mkdir -p ~/git/worktrees/pytorch && cd ~/git/pytorch313 && git worktree prune && git worktree add ~/git/worktrees/pytorch/$pr -B 'fix/$pr' && pixi-clone-env pytorch313 pytorch-$pr ~/git/worktrees/pixi.toml && cd ~/git/worktrees/pytorch/$pr\n"
-  cmux send --workspace "$ws" "pixi shell --manifest-path ~/git/worktrees/pixi.toml -e pytorch-$pr\n"
-}
-
 
 pull_dotfiles() {
   goto dotfiles
