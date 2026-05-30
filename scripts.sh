@@ -469,6 +469,61 @@ edit() {
   fi
 }
 
+pixi-clone-env() {
+  local src="${1:?Usage: pixi-clone-env <source-env> <new-env> [pixi.toml]}"
+  local dst="${2:?Usage: pixi-clone-env <source-env> <new-env> [pixi.toml]}"
+  local toml="${3:-$(pixi info 2>/dev/null | grep 'Manifest file:' | awk '{print $NF}')}"
+
+  if [[ -z "$toml" || ! -f "$toml" ]]; then
+    echo "pixi-clone-env: could not find pixi.toml (pass it as 3rd arg)" >&2
+    return 1
+  fi
+
+  # extract the source env line
+  local src_line
+  src_line=$(grep -E "^${src}\s*=" "$toml")
+  if [[ -z "$src_line" ]]; then
+    echo "pixi-clone-env: environment '${src}' not found in ${toml}" >&2
+    return 1
+  fi
+
+  # check dst doesn't already exist
+  if grep -qE "^${dst}\s*=" "$toml"; then
+    echo "pixi-clone-env: environment '${dst}' already exists in ${toml}" >&2
+    return 1
+  fi
+
+  # build new line by replacing env name
+  local dst_line="${dst} = ${src_line#*= }"
+
+  # append after [environments] block (after last env line)
+  sed -i "/^${src}\s*=/a ${dst_line}" "$toml"
+
+  echo "pixi-clone-env: cloned '${src}' → '${dst}' in ${toml}"
+  pixi install --manifest-path "$toml" -e "$dst"
+}
+
+pytorch-fix() {
+  local input="${1:?Usage: pytorch-fix <pr_number_or_url>}"
+  local pr
+  pr=$(echo "$input" | grep -oE '[0-9]+$')
+  if [[ -z "$pr" ]]; then
+    echo "pytorch-fix: could not extract PR number from: $input" >&2
+    return 1
+  fi
+  local ws
+  ws=$(cmux new-workspace --name "$pr" --window window:1 | awk '{print $2}')
+  cmux send --workspace "$ws" "ssh qgpu3\n"
+  # setup pixi.toml in ~/git/worktrees if not present
+  cmux send --workspace "$ws" '[[ ! -f ~/git/worktrees/pixi.toml ]] && cp ~/git/dotfiles/pixi/pytorch/pixi.toml ~/git/worktrees/pixi.toml\n'
+  # create worktree
+  cmux send --workspace "$ws" "mkdir -p ~/git/worktrees/pytorch && cd ~/git/pytorch313 && git worktree add ~/git/worktrees/pytorch/$pr -b 'fix/$pr'\n"
+  # clone env using pixi-clone-env
+  cmux send --workspace "$ws" "pixi-clone-env pytorch313 pytorch-$pr ~/git/worktrees/pixi.toml\n"
+  cmux send --workspace "$ws" "cd ~/git/worktrees/pytorch/$pr\n"
+}
+
+
 pull_dotfiles() {
   goto dotfiles
   git pull
