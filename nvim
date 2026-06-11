@@ -12,20 +12,12 @@ Plug 'junegunn/vim-easy-align'
 Plug 'rhysd/accelerated-jk'
 " Plug 'rhysd/vim-llvm'
 Plug 'scrooloose/nerdtree'
-" Plug 'cjrh/vim-conda'
 
 " Fuzzy finder
 " Plug 'ctrlpvim/ctrlp.vim'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
-
   
-" Linter
-" Plug 'rhysd/vim-clang-format'
-
-" Better cpp highlight
-Plug 'octol/vim-cpp-enhanced-highlight'
-
 " Themes and visual modifiers
 Plug 'vim-airline/vim-airline'
 Plug 'NLKNguyen/papercolor-theme'
@@ -49,11 +41,7 @@ nmap j <Plug>(accelerated_jk_gj)
 nmap k <Plug>(accelerated_jk_gk)
 let g:accelerated_jk_acceleration_limit=100
 
-" vim repeat
-silent! call repeat#set("\<Plug>MyWonderfulMap", v:count)
-
-noremap <C-p> :FZF<CR>
-
+nnoremap <C-p> :Files<CR>
 
 
 "" ================ Remap keys ==============
@@ -92,8 +80,6 @@ nnoremap O Ox<BS>
 " better identation
 vnoremap > >gv
 vnoremap < <gv
-
-
 
 
 " ================ Indentation ======================
@@ -152,9 +138,6 @@ let g:oceanic_next_terminal_italic = 1
 
 " set background=dark
 
-" close window after YCM suggest completion
-let g:ycm_autoclose_preview_window_after_completion=1
-
 " highlight while searching for a pattern
 set hlsearch
 map <Leader>h :set hls!<CR>
@@ -174,13 +157,6 @@ map <Leader>e :NERDTreeToggle<CR>
 
 
 " ================ Move between tabs ==============
-
-" if inside VimR - remap C-tab and C-S-tab to navigate between tabs
-if has ("gui_vimr")
-  " remap ctrl + tab and ctrl + shift + tab to move between tabs
-  noremap <C-Tab> :tabnext<CR>
-  noremap <C-S-Tab> :tabprevious<CR>
-endif
 
 " tab navigation - vim on terminal
 map <Leader>n <esc>:tabprevious<CR>

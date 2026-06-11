@@ -65,17 +65,9 @@ build() {
       # python setup.py build_ext --inplace -j10
       ;;
 
-    pytorch-cpython)
-      env cpython
-      env_vars cpython
-      env_vars pytorch314
-      python3 -m pip install setuptools pyyaml typing_extensions packaging
-      python3 setup.py develop
-      ;;
-
     pytorch*)
       env_vars ${environment}
-      python3 setup.py develop
+      pip install -e . -v --no-build-isolation
       if [ "${environment}" = "pytorch-cuda" ]; then
         make triton
       fi
@@ -185,11 +177,11 @@ env() {
   if [[ "${__AUTO_ACTIVATE_ENV}" == "1" ]]; then
     case ${environment} in
       cpython|numba)
-        exec pixi shell --workspace ${environment}
+        eval "$(pixi shell-hook --workspace ${environment})"
         ;;
 
       pytorch*)
-        exec pixi shell --workspace pytorch -e ${environment}
+        eval "$(pixi shell-hook --workspace pytorch -e ${environment})"
         ;;
 
       *)
@@ -231,14 +223,16 @@ env_vars() {
 
       export CC=cc
       export CXX=c++
-      export CFLAGS="${CFLAGS} -L${CONDA_PREFIX}/lib"
       export CFLAGS="${CFLAGS} ${CFLAGS_DBG}"
-      export CXXFLAGS="${CXXFLAGS} -L${CONDA_PREFIX}/lib"
       export CXXFLAGS="${CXXFLAGS} -D__STDC_FORMAT_MACROS"
       export CXXFLAGS="${CXXFLAGS} ${CXXFLAGS_DBG}"
-      export LDFLAGS="${LDFLAGS} -Wl,-rpath-link,${CUDA_HOME}/lib64"
-      export LDFLAGS="${LDFLAGS} -Wl,-rpath-link,${CUDA_HOME}/extras/CUPTI/lib64"
-      export LDFLAGS="${LDFLAGS} -L${CUDA_HOME}/lib64"
+      if [[ "$(uname)" == "Linux" ]]; then
+        export CFLAGS="${CFLAGS} -L${CONDA_PREFIX}/lib"
+        export CXXFLAGS="${CXXFLAGS} -L${CONDA_PREFIX}/lib"
+        export LDFLAGS="${LDFLAGS} -Wl,-rpath-link,${CUDA_HOME}/lib64"
+        export LDFLAGS="${LDFLAGS} -Wl,-rpath-link,${CUDA_HOME}/extras/CUPTI/lib64"
+        export LDFLAGS="${LDFLAGS} -L${CUDA_HOME}/lib64"
+      fi
       ;;
 
     cpython)
