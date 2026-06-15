@@ -2,7 +2,7 @@
 authors = ["Guilherme Leobas <guilhermeleobas@gmail.com>"]
 channels = ["conda-forge", "pytorch"]
 name = "pytorch"
-platforms = ["linux-64"]
+platforms = ["linux-64", "osx-arm64"]
 version = "0.1.0"
 
 [tasks]
@@ -92,6 +92,9 @@ CUDA_HOME="/usr/local/cuda"
 
 [feature.py314.dependencies]
 python = "3.14.*"
+
+[feature.pytorch-cuda]
+platforms = ["linux-64"]
 
 [feature.pytorch-cuda.dependencies]
 cudatoolkit = "*"
