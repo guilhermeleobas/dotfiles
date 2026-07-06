@@ -421,7 +421,7 @@ reload() {
 
 abort() {
   git rebase --abort
-  git log -1 --oneline
+  git --no-pager log -1 --oneline
 }
 
 undo() {
