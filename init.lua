@@ -53,8 +53,11 @@ map("n", "<C-l>", "<C-w>l", { desc = "Right window" })
 -- Neo-tree toggle (reveals current file in tree)
 map("n", "<leader>e", "<cmd>Neotree toggle reveal<cr>", { desc = "File tree" })
 
--- Telescope: only Ctrl+P (find files). Other pickers still available via :Telescope
-map("n", "<C-p>", function() require("telescope.builtin").find_files() end, { desc = "Find files (Ctrl+P)" })
+-- Neogit (Magit-like git TUI)
+map("n", "<leader>gg", "<cmd>Neogit<cr>", { desc = "Neogit" })
+
+-- Fzf-lua: Ctrl+P to find files (faster than Telescope, wraps Go fzf binary)
+map("n", "<C-p>", function() require("fzf-lua").files() end, { desc = "Find files (Ctrl+P)" })
 
 -- vim-easy-align (visual mode)
 map("x", "ga", "<Plug>(EasyAlign)", { desc = "EasyAlign" })
@@ -62,18 +65,6 @@ map("x", "ga", "<Plug>(EasyAlign)", { desc = "EasyAlign" })
 --------------------------------------------------------------------------------
 -- Plugins (vim.pack — native manager, Neovim 0.12+)
 --------------------------------------------------------------------------------
--- Build hooks: run compiled steps after a plugin is installed/updated.
--- Register BEFORE vim.pack.add so first install triggers it.
-vim.api.nvim_create_autocmd("PackChanged", {
-  callback = function(ev)
-    local name, kind = ev.data.spec.name, ev.data.kind
-    if name == "telescope-fzf-native.nvim" and (kind == "install" or kind == "update") then
-      -- :wait() makes it synchronous so the native sorter is ready immediately
-      vim.system({ "make" }, { cwd = ev.data.path }):wait()
-    end
-  end,
-})
-
 local gh = function(repo) return "https://github.com/" .. repo end
 
 -- Installs on first run (blocking), then loads all listed plugins.
@@ -83,20 +74,16 @@ vim.pack.add({
   { src = gh("MunifTanjim/nui.nvim") },
   { src = gh("nvim-tree/nvim-web-devicons") }, -- icons (needs a Nerd Font)
 
-  -- Fuzzy finder framework (plenary is a required dep)
+  -- Fuzzy finder (plenary is required by neogit)
   { src = gh("nvim-lua/plenary.nvim") },
-  { src = gh("nvim-telescope/telescope.nvim") },
-  { src = gh("nvim-telescope/telescope-fzf-native.nvim") }, -- native C sorter
+  { src = gh("ibhagwan/fzf-lua") },
 
   -- Statusline
   { src = gh("vim-airline/vim-airline") },
   { src = gh("vim-airline/vim-airline-themes") },
 
-  -- Git diff/history viewer (uses plenary above)
-  { src = gh("sindrets/diffview.nvim") },
-
-  -- Git gutter signs + per-line blame
-  { src = gh("lewis6991/gitsigns.nvim") },
+  -- Git TUI (Magit-like: stage, unstage, commit, diff, etc.)
+  { src = gh("NeogitOrg/neogit") },
 
   -- Editing helpers
   { src = gh("jiangmiao/auto-pairs") },      -- auto close brackets
@@ -126,25 +113,8 @@ vim.pack.add({
 --------------------------------------------------------------------------------
 -- Plugin setup (runs after vim.pack.add — plugins are loaded here)
 --------------------------------------------------------------------------------
-local t = require("telescope")
-t.setup({})
-pcall(t.load_extension, "fzf") -- enable native sorter if built
-
--- Git signs + per-line blame
-require("gitsigns").setup({
-  current_line_blame = true, -- inline blame at end of cursor line
-  current_line_blame_opts = { delay = 300, virt_text_pos = "eol" },
-  on_attach = function(bufnr)
-    local gs = require("gitsigns")
-    local o = function(desc) return { buffer = bufnr, desc = desc } end
-    map("n", "]c", function() gs.nav_hunk("next") end, o("Next hunk"))
-    map("n", "[c", function() gs.nav_hunk("prev") end, o("Prev hunk"))
-    map("n", "<leader>hb", function() gs.blame_line({ full = true }) end, o("Blame line (full)"))
-    map("n", "<leader>ht", gs.toggle_current_line_blame, o("Toggle inline blame"))
-    map("n", "<leader>hp", gs.preview_hunk, o("Preview hunk"))
-    map("n", "<leader>hd", gs.diffthis, o("Diff this"))
-  end,
-})
+-- Git TUI (Magit-like)
+require("neogit").setup({})
 
 -- File tree
 require("neo-tree").setup({
