@@ -67,7 +67,8 @@ build() {
 
     pytorch*)
       env_vars ${environment}
-      pip install -e . -v --no-build-isolation
+      # pip install -e . -v --no-build-isolation
+      spin develop
       if [ "${environment}" = "pytorch-cuda" ]; then
         make triton
       fi

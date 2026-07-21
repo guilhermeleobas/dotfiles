@@ -28,6 +28,7 @@ pytest = "*"
 pyyaml = "*"
 setuptools = "*"
 sympy = "*"
+spin = "*"
 typing = "*"
 
 [feature.base.tasks]
