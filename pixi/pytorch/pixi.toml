@@ -30,6 +30,7 @@ scikit-build-core = "*"
 setuptools = "*"
 six = "*"
 sympy = "*"
+scipy = "*"
 spin = "*"
 typing = "*"
 
@@ -81,13 +82,18 @@ USE_XNNPACK="0"
 USE_PYTORCH_QNNPACK="0"
 USE_ITT="0"
 CMAKE_BUILD_TYPE="Release"
-MAX_JOBS="20"
 CMAKE_CXX_STANDARD="20"
 USE_CUDA="0"
 # ccache tuning: survive ghstack branch switches (mtime-only diffs still hit)
 CCACHE_MAXSIZE="50G"
 CCACHE_SLOPPINESS="time_macros,include_file_mtime,include_file_ctime,pch_defines"
 CCACHE_COMPILERCHECK="content"
+
+[feature.base.target.linux-64.activation.env]
+MAX_JOBS="20"
+
+[feature.base.target.osx-arm64.activation.env]
+MAX_JOBS="10"
 
 [feature.pytorch-cuda.activation.env]
 USE_CUDA="1"

@@ -58,6 +58,7 @@ map("n", "<leader>gg", "<cmd>Neogit<cr>", { desc = "Neogit" })
 
 -- Fzf-lua: Ctrl+P to find files (faster than Telescope, wraps Go fzf binary)
 map("n", "<C-p>", function() require("fzf-lua").files() end, { desc = "Find files (Ctrl+P)" })
+map("n", "<C-f>", function() require("fzf-lua").live_grep() end, { desc = "Live grep (Ctrl+F)" })
 
 -- vim-easy-align (visual mode)
 map("x", "ga", "<Plug>(EasyAlign)", { desc = "EasyAlign" })
