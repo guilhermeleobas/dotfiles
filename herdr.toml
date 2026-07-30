@@ -11,3 +11,9 @@ focus_pane_top = ["prefix+k", "ctrl+alt+k"]
 focus_pane_down = ["prefix+j", "ctrl+alt+j"]
 navigate_workspace_up = ["alt+1", "up"]
 navigate_workspace_down = ["alt+2", "down"]
+open_worktree = ["prefix+ctrl+o"]
+remove_worktree = ["prefix+ctrl+d"]
+
+[remote]
+manage_ssh_config = true
+
