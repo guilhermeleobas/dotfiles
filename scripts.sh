@@ -599,6 +599,13 @@ $ '
   [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 fi
 
+# ghstack checkout TAB picker (fzf list of open ghstack PRs, grouped by stack)
+if [ -n "$ZSH_VERSION" ]; then
+  source ${HOME}/git/dotfiles/ghstack-checkout.zsh
+elif [ -n "$BASH_VERSION" ]; then
+  source ${HOME}/git/dotfiles/ghstack-checkout.bash
+fi
+
 export MAMBA_NO_BANNER=1
 
 git config --global alias.lg "log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --"
