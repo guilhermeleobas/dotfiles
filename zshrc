@@ -62,6 +62,3 @@ source ~/git/goto/goto.sh
 
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
-
-# Pi
-export PATH="/Users/guilhermeleobas/.pixi/envs/nodejs/bin:$PATH"

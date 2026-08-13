@@ -96,11 +96,6 @@ vim.pack.add({
   { src = gh("nvim-treesitter/nvim-treesitter"), version = "master" },
   { src = gh("nvim-treesitter/nvim-treesitter-textobjects") },
 
-  -- LSP: configs + auto-installer for language servers
-  { src = gh("neovim/nvim-lspconfig") },
-  { src = gh("mason-org/mason.nvim") },
-  { src = gh("mason-org/mason-lspconfig.nvim") },
-
   -- Completion (uses Lua fuzzy fallback when Rust/cargo absent)
   { src = gh("saghen/blink.cmp"), version = vim.version.range("1") },
 
@@ -145,35 +140,10 @@ require("nvim-treesitter.configs").setup({
   },
 })
 
--- Completion (blink.cmp). LSP source is on by default.
+-- Completion (blink.cmp).
 require("blink.cmp").setup({
   keymap = { preset = "default" }, -- <C-space> open, <C-n>/<C-p> select, <CR> accept
   fuzzy = { implementation = "prefer_rust_with_warning" }, -- falls back to Lua
-})
-
--- LSP: install servers via mason, then enable them (native vim.lsp).
-require("mason").setup()
-require("mason-lspconfig").setup({
-  ensure_installed = { "pyright", "clangd", "bashls" },
-  automatic_enable = true, -- calls vim.lsp.enable() for installed servers
-})
-
--- Advertise blink's completion capabilities to every server.
-vim.lsp.config("*", { capabilities = require("blink.cmp").get_lsp_capabilities() })
-
--- Show diagnostics inline.
-vim.diagnostic.config({ virtual_text = true, signs = true, underline = true })
-
--- Buffer-local LSP keymaps (in addition to Neovim 0.11 defaults:
--- K hover, grn rename, gra code action, grr references, gri implementation).
-vim.api.nvim_create_autocmd("LspAttach", {
-  callback = function(ev)
-    local o = { buffer = ev.buf }
-    vim.keymap.set("n", "gd", vim.lsp.buf.definition, o)
-    vim.keymap.set("n", "gD", vim.lsp.buf.declaration, o)
-    vim.keymap.set("n", "<leader>lf", function() vim.lsp.buf.format({ async = true }) end, o)
-    vim.keymap.set("n", "<leader>ld", vim.diagnostic.open_float, o)
-  end,
 })
 
 vim.cmd.colorscheme("one")

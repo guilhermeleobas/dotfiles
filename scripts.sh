@@ -456,6 +456,8 @@ edit() {
     if [[ "$input" =~ ^[0-9]+$ ]]; then
       GIT_SEQUENCE_EDITOR="perl -0pi -e 's/^pick/edit/'" \
         git rebase -i HEAD~"$input"
+    elif [[ -f "${HOME}/git/dotfiles/pixi/${input}/pixi.toml" ]]; then
+      vim "${HOME}/git/dotfiles/pixi/${input}/pixi.toml"
     else
       "$input" "${PREFIX}/dotfiles/scripts.sh"
     fi
@@ -609,3 +611,32 @@ fi
 export MAMBA_NO_BANNER=1
 
 git config --global alias.lg "log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --"
+
+# Rename the current herdr workspace to the HEAD commit title when inside a
+# pytorch checkout. No-op outside git, outside pytorch, or without herdr.
+herdr_ws_commit_title() {
+  command -v herdr >/dev/null || return 0
+  command -v jq >/dev/null || return 0
+
+  local root
+  root=$(git rev-parse --show-toplevel 2>/dev/null) || return 0
+
+  local url
+  url=$(git -C "$root" remote get-url origin 2>/dev/null)
+  [[ "$url" == *pytorch* || -d "$root/torch/csrc" ]] || return 0
+
+  local title
+  title=$(git -C "$root" log -1 --format=%s 2>/dev/null)
+  [[ -n "$title" ]] || return 0
+
+  local ws_id
+  ws_id=$(herdr workspace list 2>/dev/null | jq -r --arg root "$root" \
+    '.result.workspaces[] | select(.worktree.checkout_path == $root) | .workspace_id' | head -1)
+  if [[ -z "$ws_id" ]]; then
+    ws_id=$(herdr workspace list 2>/dev/null | jq -r \
+      '.result.workspaces[] | select(.focused) | .workspace_id')
+  fi
+  [[ -n "$ws_id" ]] || return 0
+
+  herdr workspace rename "$ws_id" "$title" >/dev/null 2>&1
+}

@@ -9,11 +9,14 @@ focus_pane_left = ["prefix+h", "ctrl+alt+h"]
 focus_pane_right = ["prefix+l", "ctrl+alt+l"]
 focus_pane_up = ["prefix+k", "ctrl+alt+k"]
 focus_pane_down = ["prefix+j", "ctrl+alt+j"]
-navigate_workspace_up = ["alt+1", "up"]
-navigate_workspace_down = ["alt+2", "down"]
+navigate_workspace_up = ["up"]
+navigate_workspace_down = ["down"]
+switch_workspace = ["alt+1..9"]
 open_worktree = ["prefix+ctrl+o"]
 remove_worktree = ["prefix+ctrl+d"]
 
 [remote]
 manage_ssh_config = true
 
+[ui]
+agent_panel_sort = "spaces"
