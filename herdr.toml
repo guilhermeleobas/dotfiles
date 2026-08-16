@@ -12,6 +12,8 @@ focus_pane_down = ["prefix+j", "ctrl+alt+j"]
 navigate_workspace_up = ["up"]
 navigate_workspace_down = ["down"]
 switch_workspace = ["alt+1..9"]
+previous_workspace = ["ctrl+shift+k"]
+next_workspace = ["ctrl+shift+j"]
 open_worktree = ["prefix+ctrl+o"]
 remove_worktree = ["prefix+ctrl+d"]
 
