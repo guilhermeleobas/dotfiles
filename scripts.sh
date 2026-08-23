@@ -466,31 +466,6 @@ edit() {
   fi
 }
 
-pytorch-fix-local() {
-  local input="${1:?Usage: pytorch-fix-local <pr_url>}"
-
-  # checkout the ghstack PR branch in the shared copy
-  cd "${HOME}/git/pytorch313-cp"
-  ghstack checkout "$input"
-  claude "please look at the CI for PR $input and fix the issues. After fixing, run 'lintrunner -a' and 'ghstack' to push the changes. To run any test, use pixi with workspace 'pytorch' and environment 'pytorch313-cp'"
-}
-
-pytorch-fix-remote() {
-  local input="${1:?Usage: pytorch-fix-remote <pr_url> [pytorch_dir]}"
-  local pytorch_dir="${2:-${HOME}/git/pytorch313}"
-  local pr
-  pr=$(echo "$input" | grep -oE '[0-9]+$')
-  if [[ -z "$pr" ]]; then
-    echo "pytorch-fix-remote: could not extract PR number from: $input" >&2
-    return 1
-  fi
-
-  local ws
-  ws=$(cmux new-workspace --name "claude-$pr" --window window:1 | awk '{print $2}')
-  cmux send --workspace "$ws" "ssh qgpu3\n"
-  cmux send --workspace "$ws" "pytorch-fix-local $input\n"
-}
-
 pull_dotfiles() {
   goto dotfiles
   git pull
@@ -612,31 +587,3 @@ export MAMBA_NO_BANNER=1
 
 git config --global alias.lg "log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --"
 
-# Rename the current herdr workspace to the HEAD commit title when inside a
-# pytorch checkout. No-op outside git, outside pytorch, or without herdr.
-herdr_ws_commit_title() {
-  command -v herdr >/dev/null || return 0
-  command -v jq >/dev/null || return 0
-
-  local root
-  root=$(git rev-parse --show-toplevel 2>/dev/null) || return 0
-
-  local url
-  url=$(git -C "$root" remote get-url origin 2>/dev/null)
-  [[ "$url" == *pytorch* || -d "$root/torch/csrc" ]] || return 0
-
-  local title
-  title=$(git -C "$root" log -1 --format=%s 2>/dev/null)
-  [[ -n "$title" ]] || return 0
-
-  local ws_id
-  ws_id=$(herdr workspace list 2>/dev/null | jq -r --arg root "$root" \
-    '.result.workspaces[] | select(.worktree.checkout_path == $root) | .workspace_id' | head -1)
-  if [[ -z "$ws_id" ]]; then
-    ws_id=$(herdr workspace list 2>/dev/null | jq -r \
-      '.result.workspaces[] | select(.focused) | .workspace_id')
-  fi
-  [[ -n "$ws_id" ]] || return 0
-
-  herdr workspace rename "$ws_id" "$title" >/dev/null 2>&1
-}
