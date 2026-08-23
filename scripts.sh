@@ -466,6 +466,8 @@ edit() {
   fi
 }
 
+source "${PREFIX}/dotfiles/pixi-instance.sh"
+
 pull_dotfiles() {
   goto dotfiles
   git pull
