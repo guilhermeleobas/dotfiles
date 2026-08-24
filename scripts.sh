@@ -447,6 +447,24 @@ reword() {
 }
 
 alias amend="git commit --amend --no-edit"
+
+# undo last commit (keep changes staged); redo recommits with the same message.
+# Saves the undone commit in .git/UNDO_HEAD so a pull/rebase in between can't
+# clobber it (unlike ORIG_HEAD).
+undo() {
+  git rev-parse HEAD > "$(git rev-parse --git-dir)/UNDO_HEAD" || return 1
+  git reset --soft HEAD~1
+}
+
+redo() {
+  local ref
+  ref="$(git rev-parse --git-dir)/UNDO_HEAD"
+  if [[ ! -f "$ref" ]]; then
+    echo "redo: no undone commit (run undo first)" >&2
+    return 1
+  fi
+  git commit --reuse-message="$(cat "$ref")" && rm -f "$ref"
+}
 alias continue="git rebase --continue"
 
 edit() {
