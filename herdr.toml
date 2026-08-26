@@ -22,3 +22,6 @@ manage_ssh_config = true
 
 [ui]
 agent_panel_sort = "spaces"
+
+[experimental]
+kitty_graphics = true

@@ -448,6 +448,17 @@ reword() {
 
 alias amend="git commit --amend --no-edit"
 
+# fixup N: fold the staged changes into the N-th commit from the top (1 = HEAD).
+# Creates a "fixup! <msg>" commit and immediately autosquashes it, so the
+# target's message (and ghstack trailers) stay untouched and no fixup! commit
+# is left for ghstack to see. On conflict: resolve, `git add`, `continue`.
+fixup() {
+  local n="${1:?usage: fixup <N>  (1 = HEAD)}"
+  git commit --fixup="HEAD~$((n-1))" || return 1
+  # after the fixup commit the target is HEAD~n; range must reach one past it
+  GIT_SEQUENCE_EDITOR=true git rebase -i --autosquash "HEAD~$((n+1))"
+}
+
 # undo last commit (keep changes staged); redo recommits with the same message.
 # Saves the undone commit in .git/UNDO_HEAD so a pull/rebase in between can't
 # clobber it (unlike ORIG_HEAD).
