@@ -448,16 +448,41 @@ reword() {
 
 alias amend="git commit --amend --no-edit"
 
-# fixup N: fold the staged changes into the N-th commit from the top (1 = HEAD).
+# fixup <N|sha>: fold the staged changes into a commit — either the N-th from
+# the top (1 = HEAD) or any commit ref (sha, HEAD~2, ...).
 # Creates a "fixup! <msg>" commit and immediately autosquashes it, so the
 # target's message (and ghstack trailers) stay untouched and no fixup! commit
 # is left for ghstack to see. On conflict: resolve, `git add`, `continue`.
 fixup() {
-  local n="${1:?usage: fixup <N>  (1 = HEAD)}"
+  local arg="${1:?usage: fixup <N|sha>  (1 = HEAD)}" n
+  if [[ "$arg" =~ ^[0-9]+$ ]]; then
+    n="$arg"
+  else
+    git rev-parse --verify --quiet "${arg}^{commit}" >/dev/null ||
+      { echo "fixup: not a commit: $arg" >&2; return 1; }
+    n=$(( $(git rev-list --count "${arg}..HEAD") + 1 ))
+  fi
   git commit --fixup="HEAD~$((n-1))" || return 1
   # after the fixup commit the target is HEAD~n; range must reach one past it
-  GIT_SEQUENCE_EDITOR=true git rebase -i --autosquash "HEAD~$((n+1))"
+  GIT_SEQUENCE_EDITOR=true git rebase -i --autosquash --autostash "HEAD~$((n+1))"
 }
+
+# tab-completion for fixup: last 15 commits, selectable by N or by sha
+if [[ -n "$ZSH_VERSION" ]] && (( $+functions[compdef] )); then
+  _fixup() {
+    local -a nums shas
+    local i=1 sha subject
+    git log --format='%h %s' -15 2>/dev/null | while read -r sha subject; do
+      subject="${subject//:/\\:}"
+      nums+=("${i}:${sha} ${subject}")
+      shas+=("${sha}:${subject}")
+      (( i++ ))
+    done
+    _describe -t nums 'commit (N)' nums
+    _describe -t shas 'commit (sha)' shas
+  }
+  compdef _fixup fixup
+fi
 
 # undo last commit (keep changes staged); redo recommits with the same message.
 # Saves the undone commit in .git/UNDO_HEAD so a pull/rebase in between can't
