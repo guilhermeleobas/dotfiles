@@ -467,22 +467,6 @@ fixup() {
   GIT_SEQUENCE_EDITOR=true git rebase -i --autosquash --autostash "HEAD~$((n+1))"
 }
 
-# tab-completion for fixup: last 15 commits, selectable by N or by sha
-if [[ -n "$ZSH_VERSION" ]] && (( $+functions[compdef] )); then
-  _fixup() {
-    local -a nums shas
-    local i=1 sha subject
-    git log --format='%h %s' -15 2>/dev/null | while read -r sha subject; do
-      subject="${subject//:/\\:}"
-      nums+=("${i}:${sha} ${subject}")
-      shas+=("${sha}:${subject}")
-      (( i++ ))
-    done
-    _describe -t nums 'commit (N)' nums
-    _describe -t shas 'commit (sha)' shas
-  }
-  compdef _fixup fixup
-fi
 
 # undo last commit (keep changes staged); redo recommits with the same message.
 # Saves the undone commit in .git/UNDO_HEAD so a pull/rebase in between can't
@@ -635,8 +619,10 @@ fi
 # ghstack checkout TAB picker (fzf list of open ghstack PRs, grouped by stack)
 if [ -n "$ZSH_VERSION" ]; then
   source ${HOME}/git/dotfiles/ghstack-checkout.zsh
+  source ${HOME}/git/dotfiles/fixup-pick.zsh   # `fixup <TAB>` commit picker
 elif [ -n "$BASH_VERSION" ]; then
   source ${HOME}/git/dotfiles/ghstack-checkout.bash
+  source ${HOME}/git/dotfiles/fixup-pick.bash    # `fixup <TAB>` commit picker
 fi
 
 export MAMBA_NO_BANNER=1
