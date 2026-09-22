@@ -12,6 +12,9 @@ focus_pane_down = ["prefix+j", "ctrl+alt+j"]
 navigate_workspace_up = ["up"]
 navigate_workspace_down = ["down"]
 switch_workspace = ["alt+1..9"]
+focus_agent = ["prefix+alt+1..9"]
+next_agent = ["ctrl+shift+n"]
+previous_agent = ["ctrl+shift+p"]
 previous_workspace = ["ctrl+shift+k"]
 next_workspace = ["ctrl+shift+j"]
 open_worktree = ["prefix+ctrl+o"]
@@ -21,10 +24,18 @@ remove_worktree = ["prefix+ctrl+d"]
 manage_ssh_config = true
 
 [ui]
-agent_panel_sort = "spaces"
-
-[experimental]
-kitty_graphics = true
+# "priority" = attention queue: blocked/done agents float to the top
+agent_panel_sort = "priority"
+# distinct glyphs per state instead of same-shape colored dots
+status_indicators = "symbols"
 
 [worktrees]
 directory = "~/git/worktrees"
+
+# herdr-file-viewer: git-aware read-only file viewer in a split (? for help)
+[[keys.command]]
+key = "prefix+f"
+type = "plugin_action"
+command = "herdr-file-viewer.open-file-viewer"
+description = "open file viewer in split"
+
