@@ -25,3 +25,6 @@ agent_panel_sort = "spaces"
 
 [experimental]
 kitty_graphics = true
+
+[worktrees]
+directory = "~/git/worktrees"

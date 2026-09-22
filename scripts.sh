@@ -168,7 +168,7 @@ create() {
 
 }
 
-env() {
+wenv() {
   if [[ $# -eq 0 ]]; then
     find_env
   else
@@ -356,11 +356,17 @@ pytorch-test-download(){
 }
 
 pytorch-test-remove(){
-  PYTORCH_TEST_WITH_DYNAMO=1 python test/cpython/v3_13/$1.py 2>&1 | grep "ERROR: test" | sed -E 's/.*__main__\.(.*)\)/\1/' | xargs -I{} rm -f test/dynamo_expected_failures/CPython313-$1-{}
+  PYTORCH_TEST_WITH_DYNAMO=1 python -u test/cpython/v3_13/$1.py 2>&1 \
+    | tee /dev/tty \
+    | grep "ERROR: test" | sed -E 's/.*__main__\.(.*)\)/\1/' \
+    | xargs -I{} rm -f test/dynamo_expected_failures/CPython313-$1-{}
 }
 
 pytorch-test-add(){
-  PYTORCH_TEST_WITH_DYNAMO=1 python test/cpython/v3_13/$1.py 2>&1 | grep "ERROR: test" | sed -E 's/.*__main__\.(.*)\)/\1/' | xargs -I{} touch test/dynamo_expected_failures/CPython313-$1-{}
+  PYTORCH_TEST_WITH_DYNAMO=1 python -u test/cpython/v3_13/$1.py 2>&1 \
+    | tee /dev/tty \
+    | grep "ERROR: test" | sed -E 's/.*__main__\.(.*)\)/\1/' \
+    | xargs -I{} touch test/dynamo_expected_failures/CPython313-$1-{}
   git add test/dynamo_expected_failures/*
 }
 
@@ -368,30 +374,6 @@ pytorch-test-all(){
   for f in $(ls test/cpython/v3_13/test_*.py); do
     PYTORCH_TEST_WITH_DYNAMO=1 python $f
   done;
-}
-
-pytorch-check-merge(){
-  git fetch upstream
-  local target="${1:-upstream/main}"
-  local remote="${target%%/*}" branch="${target#*/}"
-  local start
-  start="$(git rev-parse --abbrev-ref HEAD)"
-  [ "$start" = "HEAD" ] && start="$(git rev-parse HEAD)"
-
-  git fetch "$remote" "$branch" || return 2
-  git checkout --quiet -b __mergeable_test__ "$start" || return 2
-
-  local rc
-  if git rebase "$target"; then
-      echo "MERGEABLE"; rc=0
-  else
-      git rebase --abort >/dev/null 2>&1
-      echo "CONFLICT"; rc=1
-  fi
-
-  git checkout --quiet "$start"
-  git branch -D __mergeable_test__ >/dev/null 2>&1
-  return $rc
 }
 
 remove() {
