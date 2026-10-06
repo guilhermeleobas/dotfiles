@@ -9,7 +9,7 @@ version = "0.1.0"
 
 [dependencies]
 python = "3.11.*"
-llvmlite = "0.50.*"
+llvmlite = "0.51.0.*"
 flake8 = ">=7.3.0,<8"
 numpy = ">=2.4.3,<3"
 cffi = ">=2.0.0,<3"
