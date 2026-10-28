@@ -1,0 +1,17 @@
+[workspace]
+authors = ["Guilherme Leobas <guilhermeleobas@gmail.com>"]
+channels = ["conda-forge"]
+name = "megatron"
+platforms = ["linux-64"]
+version = "0.1.0"
+
+[dependencies]
+python = "3.12.*"
+pip = "*"
+
+[pypi-dependencies]
+torch = "*"
+transformers = "*"
+megatron-core = "*"
+pytest = "*"
+diffusers = ">=0.41.0, <0.42"

@@ -2,7 +2,7 @@
 
 This workspace (`pixi/pytorch/pixi.toml`) defines the pixi environments used to build and
 test PyTorch checkouts under `~/git/`. It does not contain PyTorch's source — the source
-lives in separate checkouts (e.g. `~/git/pytorch313`, `~/git/pytorch313-copy`), and pixi
+lives in separate checkouts (e.g. `~/git/pytorch313`, `~/git/pytorch314`), and pixi
 tasks operate on `$INIT_CWD` (the directory you invoke `pixi run` from), not this directory.
 
 ## Environments
@@ -15,8 +15,6 @@ Defined in `[environments]`, one per Python version (+ optional CUDA):
 | `pytorch311`      | 3.11   |                                          |
 | `pytorch312`      | 3.12   |                                          |
 | `pytorch313`      | 3.13   |                                          |
-| `pytorch313-cp`   | 3.13   | extra checkout/worktree of the 3.13 env |
-| `pytorch313-copy` | 3.13   | extra checkout/worktree of the 3.13 env |
 | `pytorch314`      | 3.14   |                                          |
 | `pytorch`         | 3.13   | alias, same as `pytorch313`             |
 | `pytorch-cuda`    | 3.13   | CUDA 11.8 build (linux-64 only)         |
@@ -25,8 +23,7 @@ All environments share `[feature.base]` deps/tasks/env vars; CPU builds default 
 `USE_CUDA=0` and disable distributed/NCCL/MKLDNN/etc. (see `[feature.base.activation.env]`).
 
 Environment name == the directory name of the checkout it's meant to be used from
-(`~/git/pytorch313` <-> env `pytorch313`, `~/git/pytorch313-copy` <-> env `pytorch313-copy`,
-etc). `wenv`/`build` (see below) rely on this to auto-detect which env to use from `pwd`.
+(`~/git/pytorch313` <-> env `pytorch313`, `~/git/pytorch314` <-> env `pytorch314`, etc). `wenv`/`build` (see below) rely on this to auto-detect which env to use from `pwd`.
 
 ## One-time setup for a checkout
 
@@ -85,9 +82,9 @@ Per the user's global pixi convention: `pixi run -w <workspace> <command>` — h
 
 ## Multiple checkouts / worktrees of the same Python version
 
-Use one of the pre-declared extra environments (`pytorch313-cp`, `pytorch313-copy`) for a
-second `pytorch313`-like checkout — `create pytorch313-copy`, then `cd
-~/git/pytorch313-copy && wenv`.
+Use git worktrees of `~/git/pytorch313` (`pt-worktree.sh`). They share the `pytorch313` env;
+each worktree gets its own `.venv` on top of it, so the editable torch install of one
+worktree does not replace the other's.
 
 For an arbitrary number of cheap, frozen, identical instances of an already-registered
 environment (handy for many worktrees), use `pixi-instance` instead (`scripts.sh` /

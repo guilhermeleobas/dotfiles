@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+# pixi clone --from ENV [-w WORKSPACE] [--update] [DIR]
+#
+# Gives DIR (default: $PWD, e.g. a git worktree) its own copy of pixi
+# environment ENV. Copies the manifest and lock of the registered workspace
+# that defines ENV into DIR, then installs ENV there with --frozen (packages are
+# hard-linked from the pixi cache). Afterwards `pixi run -e ENV ...` inside DIR
+# uses DIR/.pixi/envs/ENV instead of the shared one.
+#
+# Safe to rerun: an existing clone is reused (and repaired if files are
+# missing). If the workspace's manifest or lock changed since, the clone is
+# kept as is unless --update copies them in again.
+#
+# scripts.sh puts dotfiles/bin on PATH; pixi runs `pixi-clone` there as `pixi clone`.
+set -euo pipefail
+
+usage() { sed -n '2,14p' "$0" | sed 's/^# \{0,1\}//'; exit "${1:-0}"; }
+die() { echo "pixi clone: $*" >&2; exit 1; }
+
+env= ws= dir= update=0
+while (( $# )); do
+  case $1 in
+    --from) env=${2:?}; shift 2 ;;
+    -w|--workspace) ws=${2:?}; shift 2 ;;
+    --update) update=1; shift ;;
+    -h|--help) usage ;;
+    -*) die "unknown option: $1" ;;
+    *) dir=$1; shift ;;
+  esac
+done
+[[ -n $env ]] || usage 1
+dir=$(cd "${dir:-$PWD}" && pwd)
+
+# Find the workspace whose [environments] defines $env.
+src=$(pixi workspace register list --json | /usr/bin/python3 -c '
+import json, sys, tomllib, pathlib
+env, ws = sys.argv[1], sys.argv[2]
+for name, path in json.load(sys.stdin).items():
+    if ws and name != ws:
+        continue
+    manifest = pathlib.Path(path) / "pixi.toml"
+    if manifest.is_file() and env in tomllib.loads(manifest.read_text()).get("environments", {}):
+        print(path)
+        break
+' "$env" "$ws")
+[[ -n $src ]] || die "no registered workspace defines environment '$env' (pixi workspace register list)"
+[[ -f $src/pixi.lock ]] || die "$src has no pixi.lock"
+
+if [[ ! -e $dir/pixi.toml ]]; then
+  state=created
+elif cmp -s "$src/pixi.toml" "$dir/pixi.toml" && cmp -s "$src/pixi.lock" "$dir/pixi.lock"; then
+  state=reused
+elif (( update )); then
+  state=updated
+else
+  state=stale
+fi
+[[ $state = reused || $state = stale ]] || cp "$src/pixi.toml" "$src/pixi.lock" "$dir/"
+
+# Keep the copies out of git status when DIR is a git checkout.
+if exclude=$(git -C "$dir" rev-parse --git-path info/exclude 2>/dev/null); then
+  [[ $exclude = /* ]] || exclude=$dir/$exclude
+  for p in /pixi.toml /pixi.lock /.pixi/; do
+    grep -qxF "$p" "$exclude" 2>/dev/null || echo "$p" >> "$exclude"
+  done
+fi
+
+cd "$dir"
+pixi install --frozen -e "$env"
+case $state in
+  created) echo "created '$env' from $src in $dir/.pixi/envs/$env" ;;
+  reused) echo "reused '$env' in $dir/.pixi/envs/$env (same as $src)" ;;
+  updated) echo "updated '$env' in $dir/.pixi/envs/$env from $src" ;;
+  stale) echo "reused '$env' in $dir/.pixi/envs/$env, but its manifest or lock differs from $src; rerun with --update to copy them again" ;;
+esac
+echo "use: cd $dir && pixi run -e $env <cmd>"

@@ -175,6 +175,20 @@ wenv() {
     environment=$1
   fi
 
+  # Git worktrees: use the worktree's own env (made by `pixi clone`) if it has
+  # one, else the env of its main checkout (e.g. pytorch313).
+  local top common manifest=""
+  top=$(git rev-parse --show-toplevel 2>/dev/null)
+  common=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)
+  if [[ -n $top && -f $top/pixi.toml ]]; then
+    [[ $# -eq 0 ]] && environment=$(ls -1 "$top/.pixi/envs" 2>/dev/null | head -n 1)
+    [[ -n $environment && -d $top/.pixi/envs/$environment ]] && manifest=$top/pixi.toml
+  fi
+  if [[ -z $manifest && $# -eq 0 && -n $common && $common != "$top/.git" ]]; then
+    environment=$(basename "$(dirname "$common")")
+    echo "worktree has no env of its own; using ${environment} (run 'pixi clone --from ${environment}' to make one)"
+  fi
+
   if [[ "${__AUTO_ACTIVATE_ENV}" == "1" ]]; then
     case ${environment} in
       cpython|numba)
@@ -182,7 +196,11 @@ wenv() {
         ;;
 
       pytorch*)
-        eval "$(pixi shell-hook --workspace pytorch -e ${environment})"
+        if [[ -n $manifest ]]; then
+          eval "$(pixi shell-hook --manifest-path "$manifest" -e ${environment})"
+        else
+          eval "$(pixi shell-hook --workspace pytorch -e ${environment})"
+        fi
         ;;
 
       *)
@@ -605,9 +623,16 @@ if [ -n "$ZSH_VERSION" ]; then
 elif [ -n "$BASH_VERSION" ]; then
   source ${HOME}/git/dotfiles/ghstack-checkout.bash
   source ${HOME}/git/dotfiles/fixup-pick.bash    # `fixup <TAB>` commit picker
+  source ${HOME}/git/dotfiles/claude-worktree.bash # `cwt <TAB>` Claude worktree jumper
 fi
 
 export MAMBA_NO_BANNER=1
+
+# Executables, incl. pixi extensions (`pixi-clone` -> `pixi clone`)
+case ":$PATH:" in
+  *":${HOME}/git/dotfiles/bin:"*) ;;
+  *) export PATH="${HOME}/git/dotfiles/bin:$PATH" ;;
+esac
 
 git config --global alias.lg "log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --"
 

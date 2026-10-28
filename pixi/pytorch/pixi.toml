@@ -93,6 +93,9 @@ USE_CUDA="0"
 CCACHE_MAXSIZE="50G"
 CCACHE_SLOPPINESS="time_macros,include_file_mtime,include_file_ctime,pch_defines"
 CCACHE_COMPILERCHECK="content"
+# cross-worktree hits: rewrite absolute paths under $HOME to relative, and keep cwd out of the hash
+CCACHE_BASEDIR="$HOME"
+CCACHE_NOHASHDIR="1"
 
 [feature.base.target.linux-64.activation.env]
 MAX_JOBS="20"
@@ -129,7 +132,5 @@ pytorch310 = { features = ["base", "pytorch", "py310"], no-default-feature = tru
 pytorch311 = { features = ["base", "pytorch", "py311"], no-default-feature = true }
 pytorch312 = { features = ["base", "pytorch", "py312"], no-default-feature = true }
 pytorch313 = { features = ["base", "pytorch", "py313"], no-default-feature = true }
-pytorch313-cp = { features = ["base", "pytorch", "py313"], no-default-feature = true }
-pytorch313-copy = { features = ["base", "pytorch", "py313"], no-default-feature = true }
 pytorch314 = { features = ["base", "pytorch", "py314"], no-default-feature = true }
 pytorch-cuda = { features = ["base", "pytorch-cuda"], no-default-feature = true }
